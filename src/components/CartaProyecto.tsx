@@ -20,11 +20,11 @@ function Cartadetalle({
     genero = "Desconocido"
 }: Props) {
     return (
-        <div>
+        <div className='flex flex-col items-center border-4 bg-yellow-600 w-2/4 rounded-xl'>
             <h3>
                 {nombre} (#{numero})
             </h3>
-            <img src={imagen} alt={nombre} />
+            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500' src={imagen} alt={nombre} />
             <p> Tipo: {tipo} </p>
             <p> Ataque: {ataque} </p>
             <p> Defensa: {defensa} </p>

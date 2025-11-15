@@ -1,30 +1,26 @@
 import './App.css'
-import Carta from './components/Carta'
-import Cartadetalle from './components/CartaProyecto'
+import ChatItem from './components/ChatItem';
+// En src/App.tsx
 function App() {
-  const mostrarCarta = (numero: number, pinta: string) => {
-    alert(`Carta de numero: ${numero} y de pinta ${pinta}`);
+
+  const chatData = {
+    imagen: 'ruta/a/mi-foto.jpg',
+    nombre: 'Juan Pérez',
+    mensaje: '¡Hola! ¿Cómo estás?',
+    fecha: '10:30 Am'
   };
 
   return (
-    <div>
-      <h1> Mi Primer Proyecto en React </h1>
-      <p> Nombre: Gabriel Yumare </p>
-      <Carta numero={2} pinta={"Diamante"} mostrarCarta={mostrarCarta} />
-      <Carta numero={3} pinta={"Trebol"} mostrarCarta={mostrarCarta} />
-      <Carta numero={6} pinta={"Corazon"} mostrarCarta={mostrarCarta} />
-      <Carta numero={18} pinta={"Trebol"} mostrarCarta={mostrarCarta} />
-      <Cartadetalle
-        ataque={2655}
-        nombre="Pikachu"
-        defensa={3045}
-        descripcion="Pikachu es un pokemon capaz de usar ataques del su elemento como impactrueno"
-        imagen="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/025.png"
-        numero={325}
-        tipo="Electrico"
+    <div className="bg-green-500">
+      <h1> Whatsapp </h1>
+      <ChatItem 
+        imagen='src\components\imagenes\imagen.png'
+        nombre='María Gómez'
+        mensaje='Te envío un mensaje.'
+        fecha= {1030} 
       />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
