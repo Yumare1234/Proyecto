@@ -9,8 +9,8 @@ function App() {
     tipo: "⚡",
     ataque: 554,
     defensa: 403,
-    descripcion: "Pikachu es un Pokémon ratón de tipo eléctrico, de color amarillo, pequeño y bípedo, conocido por almacenar y descargar electricidad desde las bolsas rojas de sus mejillas. Tiene orejas largas con puntas negras, rayas marrones en la espalda y una cola con forma de rayo (la de las hembras tiene forma de corazón en la punta)",
-    imagen: "/imagenes/Pikachu.png", 
+    descripcion: "Pikachu es un Pokémon ratón de tipo eléctrico, de color amarillo, conocido por las bolsas rojas en sus mejillas donde almacena electricidad. Mide \(40\) centímetros de alto y pesa \(6\) kilogramos. Su diseño incluye orejas largas con puntas negras y una cola en forma de rayo, aunque en las hembras la punta es con forma de corazón. ",
+    imagen: "/imagenes/pikachu.jpg", 
     genero: "Macho"
   };
 

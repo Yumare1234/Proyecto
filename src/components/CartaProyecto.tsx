@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 
 type Props = {
     numero: number;
@@ -20,16 +21,27 @@ function Cartadetalle({
     tipo,
     genero = "Desconocido"
 }: Props) {
+    const [mostrarDescripcion, setMostrarDescripcion] = useState(false);
+    const alternarDescripcion = () => {
+        setMostrarDescripcion(!mostrarDescripcion);
+        };
     return (
-        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-yellow-600 w-1/3 rounded-xl border-gray-400'>
+        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-yellow-600 w-1/4 rounded-xl border-gray-400 rounded-lg'>
             <h3>
                 {nombre} (#{numero}) {tipo}
             </h3>
-            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500 w-90 border-gray-400' src={imagen} alt={nombre} />
-            <p className="text-lg font-semibold text-black-700 border-4 mt-4">  Ataque: {ataque} </p>
-            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Defensa: {defensa} </p>
-            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Descripcion: {descripcion} </p>
-            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Genero: {genero} </p>
+            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500 w-90 border-gray-400 rounded-lg' src={imagen} alt={nombre} />
+            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful">  🗡 Ataque: {ataque} </p>
+            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful"> 🛡 Defensa: {defensa} </p>
+            <button onClick={alternarDescripcion} 
+        className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-full">
+        {mostrarDescripcion ? 'Ocultar Descripción' : 'Mostrar Descripción'}
+      </button>
+      {mostrarDescripcion && (
+        <p className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 mt-4 text-center">
+        {descripcion} </p>
+      )}
+        <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful"> 🚻 Genero: {genero} </p>
         </div>
     );
 }
