@@ -1,3 +1,4 @@
+
 type Props = {
     numero: number;
     nombre: string;
@@ -20,16 +21,15 @@ function Cartadetalle({
     genero = "Desconocido"
 }: Props) {
     return (
-        <div className='flex flex-col items-center border-4 bg-yellow-600 w-2/4 rounded-xl'>
+        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-yellow-600 w-1/3 rounded-xl border-gray-400'>
             <h3>
-                {nombre} (#{numero})
+                {nombre} (#{numero}) {tipo}
             </h3>
-            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500' src={imagen} alt={nombre} />
-            <p> Tipo: {tipo} </p>
-            <p> Ataque: {ataque} </p>
-            <p> Defensa: {defensa} </p>
-            <p> {descripcion} </p>
-            <p> Genero: {genero} </p>
+            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500 w-90 border-gray-400' src={imagen} alt={nombre} />
+            <p className="text-lg font-semibold text-black-700 border-4 mt-4">  Ataque: {ataque} </p>
+            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Defensa: {defensa} </p>
+            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Descripcion: {descripcion} </p>
+            <p className="text-lg font-semibold text-black-700 border-4 mt-4"> Genero: {genero} </p>
         </div>
     );
 }

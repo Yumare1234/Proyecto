@@ -1,24 +1,33 @@
 import './App.css'
-import ChatItem from './components/ChatItem';
-// En src/App.tsx
+import Cartadetalle from './components/CartaProyecto';
+
 function App() {
 
-  const chatData = {
-    imagen: 'ruta/a/mi-foto.jpg',
-    nombre: 'Juan Pérez',
-    mensaje: '¡Hola! ¿Cómo estás?',
-    fecha: '10:30 Am'
+  const Pikachu = {
+    nombre: "Pikachu",
+    numero: 70,
+    tipo: "⚡",
+    ataque: 554,
+    defensa: 403,
+    descripcion: "Pikachu es un Pokémon ratón de tipo eléctrico, de color amarillo, pequeño y bípedo, conocido por almacenar y descargar electricidad desde las bolsas rojas de sus mejillas. Tiene orejas largas con puntas negras, rayas marrones en la espalda y una cola con forma de rayo (la de las hembras tiene forma de corazón en la punta)",
+    imagen: "/imagenes/Pikachu.png", 
+    genero: "Macho"
   };
 
   return (
-    <div className="bg-green-500">
-      <h1> Whatsapp </h1>
-      <ChatItem 
-        imagen='src\components\imagenes\imagen.png'
-        nombre='María Gómez'
-        mensaje='Te envío un mensaje.'
-        fecha= {1030} 
-      />
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <Cartadetalle
+    
+    nombre={Pikachu.nombre}
+    numero={Pikachu.numero}
+    imagen={Pikachu.imagen}
+    tipo={Pikachu.tipo}
+    ataque={Pikachu.ataque}
+    defensa={Pikachu.defensa}
+    descripcion={Pikachu.descripcion}
+    genero={Pikachu.genero}
+
+    />
     </div>
   );
 }
