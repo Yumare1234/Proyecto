@@ -3,31 +3,76 @@ import Cartadetalle from './components/CartaProyecto';
 
 function App() {
 
-  const Pikachu = {
-    nombre: "Pikachu",
-    numero: 70,
-    tipo: "⚡",
-    ataque: 554,
-    defensa: 403,
-    descripcion: "Pikachu es un Pokémon ratón de tipo eléctrico, de color amarillo, conocido por las bolsas rojas en sus mejillas donde almacena electricidad. Mide \(40\) centímetros de alto y pesa \(6\) kilogramos. Su diseño incluye orejas largas con puntas negras y una cola en forma de rayo, aunque en las hembras la punta es con forma de corazón. ",
-    imagen: "/imagenes/pikachu.jpg", 
-    genero: "Macho"
+  const Gojo = {
+    nombre: "Satoru Gojo",
+    categoria: "El Honrado",
+    tipo: "🌌",
+    ataque: 9490,
+    defensa: 7845,
+    descripcion: " Satoru Gojo El Hechicero Más Fuerte, Habilidad: Infinito Ilimitado, Si este Pokémon está en el Campo de Batalla, los ataques del Pokémon Enemigo no pueden hacerle daño. Descripción: Con sus Seis Ojos, analiza y neutraliza cualquier técnica rival. Su dominio del Infinito lo hace prácticamente invencible ",
+    imagen: "/imagenes/Gojo.jpg", 
+    genero: "Hombre"
+  };
+
+  const Sukuna = { 
+    nombre: "Ryomen Sukuna",
+    categoria: "EL Rey de las Maldiciones",
+    tipo: "💀",
+    ataque: 9999,
+    defensa: 8000,
+    descripcion: "La encarnación del mal. Sukuna es el Rey de las Maldiciones, cuya existencia se basa en la destrucción. Utiliza técnicas de corte y desmantelamiento para aniquilar cualquier objetivo, estableciéndose como la fuerza más poderosa y temida de la era actual.",
+    imagen: '/imagenes/Sukuna.jpg', 
+    genero: "Masculino"
+  };
+
+  const Itadori = { 
+    nombre: "Itadori Yuji",
+    categoria: "El Recipiente de Sukuna (Gallo) ",
+    tipo: "🔥",
+    ataque: 7540,
+    defensa: 7000,
+    descripcion: "El Contenedor de Sukuna. Yuji es un prodigio de fuerza física sobrehumana y velocidad, luchando con un espíritu inquebrantable. Su dominio del Golpe Divergente y su resistencia única lo convierten en la última esperanza contra el Rey de las Maldiciones. Su motivación es simple: asegurar que nadie tenga una 'muerte sin sentido'.",
+    imagen: '/imagenes/Yuji.jpg', 
+    genero: "Masculino"
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-    <Cartadetalle
-    
-    nombre={Pikachu.nombre}
-    numero={Pikachu.numero}
-    imagen={Pikachu.imagen}
-    tipo={Pikachu.tipo}
-    ataque={Pikachu.ataque}
-    defensa={Pikachu.defensa}
-    descripcion={Pikachu.descripcion}
-    genero={Pikachu.genero}
+    <div className="flex px-10 items-center min-h-screen bg-gray-100 min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 gap-8">
 
+    <Cartadetalle
+    nombre={Gojo.nombre}
+    categoria={Gojo.categoria}
+    imagen={Gojo.imagen}
+    tipo={Gojo.tipo}
+    ataque={Gojo.ataque}
+    defensa={Gojo.defensa}
+    descripcion={Gojo.descripcion}
+    genero={Gojo.genero}
     />
+
+<Cartadetalle
+    nombre={Sukuna.nombre}
+    categoria={Sukuna.categoria}
+    imagen={Sukuna.imagen}
+    tipo={Sukuna.tipo}
+    ataque={Sukuna.ataque}
+    defensa={Sukuna.defensa}
+    descripcion={Sukuna.descripcion}
+    genero={Sukuna.genero}
+    />
+
+<Cartadetalle
+    nombre={Itadori.nombre}
+    categoria={Itadori.categoria}
+    imagen={Itadori.imagen}
+    tipo={Itadori.tipo}
+    ataque={Itadori.ataque}
+    defensa={Itadori.defensa}
+    descripcion={Itadori.descripcion}
+    genero={Itadori.genero}
+    />
+
+
     </div>
   );
 }

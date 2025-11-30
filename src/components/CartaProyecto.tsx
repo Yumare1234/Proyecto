@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 type Props = {
-    numero: number;
+    categoria: string;
     nombre: string;
     tipo: string;
     ataque: number;
@@ -17,7 +17,7 @@ function Cartadetalle({
     descripcion,
     imagen,
     nombre,
-    numero,
+    categoria,
     tipo,
     genero = "Desconocido"
 }: Props) {
@@ -26,11 +26,11 @@ function Cartadetalle({
         setMostrarDescripcion(!mostrarDescripcion);
         };
     return (
-        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-yellow-300 via-orange-300 to-yellow-600 w-1/4 rounded-xl border-gray-400 rounded-lg'>
+        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-gray-300 via-blue-300 to-purple-600 w-1/3 rounded-xl border-black-800 rounded-lg text-black font-bold py-6'>
             <h3>
-                {nombre} (#{numero}) {tipo}
+                {nombre} ({categoria}) {tipo}
             </h3>
-            <img className='border-6 bg-linear-to-r from-yellow-500 to-orange-500 w-90 border-gray-400 rounded-lg' src={imagen} alt={nombre} />
+            <img className='border-6 bg-linear-to-r w-90 border-purple-900 rounded-lg' src={imagen} alt={nombre} />
             <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful">  🗡 Ataque: {ataque} </p>
             <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful"> 🛡 Defensa: {defensa} </p>
             <button onClick={alternarDescripcion} 
