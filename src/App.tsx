@@ -9,9 +9,9 @@ function App() {
     tipo: "🌌",
     ataque: 9490,
     defensa: 7845,
-    descripcion: " Satoru Gojo El Hechicero Más Fuerte, Habilidad: Infinito Ilimitado, Si este Pokémon está en el Campo de Batalla, los ataques del Pokémon Enemigo no pueden hacerle daño. Descripción: Con sus Seis Ojos, analiza y neutraliza cualquier técnica rival. Su dominio del Infinito lo hace prácticamente invencible ",
+    descripcion: " Satoru Gojo El Hechicero Más Fuerte,  Con su habilidad: Infinito Ilimitado, los ataques de los enemigos no pueden hacerle daño. Posee los Seis Ojos, analizando y neutralizando cualquier técnica rival. Su dominio del Infinito lo hace prácticamente invencible ",
     imagen: "/imagenes/Gojo.jpg", 
-    genero: "Hombre"
+    genero: "Masculino"
   };
 
   const Sukuna = { 

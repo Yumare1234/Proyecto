@@ -31,11 +31,11 @@ function Cartadetalle({
                 {nombre} ({categoria}) {tipo}
             </h3>
             <img className='border-6 bg-linear-to-r w-90 border-purple-900 rounded-lg' src={imagen} alt={nombre} />
-            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful">  🗡 Ataque: {ataque} </p>
-            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful"> 🛡 Defensa: {defensa} </p>
+            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4">  ⚔ Ataque: {ataque} </p>
+            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4"> 🛡 Defensa: {defensa} </p>
             <button onClick={alternarDescripcion} 
-        className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-full">
-        {mostrarDescripcion ? 'Ocultar Descripción' : 'Mostrar Descripción'}
+        className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4">
+        {mostrarDescripcion ? ' 📃 Ocultar Descripción' : ' 📄 Mostrar Descripción'}
       </button>
       {mostrarDescripcion && (
         <p className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 mt-4 text-center">
