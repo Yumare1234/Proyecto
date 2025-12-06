@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css'
 import ChatItem from './components/ChatItem';
 // En src/App.tsx
@@ -22,5 +23,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
