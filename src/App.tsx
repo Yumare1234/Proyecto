@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css'
 import Cartadetalle from './components/CartaProyecto';
 
@@ -76,5 +77,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
