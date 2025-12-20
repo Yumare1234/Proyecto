@@ -1,48 +1,46 @@
 import React, { useState } from 'react';
+import { Modal } from './Modal'; 
 
-type Props = {
-    categoria: string;
-    nombre: string;
-    tipo: string;
-    ataque: number;
-    defensa: number;
-    descripcion: string;
-    imagen: string;
-    genero?: string;
-};
+function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, genero = "Desconocido" }: any) {
+    const [mostrarModal, setMostrarModal] = useState(false);
 
-function Cartadetalle({
-    ataque,
-    defensa,
-    descripcion,
-    imagen,
-    nombre,
-    categoria,
-    tipo,
-    genero = "Desconocido"
-}: Props) {
-    const [mostrarDescripcion, setMostrarDescripcion] = useState(false);
-    const alternarDescripcion = () => {
-        setMostrarDescripcion(!mostrarDescripcion);
-        };
+    const alternarModal = () => setMostrarModal(!mostrarModal);
+
     return (
-        <div className='flex flex-col items-center border-4 bg-gradient-to-r from-gray-300 via-blue-300 to-purple-600 w-1/3 rounded-xl border-black-800 rounded-lg text-black font-bold py-6'>
-            <h3>
-                {nombre} ({categoria}) {tipo}
-            </h3>
-            <img className='border-6 bg-linear-to-r w-90 border-purple-900 rounded-lg' src={imagen} alt={nombre} />
-            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4">  ⚔ Ataque: {ataque} </p>
-            <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4"> 🛡 Defensa: {defensa} </p>
-            <button onClick={alternarDescripcion} 
-        className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4">
-        {mostrarDescripcion ? ' 📃 Ocultar Descripción' : ' 📄 Mostrar Descripción'}
+    <div className='flex flex-col items-center border-4 bg-linear-to-r from-gray-300 via-blue-300 to-purple-600 w-60 rounded-xl border-black-800 p-4 font-bold shadow-lg'>
+        <h3>{nombre}</h3>
+        <img 
+            className='border-6 bg-linear-to-r w-30 border-purple-900 rounded-lg my-2' 
+            src={imagen} 
+            alt={nombre} 
+        />
+    <button 
+        onClick={alternarModal}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg shadow-md transition duration-300 mt-2">
+        Mostrar Detalles
         </button>
-    {mostrarDescripcion && (
-        <p className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 mt-4 text-center">
-        {descripcion} </p>
-    )}
-        <p className="bg-black-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 mt-4 w-ful"> 🚻 Genero: {genero} </p>
+
+    <Modal 
+        isOpen={mostrarModal} 
+        onClose={alternarModal} 
+        title={`Detalles de ${nombre}`}>
+        <div className="flex flex-col items-center space-y-4">
+    <img src={imagen} alt={nombre} className="w-40 border-4 border-purple-500 rounded-lg shadow-lg" />
+            <div className="w-full space-y-2 text-gray-800">
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>⚔️ Ataque:</strong> {ataque}</p>
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>🛡️ Defensa:</strong> {defensa}</p>
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>🚻 Género:</strong> {genero}</p>
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>🏷️ Categoría:</strong> {categoria}</p>
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>✨ Tipo:</strong> {ritual}</p>
+        </div> 
+        <button 
+            onClick={alternarModal}
+            className="mt-4 w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-800">
+            Cerrar
+            </button>
         </div>
+        </Modal>
+    </div>
     );
 }
 
