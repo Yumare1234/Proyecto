@@ -36,7 +36,7 @@ function App() {
   };
 
   return (
-    <div className="flex px-5 items-start flex-wrap min-h-screen bg-gray-100 bg-linear-to-br from-gray-900 via-purple-900 to-violet-900 gap-8">
+    <div className="flex px-5 items-start flex-wrap min-h-screen bg-gray-100 bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 gap-8">
 
     <Cartadetalle
     nombre={Gojo.nombre}

@@ -24,9 +24,9 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, gene
         isOpen={mostrarModal} 
         onClose={alternarModal} 
         title={`Detalles de ${nombre}`}>
-        <div className="flex flex-col items-center space-y-4">
-    <img src={imagen} alt={nombre} className="w-40 border-4 border-purple-500 rounded-lg shadow-lg" />
-            <div className="w-full space-y-2 text-gray-800">
+        <div className="flex flex-col items-center space-y-4 transform-3d">
+    <img src={imagen} alt={nombre} className="w-40 border-4 border-purple-900 rounded-lg shadow-lg" />
+            <div className="w-full space-y-2 transform-3d">
             <p className="bg-gray-100 p-2 rounded-lg"><strong>⚔️ Ataque:</strong> {ataque}</p>
             <p className="bg-gray-100 p-2 rounded-lg"><strong>🛡️ Defensa:</strong> {defensa}</p>
             <p className="bg-gray-100 p-2 rounded-lg"><strong>🚻 Género:</strong> {genero}</p>
