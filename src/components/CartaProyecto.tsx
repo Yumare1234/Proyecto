@@ -31,7 +31,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, gene
             <p className="bg-gray-100 p-2 rounded-lg"><strong>🛡️ Defensa:</strong> {defensa}</p>
             <p className="bg-gray-100 p-2 rounded-lg"><strong>🚻 Género:</strong> {genero}</p>
             <p className="bg-gray-100 p-2 rounded-lg"><strong>🏷️ Categoría:</strong> {categoria}</p>
-            <p className="bg-gray-100 p-2 rounded-lg"><strong>✨ Tipo:</strong> {ritual}</p>
+            <p className="bg-gray-100 p-2 rounded-lg"><strong>✨ Ritual:</strong> {ritual}</p>
         </div> 
         <button 
             onClick={alternarModal}

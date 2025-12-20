@@ -13,7 +13,7 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border-2 border-purple-900">
-        <div className="flex justify-between items-center p-4 bg-purple-900 text-white">
+        <div className="flex justify-between items-center p-4 bg-blue-900 text-white">
     <h3 className="text-xl font-bold">{title}</h3>
         <button onClick={onClose} className="text-2xl hover:text-gray-300">&times;</button>
         </div>

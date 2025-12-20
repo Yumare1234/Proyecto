@@ -8,7 +8,7 @@ function App() {
   const Gojo = {
     nombre: "Satoru Gojo",
     categoria: "Especial",
-    ritual: "Brujeria del Infinito/Seis Ojos",
+    ritual: "Brujeria del Infinito / Seis Ojos",
     ataque: 9490,
     defensa: 7845,
     imagen: "/imagenes/Gojo.jpg", 
@@ -18,7 +18,7 @@ function App() {
   const Sukuna = { 
     nombre: "Ryomen Sukuna",
     categoria: "Especial",
-    ritual: "",
+    ritual: " Santuario Malévolo ",
     ataque: 9999,
     defensa: 8000,
     imagen: '/imagenes/Sukuna.jpg', 
@@ -28,7 +28,7 @@ function App() {
   const Itadori = { 
     nombre: "Itadori Yuji",
     categoria: "Especial",
-    ritual: "",
+    ritual: "Manipulación de Sangre / Santuario Malévolo / Cuerpo Sobrehumano",
     ataque: 7540,
     defensa: 7000,
     imagen: '/imagenes/Yuji.jpg', 
@@ -36,7 +36,7 @@ function App() {
   };
 
   return (
-    <div className="flex px-5 items-center min-h-screen bg-gray-100 bg-linear-to-br from-gray-900 via-purple-900 to-violet-900 gap-8">
+    <div className="flex px-5 items-start flex-wrap min-h-screen bg-gray-100 bg-linear-to-br from-gray-900 via-purple-900 to-violet-900 gap-8">
 
     <Cartadetalle
     nombre={Gojo.nombre}
