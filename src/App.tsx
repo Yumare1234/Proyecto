@@ -7,32 +7,32 @@ function App() {
 
   const Gojo = {
     nombre: "Satoru Gojo",
-    categoria: "Especial",
+    categoria: "Grado Especial",
     ritual: "Brujeria del Infinito / Seis Ojos",
     ataque: 9490,
     defensa: 7845,
     imagen: "/imagenes/Gojo.jpg", 
-    genero: "Masculino"
+    Clan: "Gojo"
   };
 
   const Sukuna = { 
     nombre: "Ryomen Sukuna",
-    categoria: "Especial",
+    categoria: "Grado Especial",
     ritual: " Santuario Malévolo ",
     ataque: 9999,
     defensa: 8000,
     imagen: '/imagenes/Sukuna.jpg', 
-    genero: "Masculino"
+    Clan: "Abe"
   };
 
   const Itadori = { 
     nombre: "Itadori Yuji",
-    categoria: "Especial",
+    categoria: "Grado Especial",
     ritual: "Manipulación de Sangre / Santuario Malévolo / Cuerpo Sobrehumano",
     ataque: 7540,
     defensa: 7000,
     imagen: '/imagenes/Yuji.jpg', 
-    genero: "Masculino"
+    Clan: "Kamo"
   };
 
   return (
@@ -45,7 +45,7 @@ function App() {
     ritual={Gojo.ritual}
     ataque={Gojo.ataque}
     defensa={Gojo.defensa}
-    genero={Gojo.genero}
+    Clan={Gojo.Clan}
     />
 
 <Cartadetalle
@@ -55,7 +55,7 @@ function App() {
     ritual={Sukuna.ritual}
     ataque={Sukuna.ataque}
     defensa={Sukuna.defensa}
-    genero={Sukuna.genero}
+    Clan={Sukuna.Clan}
     />
 
 <Cartadetalle
@@ -65,7 +65,7 @@ function App() {
     ritual={Itadori.ritual}
     ataque={Itadori.ataque}
     defensa={Itadori.defensa}
-    genero={Itadori.genero}
+    Clan={Itadori.Clan}
     />
 
     </div>
