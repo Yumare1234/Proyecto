@@ -19,7 +19,7 @@ function App() {
     nombre: "Ryomen Sukuna",
     categoria: "Grado Especial",
     ritual: " Santuario Malévolo ",
-    ataque: 9999,
+    ataque: 9986,
     defensa: 8000,
     imagen: '/imagenes/Sukuna.jpg', 
     Clan: "Abe"
@@ -36,7 +36,9 @@ function App() {
   };
 
   return (
+  <div className='py-12 bg-purple-700 justify-center'> Hola 
     <div className="flex px-5 items-start flex-wrap min-h-screen bg-gray-100 bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 gap-8">
+
 
     <Cartadetalle
     nombre={Gojo.nombre}
@@ -68,6 +70,7 @@ function App() {
     Clan={Itadori.Clan}
     />
 
+    </div>
     </div>
   );
 }
