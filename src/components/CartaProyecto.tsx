@@ -8,7 +8,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan
     return (
     <div className='flex flex-col items-center border-4 bg-linear-to-r from-gray-300 via-blue-300 to-purple-600 w-60 rounded-xl border-black-800 p-4 font-bold shadow-lg'>
         <h3>{nombre}</h3>
-        <img 
+        <img  
             className='border-6 bg-linear-to-r w-30 border-purple-900 rounded-lg my-2' 
             src={imagen} 
             alt={nombre} 
