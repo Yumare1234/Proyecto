@@ -29,12 +29,12 @@ function App() {
   const Itadori = { 
     nombre: "Itadori Yuji",
     categoria: "Grado Especial",
-    ritual: "Manipulación de Sangre / Santuario Malévolo / Cuerpo Sobrehumano",
+    ritual: "Manipulación de Sangre / Santuario Malévolo",
     ataque: 7540,
     defensa: 7000,
     imagen: '/imagenes/Yuji.jpg', 
     Clan: "Kamo",
-    descripcion: "Un adolescente fuerte, atlético y de buen corazón que se convierte en el recipiente del Rey de las Maldiciones, Sukuna, tras ingerir uno de sus dedos."
+    descripcion: "Un adolescente fuerte, atlético y de buen corazón que se convierte en el recipiente del Rey de las Maldiciones"
   };
   
   const Megumi = { 
@@ -74,7 +74,7 @@ function App() {
   return (
   <div className="flex flex-col min-h-screen bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 p-5">
     
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-22 border-black rounded-2xl bg-blue-950 px-3 py-3">
     <img 
       src="/imagenes/Logo.png" 
       alt="Logo" 

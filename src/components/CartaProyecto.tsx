@@ -9,7 +9,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan
       <div className="relative">
       <div className="flex flex-col items-center border-4 border-black bg-linear-to-b from-gray-800 to-gray-900 w-64 rounded-xl shadow-2xl p-4 transform hover:scale-105 transition-all duration-300">
         <h3 className="text-white font-bold mb-2 uppercase">{nombre}</h3>
-        <div className="w-full h-48 border-2 border-purple-500 rounded-lg overflow-hidden mb-3">
+        <div className="w-full h-48 border-2 border-blue-700 rounded-lg overflow-hidden mb-3">
         <img src={imagen} alt={nombre} className="w-full h-full object-cover" />
         </div>
       <button 
@@ -28,7 +28,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan
       <img 
         src={imagen} 
         alt={nombre} 
-        className="w-48 border-4 border-purple-900 rounded-lg shadow-lg" 
+        className="w-48 border-4 border-black rounded-lg shadow-lg" 
       />
       <div className="grid grid-cols-2 gap-2 w-full">
         <div className="bg-red-100 p-2 rounded-lg text-center border border-red-200">
