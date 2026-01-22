@@ -12,7 +12,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan
         <div className="w-full h-48 border-2 border-blue-700 rounded-lg overflow-hidden mb-3">
         <img src={imagen} alt={nombre} className="w-full h-full object-cover" />
         </div>
-      <button 
+      <button
           onClick={alternarModal}
           className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md w-full transition-colors">
           Mostrar Detalles
