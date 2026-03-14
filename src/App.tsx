@@ -1,4 +1,4 @@
-import './App.css'
+import './App.css';
 import Cartadetalle from './components/CartaProyecto';
 
 function App() {
@@ -73,13 +73,13 @@ function App() {
   return (
   <div className="flex flex-col min-h-screen bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 p-5">
     
-    <div className="flex items-center gap-22 border-black rounded-2xl bg-blue-950 px-3 py-3">
+    <div className="flex items-center gap-22 border-black rounded-2xl bg-blue-950 px-3 py-3 ">
     <img 
       src="/imagenes/Logo.png" 
       alt="Logo" 
       className="h-16 w-auto" 
     />
-    <h1 className="text-2xl md:text-4xl font-bold text-white">
+    <h1 className="text-2xl md:text-4xl font-bold text-white ">
       Juego de Cartas Estilo Anime
     </h1>
   <input
