@@ -1,60 +1,93 @@
 import { useState } from 'react';
 import { Modal } from './Modal'; 
 
-function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan, descripcion }: any) {
+function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan, descripcion, id }: any) {
     const [mostrarModal, setMostrarModal] = useState(false);
     const alternarModal = () => setMostrarModal(!mostrarModal);
 
     return (
-      <div className="relative">
-      <div className="flex flex-col items-center border-4 border-black bg-linear-to-b from-gray-800 to-gray-900 w-64 rounded-xl shadow-2xl p-4 transform hover:scale-105 transition-all duration-300">
-        <h3 className="text-white font-bold mb-2 uppercase">{nombre}</h3>
-        <div className="w-full h-48 border-2 border-blue-700 rounded-lg overflow-hidden mb-3">
-        <img src={imagen} alt={nombre} className="w-full h-full object-cover" />
+      <div className="relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500">
+      <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
+        
+        <h3 className="text-white font-black text-xl mb-3 uppercase tracking-tighter group-hover:text-purple-400 transition-colors">
+          {nombre}
+        </h3>
+
+        <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-purple-900/50 mb-4">
+          <img 
+            src={imagen} 
+            alt={nombre} 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         </div>
-      <button
+
+        <button
           onClick={alternarModal}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md w-full transition-colors">
-          Mostrar Detalles
+          className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
+        >
+          Expandir Dominio
         </button>
       </div>
 
-    <Modal 
-        isOpen={mostrarModal} 
-        onClose={alternarModal} 
-        title={`Detalles de ${nombre}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-  <div className="flex flex-col items-center space-y-4">
-      <img 
-        src={imagen} 
-        alt={nombre} 
-        className="w-48 border-4 border-black rounded-lg shadow-lg" 
-      />
-      <div className="grid grid-cols-2 gap-2 w-full">
-        <div className="bg-red-100 p-2 rounded-lg text-center border border-red-200">
-          <p className="text-xs font-bold text-red-700 uppercase">Ataque</p>
-          <p className="text-lg font-black text-red-900">⚔️ {ataque}</p>
+      
+      <Modal
+        isOpen={mostrarModal}
+        onClose={alternarModal}
+        title={`Expediente: ${nombre}`}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-2">
           
-        </div>
-        <div className="bg-blue-100 p-2 rounded-lg text-center border border-blue-200"> 
-          <p className="text-xs font-bold text-blue-700 uppercase">Defensa</p>
-          <p className="text-lg font-black text-blue-900">🛡️ {defensa}</p>
-        </div>
-      </div>
-    </div>
-            <div className="w-full space-y-2 transform-3d">
-            <p className="bg-gray-100 p-2 rounded-lg"><strong>🚻 Clan:</strong> {Clan}</p>
-            <p className="bg-gray-100 p-2 rounded-lg"><strong>🏷️ Categoría:</strong> {categoria}</p>
-            <p className="bg-gray-100 p-2 rounded-lg"><strong>✨ Ritual:</strong> {ritual}</p>
-            <p className="bg-gray-100 p-2 rounded-lg"><strong>📃 Descripcion:</strong> {descripcion}</p>
-        </div> 
-    <button 
-            onClick={alternarModal}
-            className="mt-3 w-100 bg-linear-to-r from-purple-700 to-blue-500 text-white py-2 rounded-lg hover:bg-purple-800">
-            Cerrar
+          
+          <div className="flex flex-col items-center space-y-6">
+            <div className="relative p-1 bg-gradient-to-tr rounded-2xl shadow-2xl">
+              <img
+                src={imagen}
+                alt={nombre}
+                className="w-64 h-80 object-cover rounded-xl border-4 border-slate-900"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full ">
+              
+              <div className="bg-red-950/30 border border-red-500/30 p-3 rounded-2xl text-center shadow-inner">
+                <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Ataque</p>
+                <p className="text-2xl font-black text-white">⚔️ {ataque}</p>
+              </div>
+              
+              <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-2xl text-center shadow-inner">
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Defensa</p>
+                <p className="text-2xl font-black text-white">🛡️ {defensa}</p>
+              </div>
+            </div>
+          </div>
+          <div className="w-full space-y-3 text-slate-200">
+            <div className="space-y-2">
+              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-purple-500">
+                <strong className="text-purple-400">💎 Clan:</strong> {Clan}
+              </p>
+              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-blue-500">
+                <strong className="text-blue-400">🎴 Categoría:</strong> {categoria}
+              </p>
+              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-pink-500">
+                <strong className="text-pink-400">🔥 Ritual:</strong> {ritual}
+              </p>
+              <div className="bg-white/5 p-4 rounded-xl border-l-4 border-slate-400 mt-4">
+                <strong className="text-slate-100 mb-1 underline decoration-purple-500">Descripción:</strong>
+                <p className="text-sm leading-relaxed text-slate-400 italic">
+                  "{descripcion}"
+                </p>
+              </div>
+            </div>
+            
+            <button
+              onClick={alternarModal}
+              className="mt-6 w-full bg-gradient-to-r from-slate-800 to-slate-900 text-slate-300 py-4 p-2 rounded-xl font-bold border border-white/10 hover:border-purple-500 transition-colors uppercase text-sm tracking-widest"
+            >
+              Cerrar Descripcion
             </button>
+          </div>
         </div>
-        </Modal>
+      </Modal>
     </div>
     );
 }

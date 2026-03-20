@@ -14,3 +14,5 @@ export interface Cartasprops {
     carta: Carta;
 }
 
+export type NuevaCarta = Carta;
+
