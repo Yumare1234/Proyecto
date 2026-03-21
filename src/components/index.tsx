@@ -16,3 +16,7 @@ export interface Cartasprops {
 
 export type NuevaCarta = Carta;
 
+export interface Eliminar {
+    carta: Carta;
+    onEliminar: (id: number) => void;
+}

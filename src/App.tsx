@@ -6,6 +6,10 @@ import { FormularioCrearCarta } from './components/formularioCrearcarta';
 
 function App() {
   const [cartas, setCartas] = useState(MAZO_JUJUTSU);
+  const eliminarCarta= (id: number) => {
+  const nuevasCartas = cartas.filter(carta => carta.id !== id);
+  setCartas(nuevasCartas); 
+}; 
 
   const onAñadirCarta = (nuevaCarta: any) => {
     setCartas((prevCartas) => [...prevCartas, nuevaCarta]);
@@ -16,7 +20,7 @@ function App() {
     <Routes>
       <Route 
         path="/" 
-        element={<Home cartas={cartas} onAñadirCarta={onAñadirCarta} />} 
+        element={<Home cartas={cartas} onEliminar={eliminarCarta} onAñadirCarta={onAñadirCarta} />} 
       />
       <Route 
         path="/crear-carta" 
