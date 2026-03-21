@@ -4,6 +4,8 @@ import Home from './components/home';
 import { MAZO_JUJUTSU } from './components/cartas';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
 
+const API_URL = import.meta.env.VITE_EDUCA_API_URL
+
 function App() {
   const [cartas, setCartas] = useState(MAZO_JUJUTSU);
   const eliminarCarta= (id: number) => {

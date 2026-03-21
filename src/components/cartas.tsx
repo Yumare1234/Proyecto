@@ -10,7 +10,8 @@ export const MAZO_JUJUTSU: Carta[] = [
     defensa: 7845, 
     imagen: "/imagenes/Gojo.jpg", 
     Clan: "Gojo", 
-    descripcion: "El Hechicero más poderoso de su época." 
+    descripcion: "El Hechicero más poderoso de su época." ,
+    hp: 1000
   },
 ];
 

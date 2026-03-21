@@ -30,7 +30,7 @@ return (
             className="p-3 rounded-xl bg-purple-900/50 border border-purple-400 text-white outline-none w-full max-w-md focus:ring-2 focus:ring-purple-300"
         />
         <Link to="/crear-carta">
-        <button className="mt-10 w-full max-w-sm mx-auto bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-widest">
+        <button className="mt-10 w-full max-w-sm mx-auto bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-wides">
             Crear Carta
         </button>
         </Link>

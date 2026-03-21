@@ -18,6 +18,7 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
     ataque: 1000,
     defensa: 1000,
     imagen: '',
+    hp: 1000,
   };
 
   const [form, setForm] = useState<Omit<NuevaCarta, 'id'>>(estadoInicial);
@@ -97,6 +98,7 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
         <div className="grid grid-cols-2 gap-4 pt-2">
           <InputField label="Poder de Ataque (⚔️)" id="ataque" name="ataque" type="number" value={form.ataque} onChange={handleChange} placeholder='0'/>
           <InputField label="Poder de Defensa (🛡️)" id="defensa" name="defensa" type="number" value={form.defensa} onChange={handleChange} placeholder='0'/>
+          <InputField label="Barra de Vida (💚)" id="salud" name="defensa" type="number" value={form.hp} onChange={handleChange} placeholder='0'/>
         </div>
 
         <button
