@@ -3,11 +3,14 @@ import { useState } from 'react';
 import Home from './components/home';
 import { MAZO_JUJUTSU } from './components/cartas';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
+import { toCardApiMapper, type Carta, type IApiCard } from './components';
+import { useEffect } from 'react';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL
 
 function App() {
-  const [cartas, setCartas] = useState(MAZO_JUJUTSU);
+  const [cartas, setCartas] = useState<Carta[]>([]);
+  const [loading, setLoading] =useState(false);
   const eliminarCarta= (id: number) => {
   const nuevasCartas = cartas.filter(carta => carta.id !== id);
   setCartas(nuevasCartas); 
@@ -17,6 +20,34 @@ function App() {
     setCartas((prevCartas) => [...prevCartas, nuevaCarta]);
     console.log("Nueva carta añadida al estado:", nuevaCarta);
   }
+
+const fetchCard = async () => {
+        setLoading(true);
+        try {
+            console.log("Hola Mundo, trayendo cartas de la Api", API_URL 
+            );
+            const response = await fetch(`${API_URL}card`, {
+              headers: {
+                usersecretpasskey: "Leon422088LA"
+              }
+            }
+          );
+            const data = await response.json() as {data: IApiCard[]};
+            console.log(data);
+          const cartasFromApi: IApiCard[] = data.data;
+            const cartasMapped: Carta[] = cartasFromApi.map(toCardApiMapper);
+          console.log(cartasMapped);
+          setCartas(cartasMapped);
+            } catch (error) {
+            console.error("Error fetching tasks:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        useEffect(( ) => {
+            fetchCard();
+        }, []);
 
   return (
     <Routes>

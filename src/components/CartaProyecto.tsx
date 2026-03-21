@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Modal } from './Modal'; 
-import type { Eliminar } from '.';
+import type { Eliminar } from './index';
 
-function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan, descripcion, id, onEliminar, hp}: any) {
+function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, onEliminar, hp}: any) {
     const [mostrarModal, setMostrarModal] = useState(false);
     const alternarModal = () => setMostrarModal(!mostrarModal);
 
@@ -68,7 +68,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, Clan
           <div className="w-full space-y-3 text-slate-200">
             <div className="space-y-2">
               <p className="bg-white/5 p-3 rounded-xl border-l-4 border-purple-500">
-                <strong className="text-purple-400">💎 Clan:</strong> {Clan}
+                <strong className="text-purple-400">💎 Clan:</strong> {clan}
               </p>
               <p className="bg-white/5 p-3 rounded-xl border-l-4 border-blue-500">
                 <strong className="text-blue-400">🎴 Categoría:</strong> {categoria}

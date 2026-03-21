@@ -11,7 +11,7 @@ interface FormularioProps {
 export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta }) => {
   const estadoInicial: Omit<NuevaCarta, 'id'> = {
     nombre: '',
-    Clan: '',
+    clan: '',
     ritual: '',
     categoria: '',
     descripcion: '',
@@ -79,7 +79,7 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
         />
         
         <div className="grid grid-cols-2 gap-4">
-          <InputField label="Clan" id="Clan" name="Clan" placeholder="Gojo, Zenin..." value={form.Clan} onChange={handleChange} />
+          <InputField label="Clan" id="Clan" name="Clan" placeholder="Gojo, Zenin..." value={form.clan} onChange={handleChange} />
           <InputField label="Categoría" id="categoria" name="categoria" placeholder="Especial, 1º Grado..." value={form.categoria} onChange={handleChange} />
         </div>
 
