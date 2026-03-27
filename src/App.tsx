@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Home from './components/home';
 import { MAZO_JUJUTSU } from './components/cartas';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
-import { toCardApiMapper, type Carta, type IApiCard } from './components';
+import { toApiCardMapper, toCardApiMapper, type Carta, type IApiCard } from './components';
 import { useEffect } from 'react';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL
@@ -28,7 +28,7 @@ const fetchCard = async () => {
             );
             const response = await fetch(`${API_URL}card`, {
               headers: {
-                usersecretpasskey: "Leon422088LA"
+                usersecretpasskey: "Gabr686940RE"
               }
             }
           );
@@ -49,6 +49,24 @@ const fetchCard = async () => {
             fetchCard();
         }, []);
 
+        const addCarta = async (carta: Carta) => {
+    try {
+      await fetch(`${API_URL}card`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          usersecretpasskey: "Gabr686940RE"
+        },
+        body: JSON.stringify(toApiCardMapper(carta)),
+      });
+      fetchCard();
+    } catch (e) {
+      console.error("Error adding task", e);
+    }
+  }
+
+  const agregarCarta = (carta: Carta) => {
+  }
   return (
     <Routes>
       <Route 
@@ -57,7 +75,7 @@ const fetchCard = async () => {
       />
       <Route 
         path="/crear-carta" 
-        element={<FormularioCrearCarta onAñadirCarta={onAñadirCarta} />} 
+        element={<FormularioCrearCarta onAñadirCarta={addCarta} />} 
       />
     </Routes>
   );

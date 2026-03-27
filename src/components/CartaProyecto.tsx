@@ -7,7 +7,7 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
     const alternarModal = () => setMostrarModal(!mostrarModal);
 
     return (
-      <div className="relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500">
+      <div className="relative  group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500">
       <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
         
         <h3 className="text-white font-black text-xl mb-3 uppercase tracking-tighter group-hover:text-purple-400 transition-colors">
@@ -59,10 +59,25 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Defensa</p>
                 <p className="text-2xl font-black text-white">🛡️ {defensa}</p>
               </div>
-              <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-2xl text-center shadow-inner">
-                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Vida</p>
-                <p className="text-2xl font-black text-white">💚 {hp}</p>
-              </div>
+                <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-2xl shadow-inner w-42">
+  <div className="flex justify-between items-center mb-1.5">
+    <div className="flex items-center gap-1">
+      <span className="text-xs">💚</span>
+      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Vida</p>
+    </div>
+    <p className="text-lg font-black text-white leading-none">
+      {hp}
+    </p>
+  </div>
+
+  {/* La barra de salud ahora con ancho completo asegurado */}
+  <div className="h-3 w-full bg-gray-900/60 rounded-full overflow-hidden border border-white/5 shadow-inner">
+    <div 
+      className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.3)]"
+      style={{ width: '100%' }} 
+    />
+  </div>
+</div>
             </div>
           </div>
           <div className="w-full space-y-3 text-slate-200">
@@ -92,9 +107,9 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
             </button> 
           <button
             onClick={() => onEliminar(id)}
-            className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
-          ELIMINAR CARTA
-            </button>  
+            className="flex mx-auto mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
+              ELIMINAR CARTA
+              </button>
           </div>
         </div>
       </Modal>

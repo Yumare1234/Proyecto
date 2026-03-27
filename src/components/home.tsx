@@ -16,8 +16,8 @@ const Home = ({ cartas, onEliminar, onAñadirCarta }: { cartas: Carta[]; onElimi
 
 
 return (
-    <div className="flex flex-col min-h-screen bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 p-5">
-        <div className="flex items-center gap-10 border-black rounded-2xl bg-blue-950 px-6 py-4 mb-8 shadow-2xl">
+    <div className="flex flex-col min-h-screen bg-linear-to-br from-purple-900 via-purple-600 to-violet-900 ">
+        <div className="flex items-center gap-10 border-black bg-blue-950 px-6 py-4 mb-8 shadow-2xl">
         <img src="/imagenes/Logo.png" alt="Logo" className="h-16 w-auto" />
         <h1 className="text-2xl md:text-4xl font-bold text-white uppercase">
         Jujutsu Kaisen Cards
@@ -30,7 +30,7 @@ return (
             className="p-3 rounded-xl bg-purple-900/50 border border-purple-400 text-white outline-none w-full max-w-md focus:ring-2 focus:ring-purple-300"
         />
         <Link to="/crear-carta">
-        <button className="mt-10 w-full max-w-sm mx-auto bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-wides">
+        <button className="py-4 mt-10 w-84 max-w-sm mx-auto bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-wides">
             Crear Carta
         </button>
         </Link>
