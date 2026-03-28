@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router';
 import { useState, useEffect } from 'react';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
-import { toCardApiMapper, toIApiCardMapper, type Carta, type IApiCard } from './components/index.tsx';
+import { toCardApiMapper, toApiCardMapper, type Carta, type IApiCard } from './components/index.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -41,7 +41,7 @@ function App() {
           "Content-Type": "application/json",
           usersecretpasskey: "Gabr686940RE"
         },
-        body: JSON.stringify(toIApiCardMapper(nuevaCarta)),
+        body: JSON.stringify(toApiCardMapper(nuevaCarta)),
       });
       if (response.ok) fetchCards(); // Recargamos la lista desde la API
     } catch (e) {
@@ -56,9 +56,7 @@ function App() {
         method: "DELETE",
         headers: { usersecretpasskey: "Gabr686940RE" }
       });
-
       if (response.ok) {
-        // Actualización optimista: removemos del estado local inmediatamente
         setCartas(prev => prev.filter(c => c.id !== id));
         console.log("Eliminada con éxito");
       }
@@ -67,22 +65,17 @@ function App() {
     }
   };
 
-  // --- 4. ACTUALIZAR (PUT) ---
   const actualizarCarta = async (cartaEditada: Carta) => {
   try {
-    const datosMapeados = toIApiCardMapper(cartaEditada);
-    
-    // Si /card/${id} te da 405, intenta enviarlo SOLO a /card
-    // La mayoría de las veces el PUT se hace a la ruta raíz si el ID ya va en el body
-    const response = await fetch(`${API_URL}/card`, { 
-      method: "PUT",
+    const datosMapeados = toApiCardMapper(cartaEditada);
+    const response = await fetch(`${API_URL}card/`, { 
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         "usersecretpasskey": "Gabr686940RE"
       },
       body: JSON.stringify(datosMapeados)
     });
-
     if (response.ok) {
       setCartas(prev => prev.map(c => c.id === cartaEditada.id ? cartaEditada : c));
       console.log("¡LOGRADO! Carta actualizada en la base de datos.");
@@ -93,7 +86,7 @@ function App() {
       console.log("Reintentando en:", urlConId);
       
       const retryResponse = await fetch(urlConId, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "usersecretpasskey": "Gabr686940RE"
