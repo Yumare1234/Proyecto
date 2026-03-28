@@ -4,7 +4,7 @@ import Cartadetalle from './CartaProyecto';
 import { Link } from 'react-router';
 import { FormularioCrearCarta } from './formularioCrearcarta';
 
-const Home = ({ cartas, onEliminar, onAñadirCarta }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void }) => {
+const Home = ({ cartas, onEliminar, onAñadirCarta, onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void; onActualizar: (carta: Carta) => void; }) => {
     const [busqueda, setBusqueda] = useState('');
     const cartasfiltradas = useMemo(() => {
     const term = busqueda.toLowerCase();
@@ -39,7 +39,7 @@ return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {cartasfiltradas.length > 0 ? (
         cartasfiltradas.map((carta) => (
-        <Cartadetalle key={carta.id} {...carta} onEliminar={onEliminar} />
+        <Cartadetalle key={carta.id} {...carta} onEliminar={onEliminar} onActualizar={onActualizar} />
         ))
 ) : (
         <p className="text-white text-center col-span-full opacity-50 italic py-10">

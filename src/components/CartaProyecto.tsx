@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Modal } from './Modal'; 
 import type { Eliminar } from './index';
+import { FormularioEditarCarta } from './formularioEditarcarta';
 
-function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, onEliminar, hp}: any) {
+
+function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, onEliminar, hp, onActualizar}: any) {
     const [mostrarModal, setMostrarModal] = useState(false);
     const alternarModal = () => setMostrarModal(!mostrarModal);
+    const [mostrarEditar, setMostrarEditar] = useState(false);
+    const alternarEditar = () => setMostrarEditar(!mostrarEditar);
 
     return (
       <div className="relative  group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500">
@@ -29,7 +33,24 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
         >
           Expandir Dominio
         </button>
+        <button 
+    onClick={alternarEditar} 
+    className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
+      Editar Carta
+  </button>
       </div>
+      <Modal 
+  isOpen={mostrarEditar} 
+  onClose={alternarEditar} 
+  title={`Editando a: ${nombre}`}
+>
+  <FormularioEditarCarta 
+    carta={{ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp }}
+    onActualizar={onActualizar} 
+    onClose={alternarEditar}
+  />
+</Modal>
+      
 
       
       <Modal

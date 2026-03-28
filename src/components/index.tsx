@@ -64,3 +64,24 @@ export const toCardApiMapper = (apiCard: IApiCard): Carta => ({
     descripcion: apiCard.description,
     hp: apiCard.lifePoints, 
 })
+
+// En src/components/carta/index.ts
+
+export const toIApiCardMapper = (carta: Carta): IApiCard => ({
+  idCard: carta.id.toString(),
+  name: carta.nombre,
+  description: carta.descripcion,
+  attack: carta.ataque,
+  defense: carta.defensa,
+  lifePoints: carta.hp,
+  pictureUrl: carta.imagen,
+  attributes: {
+    clan: carta.clan || "",
+    ritual: carta.ritual || "",
+    categoria: carta.categoria
+  },
+  // --- ESTE ERA EL ÚLTIMO ESLABÓN ---
+  userSecret: "Gabr686940RE", 
+  createdAt: "",
+  updatedAt: null
+});
