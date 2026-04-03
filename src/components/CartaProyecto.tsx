@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Modal } from './Modal'; 
-import type { Eliminar } from './index';
 import { FormularioEditarCarta } from './formularioEditarcarta';
 
 

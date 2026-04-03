@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import type { Carta } from './index';
 import Cartadetalle from './CartaProyecto';
 import { Link } from 'react-router';
-import { FormularioCrearCarta } from './formularioCrearcarta';
 
-const Home = ({ cartas, onEliminar, onAñadirCarta, onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void; onActualizar: (carta: Carta) => void; }) => {
+
+const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onActualizar: (carta: Carta) => void; }) => {
     const [busqueda, setBusqueda] = useState('');
     const cartasfiltradas = useMemo(() => {
     const term = busqueda.toLowerCase();
