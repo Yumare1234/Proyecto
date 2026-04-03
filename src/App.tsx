@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router';
 import { useState, useEffect } from 'react';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
-import { toCardApiMapper, toApiCardMapper, type Carta, type IApiCard } from './components/index.tsx';
+import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -21,6 +21,7 @@ function App() {
       // Mapeamos de formato API a formato local
       const cartasMapeadas = data.data.map(toCardApiMapper);
       setCartas(cartasMapeadas);
+      console.log(loading);
     } catch (error) {
       console.error("Error fetching cards:", error);
     } finally {
