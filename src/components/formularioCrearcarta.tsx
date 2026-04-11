@@ -8,6 +8,7 @@ interface FormularioProps {
 }
 
 export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta }) => {
+  // 1. Definimos el estado inicial para limpiar el formulario después de usarlo
   const estadoInicial: Omit<NuevaCarta, 'id'> = {
     nombre: '',
     clan: '',
@@ -20,11 +21,15 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
     hp: 1000,
   };
 
+// 2. Estado local que controla lo que el usuario escribe
   const [form, setForm] = useState<Omit<NuevaCarta, 'id'>>(estadoInicial);
   const navigate = useNavigate();
 
+// 3. Función manejadora universal: actualiza el estado según el 'name' del input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+
+    // Si el input es de tipo número, lo convertimos de string a Number
     const finalValue = type === 'number' ? Number(value) : value;
     setForm(prev => ({
       ...prev,
@@ -32,21 +37,25 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
     }));
   };
 
+// 4. Procesar el envío del formulario
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Validación básica de campos obligatorios
+
+    // Validación básica de campos obligatorios
     if (!form.nombre.trim() || !form.imagen.trim()) {
       alert("Por favor, rellena los campos obligatorios (Nombre e Imagen).");
       return;
     }
 
+// Creamos el objeto final inyectando un ID único basado en el tiempo actual
     const nuevaCartaFinal: NuevaCarta = {
       ...form,
       id: Date.now(), 
     };
 
-    onAñadirCarta(nuevaCartaFinal);
-    setForm(estadoInicial); 
-    navigate('/');
+    onAñadirCarta(nuevaCartaFinal); // Enviamos la carta al estado global/API
+    setForm(estadoInicial); // Limpiamos los campos
+    navigate('/'); // Volvemos al Home
   };
 
   return (

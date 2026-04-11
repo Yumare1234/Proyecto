@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { type Carta } from './index.tsx';
 
 interface Props {
-  carta: Carta;
-  onActualizar: (carta: Carta) => void;
-  onClose: () => void;
+  carta: Carta; // La carta actual que queremos modificar
+  onActualizar: (carta: Carta) => void; // Función para guardar cambios
+  onClose: () => void; // Función para cerrar el modal
 }
 
 export const FormularioEditarCarta = ({ carta, onActualizar, onClose }: Props) => {

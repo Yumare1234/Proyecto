@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router';
+import { BrowserRouter, Routes, Route } from 'react-router';
 import { useState, useEffect } from 'react';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
@@ -106,6 +106,7 @@ function App() {
 };
 
   return (
+    <BrowserRouter>
     <Routes>
       <Route 
         path="/" 
@@ -123,6 +124,7 @@ function App() {
         element={<FormularioCrearCarta onAñadirCarta={addCarta} />} 
       />
     </Routes>
+    </BrowserRouter> 
   );
 }
 
