@@ -42,33 +42,28 @@ function SeleccionarCartas({ mazo }: Props) {
     return (
 
         
-           mazo &&
-           mazo.map((carta) => {
-               return (
-                   <div
-                       onClick={() => {
-                           handleSeleccionarCarta(carta);
-                       }}
-                       key={carta.id}
-                   >
-                       <Carta
-                           carta={carta}
-                           color={carta.attributes.color}
-                           ancho={260}
-                           alto={360}
-                           seleccionada={
-                               cartaSeleccionada1?.id === carta.id ||
-                               cartaSeleccionada2?.id === carta.id
-                           }
-                           selectionMode={true}
-                       />
-                   </div>
-               );
-           })
-       
-
+            mazo &&
+            mazo.map((carta) => {
+                return (
+                    <div
+                        onClick={() => {
+                            handleSeleccionarCarta(carta);
+                    }}
+                        key={carta.id} >
+                    <Carta
+                            carta={carta}
+                            color={carta.attributes.color}
+                            ancho={260}
+                            alto={360}
+                            seleccionada={
+                                cartaSeleccionada1?.id === carta.id ||
+                                cartaSeleccionada2?.id === carta.id
+                            }
+                        selectionMode={true}/>
+                    </div>
+                );
+            })
     )
-    
 
 }
 
