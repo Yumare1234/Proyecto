@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
 import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index.tsx';
+import { MAZO_JUJUTSU } from './components/cartas.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -121,8 +122,11 @@ function App() {
       <Route 
         path="/crear-carta" 
         element={<FormularioCrearCarta onAñadirCarta={addCarta} />} 
+        path="/seleccionar-Cartas"
+        element={<SeleccionarCartas mazo={mazoCartas} />}
       />
     </Routes>
+
   );
 }
 

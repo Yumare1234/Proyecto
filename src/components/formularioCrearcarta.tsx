@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+ import React, { useState } from 'react';
 import { useNavigate } from 'react-router'; 
 import { InputField } from './inputField'; 
 import type { NuevaCarta } from './index'; 
@@ -52,12 +52,10 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="relative w-full max-w-2xl">
-        {/* Líneas de neón decorativas */}
         <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-transparent to-blue-500 rounded-2xl blur-xl opacity-30"></div>
         <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-transparent to-blue-600 rounded-2xl blur opacity-20"></div>
         
         <div className="relative bg-black/60 backdrop-blur-2xl rounded-2xl border border-blue-500/30 p-8 shadow-2xl shadow-blue-500/20">
-          {/* Header con efecto glitch */}
           <div className="relative mb-8 pb-4 border-b border-blue-500/30">
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-blue-400 tracking-tight">
               INSCRIBIR NUEVO HECHICERO
