@@ -122,9 +122,15 @@ function App() {
       />
       <Route 
         path="/crear-carta" 
-        element={<FormularioCrearCarta onAñadirCarta={addCarta} />} 
-        path="/seleccionar-Cartas"
+        element={<FormularioCrearCarta onAñadirCarta={addCarta}  />} 
+      />
+      <Route
+        path="/seleccionar-cartas"
         element={<SeleccionarCartas mazo={mazoCartas} />}
+      />
+      <Route
+        path="/campo-de-batalla/:id1/:id2"
+        element={<CampoDeBatalla  />} 
       />
     </Routes>
     </BrowserRouter> 

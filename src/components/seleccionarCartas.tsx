@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Carta } from "./index";
+import { Link } from "react-router";
 
 type Props = {
     mazo: Carta[];
@@ -52,7 +53,6 @@ function SeleccionarCartas({ mazo }: Props) {
                         key={carta.id} >
                     <Carta
                             carta={carta}
-                            color={carta.attributes.color}
                             ancho={260}
                             alto={360}
                             seleccionada={
@@ -67,4 +67,15 @@ function SeleccionarCartas({ mazo }: Props) {
 
 }
 
+<Link 
+    to={`/campo-de-batalla/${cartaSeleccionada1?.id}/${cartaSeleccionada2?.id}`}
+>
+    <CustomBtn
+        extraStyle='rounded-full'
+        accion={() => {}}
+        disabled={!listobatalla}
+    >
+        <TbSword size={28} />
+    </CustomBtn>
+</Link>
 
