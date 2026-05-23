@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { Carta } from "./index";
 import { Link } from "react-router";
+import Cartadetalle from "./CartaProyecto";
+import { LuSword } from "react-icons/lu";
+
 
 type Props = {
     mazo: Carta[];
@@ -41,8 +44,8 @@ function SeleccionarCartas({ mazo }: Props) {
 
 
     return (
-
-        
+            <div className="flex flex-col items-center gap-6 p-4">
+        {
             mazo &&
             mazo.map((carta) => {
                 return (
@@ -51,31 +54,34 @@ function SeleccionarCartas({ mazo }: Props) {
                             handleSeleccionarCarta(carta);
                     }}
                         key={carta.id} >
-                    <Carta
+                    <Cartadetalle
                             carta={carta}
-                            ancho={260}
-                            alto={360}
                             seleccionada={
                                 cartaSeleccionada1?.id === carta.id ||
                                 cartaSeleccionada2?.id === carta.id
                             }
-                        selectionMode={true}/>
+                        />
                     </div>
                 );
             })
+        }
+            <Link 
+            to={`/campo-de-batalla/${cartaSeleccionada1?.id}/${cartaSeleccionada2?.id}`}
+        >
+            <button
+                className="px-6 py-3 bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => {}}
+                disabled={!listobatalla}
+            >
+                <LuSword size={28} />
+            </button>
+</Link>
+            </div>
     )
 
+    
 }
 
-<Link 
-    to={`/campo-de-batalla/${cartaSeleccionada1?.id}/${cartaSeleccionada2?.id}`}
->
-    <CustomBtn
-        extraStyle='rounded-full'
-        accion={() => {}}
-        disabled={!listobatalla}
-    >
-        <TbSword size={28} />
-    </CustomBtn>
-</Link>
+
+export default SeleccionarCartas;
 

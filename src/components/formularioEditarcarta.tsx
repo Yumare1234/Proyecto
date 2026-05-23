@@ -3,7 +3,7 @@ import { type Carta } from './index.tsx';
 
 interface Props {
   carta: Carta; // La carta actual que queremos modificar
-  onActualizar: (carta: Carta) => void; // Función para guardar cambios
+  onActualizar?: (carta: Carta) => void; // Función para guardar cambios
   onClose: () => void; // Función para cerrar el modal
 }
 
@@ -13,7 +13,7 @@ export const FormularioEditarCarta = ({ carta, onActualizar, onClose }: Props) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onActualizar(formData); // Enviamos los datos editados a la API
+    onActualizar?.(formData); // Enviamos los datos editados a la API
     onClose(); // Cerramos el modal
   };
 

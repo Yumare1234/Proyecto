@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import { Modal } from './Modal'; 
 import { FormularioEditarCarta } from './formularioEditarcarta';
+import type { Carta } from '.';
 
+type Props = {carta: Carta, onEliminar?: (id: number) => void, onActualizar?: (cartaActualizada: Carta) => void,
+  seleccionada: boolean,
+};
 
-function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, onEliminar, hp, onActualizar}: any) {
+function Cartadetalle({carta, onEliminar, onActualizar, seleccionada }: Props) {
+    const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
     const [mostrarModal, setMostrarModal] = useState(false);
     const alternarModal = () => setMostrarModal(!mostrarModal);
     const [mostrarEditar, setMostrarEditar] = useState(false);
     const alternarEditar = () => setMostrarEditar(!mostrarEditar);
 
     return (
-      <div className="relative  group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500">
-      <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
+<div className={`relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500 ${seleccionada ? 'ring-4 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]' : ''}`}>     
+  <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
         
         <h3 className="text-white font-black text-xl mb-3 uppercase tracking-tighter group-hover:text-purple-400 transition-colors">
           {nombre}
@@ -89,8 +94,6 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
       {hp}
     </p>
   </div>
-
-  {/* La barra de salud ahora con ancho completo asegurado */}
   <div className="h-3 w-full bg-gray-900/60 rounded-full overflow-hidden border border-white/5 shadow-inner">
     <div 
       className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.3)]"
@@ -126,7 +129,10 @@ function Cartadetalle({ ataque, defensa, imagen, nombre, categoria, ritual, clan
               Cerrar Descripcion
             </button> 
           <button
-            onClick={() => onEliminar(id)}
+            onClick={() => {      
+              if (onEliminar) {
+                onEliminar(id);
+            }}}
             className="flex mx-auto mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
               ELIMINAR CARTA
               </button>

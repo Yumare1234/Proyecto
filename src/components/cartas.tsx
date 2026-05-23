@@ -1,6 +1,6 @@
 import type { Carta } from './index';
 
-export const MAZO_JUJUTSU: Carta[] = [
+export const mazoCartas: Carta[] = [
   { 
     id: 1, 
     nombre: "Satoru Gojo", 
