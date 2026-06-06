@@ -87,14 +87,26 @@ function CampoDeBatalla() {
         return () => controller.abort();
     }, [id1, id2, cartasDesdeState]);
 
-    // Lógica de ataque por turnos
+    // Función auxiliar para calcular mitigación por defensa
+    const calcularDanioReal = (ataqueBase: number, defensaRival: number): number => {
+        const def = defensaRival || 0;
+        // Fórmula de mitigación decreciente: danio * (1 - (def / (def + 500)))
+        const factorMitigacion = 1 - (def / (def + 500));
+        const danioCalculado = Math.floor(ataqueBase * factorMitigacion);
+        // Garantizamos al menos un 10% del ataque original como daño mínimo
+        const danioMinimo = Math.max(1, Math.floor(ataqueBase * 0.1));
+        return Math.max(danioCalculado, danioMinimo);
+    };
+
+    // Lógica de ataque por turnos manuales
     const ejecutarAtaque = (baseDmg: number, nombreAtaque: string) => {
         if (fase !== "COMBATE" || !carta1 || !carta2) return;
 
         if (turnoJugador) {
-            const nuevaVida2 = Math.max(0, vidaActual2 - baseDmg);
+            const dmgReal = calcularDanioReal(baseDmg, carta2.defensa);
+            const nuevaVida2 = Math.max(0, vidaActual2 - dmgReal);
             setVidaActual2(nuevaVida2);
-            setHistorialBatalla(prev => [`💥 ${carta1.nombre} usó "${nombreAtaque}" infligiendo ${baseDmg} de daño.`, ...prev]);
+            setHistorialBatalla(prev => [`💥 ${carta1.nombre} usó "${nombreAtaque}" infligiendo ${dmgReal} de daño (Mitigado por defensa).`, ...prev]);
 
             if (nuevaVida2 <= 0) {
                 finalizarDuelo(carta1.nombre);
@@ -108,13 +120,14 @@ function CampoDeBatalla() {
     useEffect(() => {
         if (fase !== "COMBATE" || !carta1 || !carta2) return;
 
-        // Acción de la IA cuando es su turno reglamentario (No automático)
+        // Acción de la IA cuando es su turno reglamentario (Modo manual activo)
         if (!turnoJugador && !isAutomatic && vidaActual1 > 0) {
             const timerIA = setTimeout(() => {
-                const dmgIA = Math.floor(Math.random() * 80) + 100;
-                const nuevaVida1 = Math.max(0, vidaActual1 - dmgIA);
+                const dmgIA = Math.floor(carta2.ataque * (Math.random() * 0.15 + 0.40)); 
+                const dmgReal = calcularDanioReal(dmgIA, carta1.defensa);
+                const nuevaVida1 = Math.max(0, vidaActual1 - dmgReal);
                 setVidaActual1(nuevaVida1);
-                setHistorialBatalla(prev => [`🔮 ${carta2.nombre} responde con energía maldita causando ${dmgIA} de daño.`, ...prev]);
+                setHistorialBatalla(prev => [`🔮 ${carta2.nombre} responde con energía maldita causando ${dmgReal} de daño.`, ...prev]);
 
                 if (nuevaVida1 <= 0) {
                     finalizarDuelo(carta2.nombre);
@@ -129,15 +142,26 @@ function CampoDeBatalla() {
         // Bucle para el Modo de Combate Automático Completo
         if (isAutomatic) {
             const timerAuto = setTimeout(() => {
+
                 if (turnoJugador) {
-                    // El Jugador 1 ataca solo
-                    const esAtaqueCritico = Math.random() > 0.6;
-                    const dmgJugador = esAtaqueCritico ? 280 : Math.floor(Math.random() * 50) + 120;
-                    const txtAtaque = esAtaqueCritico ? "Expansión de Dominio" : "Destello Negro";
+                    // --- TURNO AUTOMÁTICO DEL JUGADOR 1 ---
+                    const ataquesDisponibles = [
+                        { 
+                            nombre: "Destello Negro", 
+                            dmg: Math.floor(carta1.ataque * (Math.random() * 0.15 + 0.40)), 
+                            prefijo: "🥊" 
+                        },
+                        { 
+                            nombre: "Expansión de Dominio", 
+                            dmg: Math.floor(carta1.ataque * 1.1), 
+                            prefijo: "👁️" 
+                        }
+                    ];
 
-                    const nuevaVida2 = Math.max(0, vidaActual2 - dmgJugador);
+                    const ataqueElegido = ataquesDisponibles[Math.floor(Math.random() * ataquesDisponibles.length)];
+                    const dmgReal = calcularDanioReal(ataqueElegido.dmg, carta2.defensa);
+                    const nuevaVida2 = Math.max(0, vidaActual2 - dmgReal);
 
-                    // Evaluación Crítica de Empate Simultáneo
                     if (nuevaVida2 <= 0 && vidaActual1 <= 0) {
                         setVidaActual2(0);
                         finalizarDuelo("EMPATE");
@@ -145,17 +169,40 @@ function CampoDeBatalla() {
                     }
 
                     setVidaActual2(nuevaVida2);
-                    setHistorialBatalla(prev => [`🤖 [AUTO] ${carta1.nombre} ejecuta "${txtAtaque}" haciendo ${dmgJugador} de daño.`, ...prev]);
+                    setHistorialBatalla(prev => [
+                        `🤖 [AUTO] ${carta1.nombre} ejecuta ${ataqueElegido.prefijo} "${ataqueElegido.nombre}" haciendo ${dmgReal} de daño.`,
+                        ...prev
+                    ]);
 
                     if (nuevaVida2 <= 0) {
                         finalizarDuelo(carta1.nombre);
                         return;
                     }
                     setTurnoJugador(false);
+
                 } else {
-                    // La IA responde sola
-                    const dmgIA = Math.floor(Math.random() * 80) + 100;
-                    const nuevaVida1 = Math.max(0, vidaActual1 - dmgIA);
+                    // --- TURNO AUTOMÁTICO DEL RIVAL (IA / JUGADOR 2) ---
+                    const ataquesIADisponibles = [
+                        { 
+                            nombre: "Ráfaga Maldita", 
+                            dmg: Math.floor(carta2.ataque * (Math.random() * 0.15 + 0.35)), 
+                            prefijo: "🔮" 
+                        },
+                        { 
+                            nombre: "Desmantelar", 
+                            dmg: Math.floor(carta2.ataque * 0.7), 
+                            prefijo: "⚔️" 
+                        },
+                        { 
+                            nombre: "Expansión de Dominio Rival", 
+                            dmg: Math.floor(carta2.ataque * 1.1), 
+                            prefijo: "⚡" 
+                        }
+                    ];
+
+                    const ataqueIAElegido = ataquesIADisponibles[Math.floor(Math.random() * ataquesIADisponibles.length)];
+                    const dmgReal = calcularDanioReal(ataqueIAElegido.dmg, carta1.defensa);
+                    const nuevaVida1 = Math.max(0, vidaActual1 - dmgReal);
 
                     if (nuevaVida1 <= 0 && vidaActual2 <= 0) {
                         setVidaActual1(0);
@@ -164,7 +211,10 @@ function CampoDeBatalla() {
                     }
 
                     setVidaActual1(nuevaVida1);
-                    setHistorialBatalla(prev => [`🔮 [AUTO] ${carta2.nombre} arremete ráfaga maldita causando ${dmgIA} de daño.`, ...prev]);
+                    setHistorialBatalla(prev => [
+                        `🔮 [AUTO] ${carta2.nombre} arremete con ${ataqueIAElegido.prefijo} "${ataqueIAElegido.nombre}" causando ${dmgReal} de daño.`,
+                        ...prev
+                    ]);
 
                     if (nuevaVida1 <= 0) {
                         finalizarDuelo(carta2.nombre);
@@ -172,6 +222,7 @@ function CampoDeBatalla() {
                     }
                     setTurnoJugador(true);
                 }
+
             }, 1200);
 
             return () => clearTimeout(timerAuto);
@@ -275,7 +326,7 @@ function CampoDeBatalla() {
 
                             <button
                                 disabled={!turnoJugador || isAutomatic}
-                                onClick={() => ejecutarAtaque(Math.floor(Math.random() * 50) + 120, "Destello Negro")}
+                                onClick={() => ejecutarAtaque(Math.floor(carta1.ataque * (Math.random() * 0.15 + 0.40)), "Destello Negro")}
                                 className="w-full py-2 bg-white/5 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/40 rounded-xl text-xs font-semibold transition-all disabled:opacity-30 disabled:pointer-events-none"
                             >
                                 🥊 Ataque Básico
@@ -283,7 +334,7 @@ function CampoDeBatalla() {
 
                             <button
                                 disabled={!turnoJugador || isAutomatic}
-                                onClick={() => ejecutarAtaque(280, "Expansión de Dominio")}
+                                onClick={() => ejecutarAtaque(Math.floor(carta1.ataque * 1.1), "Expansión de Dominio")}
                                 className="w-full py-2 bg-gradient-to-r from-purple-900/60 to-indigo-950/60 hover:from-purple-800/70 hover:to-indigo-900/70 border border-purple-500/30 rounded-xl text-xs font-bold tracking-wide transition-all disabled:opacity-30 disabled:pointer-events-none"
                             >
                                 👁️ Expandir Dominio
@@ -294,8 +345,8 @@ function CampoDeBatalla() {
                             <button
                                 onClick={() => setIsAutomatic(!isAutomatic)}
                                 className={`w-full py-2 rounded-xl text-xs font-black tracking-wider transition-all uppercase shadow-md active:scale-95 ${isAutomatic
-                                        ? "bg-red-600 hover:bg-red-500 text-white animate-pulse shadow-red-600/20"
-                                        : "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black"
+                                    ? "bg-red-600 hover:bg-red-500 text-white animate-pulse shadow-red-600/20"
+                                    : "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black"
                                     }`}
                             >
                                 {isAutomatic ? "🤖 Detener Auto" : "🤖 Combate Auto"}
