@@ -1,9 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { Routes, Route } from 'react-router';
 import { useState, useEffect } from 'react';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
 import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index.tsx';
-import { mazoCartas } from './components/cartas.tsx';
 import SeleccionarCartas from './components/seleccionarCartas.tsx';
 import CampoDeBatalla from './components/CamposDeBatalla.tsx';
 
@@ -109,7 +108,6 @@ function App() {
 };
 
   return (
-    <BrowserRouter>
     <Routes>
       <Route 
         path="/" 
@@ -128,13 +126,12 @@ function App() {
       />
       <Route
         path="/seleccionar-cartas"
-        element={<SeleccionarCartas mazo={mazoCartas} />}
+        element={<SeleccionarCartas mazo={cartas} />}
       />
       <Route
         path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla  />} 
       />
     </Routes>
-    </BrowserRouter> 
   );
 }
 

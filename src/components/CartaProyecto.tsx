@@ -5,9 +5,10 @@ import type { Carta } from '.';
 
 type Props = {carta: Carta, onEliminar?: (id: number) => void, onActualizar?: (cartaActualizada: Carta) => void,
   seleccionada: boolean,
+  ocultarBotones?: boolean
 };
 
-function Cartadetalle({carta, onEliminar, onActualizar, seleccionada }: Props) {
+function Cartadetalle({carta, onEliminar, onActualizar, seleccionada, ocultarBotones = false }: Props) {
     const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
     const [mostrarModal, setMostrarModal] = useState(false);
     const alternarModal = () => setMostrarModal(!mostrarModal);
@@ -30,18 +31,18 @@ function Cartadetalle({carta, onEliminar, onActualizar, seleccionada }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         </div>
-
-        <button
-          onClick={alternarModal}
-          className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
-        >
-          Expandir Dominio
-        </button>
-        <button 
-    onClick={alternarEditar} 
-    className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
-      Editar Carta
-  </button>
+          {!ocultarBotones && (
+        <><button
+              onClick={alternarModal}
+              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
+            >
+              Expandir Dominio
+            </button><button
+              onClick={alternarEditar}
+              className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
+                Editar Carta
+              </button></>
+          )}
       </div>
       <Modal 
   isOpen={mostrarEditar} 

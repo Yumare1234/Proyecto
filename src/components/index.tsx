@@ -9,6 +9,8 @@ export interface Carta {
     clan: string;
     descripcion: string;
     hp: number;
+    seleccionada?: boolean;
+    ocultarBotones?: boolean;
 }
 
 export interface Cartasprops {

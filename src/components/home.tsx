@@ -4,7 +4,7 @@ import Cartadetalle from './CartaProyecto';
 import { Link } from 'react-router';
 
 
-const Home = ({ cartas, onEliminar, onAñadirCarta, onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void; onActualizar: (carta: Carta) => void; }) => {
+const Home = ({ cartas, onEliminar,  onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void; onActualizar: (carta: Carta) => void; }) => {
     const [busqueda, setBusqueda] = useState('');
     const cartasfiltradas = useMemo(() => {
     const term = busqueda.toLowerCase();
@@ -34,12 +34,17 @@ return (
             Crear Carta
         </button>
         </Link>
+        <Link to="/seleccionar-cartas">
+        <button className="py-4 mt-1 w-84 max-w-sm mx-auto bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all active:scale-95 uppercase text-sm tracking-wides">
+            Iniciar Batalla
+        </button>
+        </Link>
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {cartasfiltradas.length > 0 ? (
         cartasfiltradas.map((carta) => (
-        <Cartadetalle key={carta.id} {...carta} onEliminar={onEliminar} onActualizar={onActualizar} onAñadirCarta={onAñadirCarta} />
+        <Cartadetalle carta={carta} seleccionada={false} key={carta.id} onEliminar={onEliminar} onActualizar={onActualizar} />
         ))
 ) : (
         <p className="text-white text-center col-span-full opacity-50 italic py-10">

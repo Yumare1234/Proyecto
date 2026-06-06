@@ -1,4 +1,4 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router'; 
 import { InputField } from './inputField'; 
 import type { NuevaCarta } from './index'; 
