@@ -1,71 +1,72 @@
 import { useState } from 'react';
-import { Modal } from './Modal'; 
+import { Modal } from './Modal';
 import { FormularioEditarCarta } from './formularioEditarcarta';
 import type { Carta } from '.';
 
-type Props = {carta: Carta, onEliminar?: (id: number) => void, onActualizar?: (cartaActualizada: Carta) => void,
+type Props = {
+  carta: Carta, onEliminar?: (id: number) => void, onActualizar?: (cartaActualizada: Carta) => void,
   seleccionada: boolean,
   ocultarBotones?: boolean
 };
 
-function Cartadetalle({carta, onEliminar, onActualizar, seleccionada, ocultarBotones = false }: Props) {
-    const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const alternarModal = () => setMostrarModal(!mostrarModal);
-    const [mostrarEditar, setMostrarEditar] = useState(false);
-    const alternarEditar = () => setMostrarEditar(!mostrarEditar);
+function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBotones = false }: Props) {
+  const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const alternarModal = () => setMostrarModal(!mostrarModal);
+  const [mostrarEditar, setMostrarEditar] = useState(false);
+  const alternarEditar = () => setMostrarEditar(!mostrarEditar);
 
-    return (
-<div className={`relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500 ${seleccionada ? 'ring-4 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]' : ''}`}>     
-  <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
-        
+  return (
+    <div className={`relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500 ${seleccionada ? 'ring-4 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]' : ''}`}>
+      <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
+
         <h3 className="text-white font-black text-xl mb-3 uppercase tracking-tighter group-hover:text-purple-400 transition-colors">
           {nombre}
         </h3>
 
         <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-purple-900/50 mb-4">
-          <img 
-            src={imagen} 
-            alt={nombre} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          <img
+            src={imagen}
+            alt={nombre}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         </div>
-          {!ocultarBotones && (
-        <><button
-              onClick={alternarModal}
-              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
-            >
-              Expandir Dominio
-            </button><button
-              onClick={alternarEditar}
-              className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
-                Editar Carta
-              </button></>
-          )}
+        {!ocultarBotones && (
+          <><button
+            onClick={alternarModal}
+            className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
+          >
+            Expandir Dominio
+          </button><button
+            onClick={alternarEditar}
+            className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
+              Editar Carta
+            </button></>
+        )}
       </div>
-      <Modal 
-  isOpen={mostrarEditar} 
-  onClose={alternarEditar} 
-  title={`Editando a: ${nombre}`}
->
-  <FormularioEditarCarta 
-    carta={{ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp }}
-    onActualizar={onActualizar} 
-    onClose={alternarEditar}
-  />
-</Modal>
-      
+      <Modal
+        isOpen={mostrarEditar}
+        onClose={alternarEditar}
+        title={`Editando a: ${nombre}`}
+      >
+        <FormularioEditarCarta
+          carta={{ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp }}
+          onActualizar={onActualizar}
+          onClose={alternarEditar}
+        />
+      </Modal>
 
-      
+
+
       <Modal
         isOpen={mostrarModal}
         onClose={alternarModal}
         title={`Expediente: ${nombre}`}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-2">
-          
-          
+
+
           <div className="flex flex-col items-center space-y-6">
             <div className="relative p-1 bg-gradient-to-tr rounded-2xl shadow-2xl">
               <img
@@ -74,34 +75,42 @@ function Cartadetalle({carta, onEliminar, onActualizar, seleccionada, ocultarBot
                 className="w-64 h-80 object-cover rounded-xl border-4 border-slate-900"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4 w-full ">
-              
-              <div className="bg-red-950/30 border border-red-500/30 p-3 rounded-2xl text-center shadow-inner">
-                <p className="text-[10px] font-black text-red-400 uppercase tracking-widest">Ataque</p>
-                <p className="text-2xl font-black text-white">⚔️ {ataque}</p>
+            {/* 1. Asegúrate de que el contenedor GRID tenga suficiente espacio y separación */}
+            <div className="grid grid-cols-2 gap-4 w-full max-w-xs mx-auto">
+
+              {/* BLOQUE DE ATAQUE */}
+              <div className="flex flex-col items-center justify-center p-3 bg-black/40 border border-red-500/20 rounded-xl min-w-0 w-full">
+                <span className="text-[10px] text-red-400 font-bold tracking-widest uppercase mb-1">Ataque</span>
+                {/* Icono de espadas */}
+                <span className="text-xl mb-1">⚔️</span>
+                {/* Ajustamos el tamaño del texto para que no desborde */}
+                <span className="text-sm md:text-base font-black tracking-tight text-white w-full text-center truncate px-1">
+                  {carta.ataque}
+                </span>
               </div>
-              
-              <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-2xl text-center shadow-inner">
-                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Defensa</p>
-                <p className="text-2xl font-black text-white">🛡️ {defensa}</p>
+
+              {/* BLOQUE DE DEFENSA */}
+              <div className="flex flex-col items-center justify-center p-3 bg-black/40 border border-blue-500/20 rounded-xl min-w-0 w-full">
+                <span className="text-[10px] text-blue-400 font-bold tracking-widest uppercase mb-1">Defensa</span>
+                {/* Icono del escudo */}
+                <span className="text-xl mb-1">🛡️</span>
+                {/* Usamos text-sm por defecto y tracking-tighter para números densos */}
+                <span className="text-sm md:text-base font-black tracking-tighter text-white w-full text-center truncate px-1">
+                  {carta.defensa}
+                </span>
               </div>
-                <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-2xl shadow-inner w-42">
-  <div className="flex justify-between items-center mb-1.5">
-    <div className="flex items-center gap-1">
-      <span className="text-xs">💚</span>
-      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Vida</p>
-    </div>
-    <p className="text-lg font-black text-white leading-none">
-      {hp}
-    </p>
-  </div>
-  <div className="h-3 w-full bg-gray-900/60 rounded-full overflow-hidden border border-white/5 shadow-inner">
-    <div 
-      className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.3)]"
-      style={{ width: '100%' }} 
-    />
-  </div>
-</div>
+
+            </div>
+
+            {/* 2. BARRA DE VIDA (Abajo, ocupando todo el ancho disponible) */}
+            <div className="w-full max-w-xs mx-auto mt-3 p-3 bg-black/40 border border-emerald-500/20 rounded-xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
+                <span>💚</span>
+                <span>Vida</span>
+              </div>
+              <span className="text-sm md:text-base font-black text-white px-1">
+                {carta.hp}
+              </span>
             </div>
           </div>
           <div className="w-full space-y-3 text-slate-200">
@@ -122,26 +131,27 @@ function Cartadetalle({carta, onEliminar, onActualizar, seleccionada, ocultarBot
                 </p>
               </div>
             </div>
-            
+
             <button
               onClick={alternarModal}
               className="mt-6 w-full bg-gradient-to-r from-slate-800 to-slate-900 text-slate-300 py-4 p-2 rounded-xl font-bold border border-white/10 hover:border-purple-500 transition-colors uppercase text-sm tracking-widest"
             >
               Cerrar Descripcion
-            </button> 
-          <button
-            onClick={() => {      
-              if (onEliminar) {
-                onEliminar(id);
-            }}}
-            className="flex mx-auto mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
+            </button>
+            <button
+              onClick={() => {
+                if (onEliminar) {
+                  onEliminar(id);
+                }
+              }}
+              className="flex mx-auto mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
               ELIMINAR CARTA
-              </button>
+            </button>
           </div>
         </div>
       </Modal>
     </div>
-    );
+  );
 }
 
 export default Cartadetalle;
