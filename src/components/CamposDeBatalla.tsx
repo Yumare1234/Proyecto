@@ -124,7 +124,7 @@ function CampoDeBatalla() {
             if (esCritico) {
                 baseDmg = Math.floor(baseDmg * 2.5);
                 const dmgReal = calcularDañoReal(baseDmg, carta2.defensa);
-                mensajeAtaque = `🖤✨ ¡DESTELLO NEGRO! ${carta1.nombre} se concentró en el espacio de 0.000001 segundos e infligió un daño crítico masivo de ${dmgReal} a ${carta2.nombre}!`;
+                mensajeAtaque = `🖤✨ ¡DESTELLO NEGRO! ${carta1.nombre} se concentró por 0.000001 segundos e infligió un destello negro haciendo ${dmgReal} a ${carta2.nombre}!`;
             } else {
                 const dmgReal = calcularDañoReal(baseDmg, carta2.defensa);
                 mensajeAtaque = `💥 ${carta1.nombre} usó "Ataque Básico" e infligió ${dmgReal} de daño.`;
@@ -157,7 +157,7 @@ function CampoDeBatalla() {
                 if (iaCritico) {
                     dmgIA = Math.floor(dmgIA * 2.5);
                     const dmgReal = calcularDañoReal(dmgIA, carta1.defensa);
-                    mensajeIA = `🖤✨ ¡DESTELLO NEGRO RIVAL! ${carta2.nombre} destella en negro impactando críticamente por ${dmgReal} de daño.`;
+                    mensajeIA = `🖤✨ ¡DESTELLO NEGRO! ${carta2.nombre} conecta un destello negro haciendo ${dmgReal} de daño.`;
                 } else {
                     const dmgReal = calcularDañoReal(dmgIA, carta1.defensa);
                     mensajeIA = `🔮 ${carta2.nombre} responde con energía maldita causando ${dmgReal} de daño.`;

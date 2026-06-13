@@ -63,8 +63,8 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="relative w-full max-w-2xl my-8">
         {/* Efectos de luces de fondo (Neon Glow) */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-transparent to-blue-500 rounded-2xl blur-xl opacity-30"></div>
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-transparent to-blue-600 rounded-2xl blur opacity-20"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-transparent to-purple-500 rounded-2xl blur-xl opacity-30"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-2xl blur opacity-20"></div>
         
         {/* Contenedor del Formulario */}
         <div className="relative bg-black/60 backdrop-blur-2xl rounded-2xl border border-blue-500/30 p-8 shadow-2xl shadow-blue-500/20">
