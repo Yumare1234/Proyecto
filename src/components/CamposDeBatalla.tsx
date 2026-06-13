@@ -118,7 +118,7 @@ function CampoDeBatalla() {
 
         if (turnoJugador) {
             let baseDmg = Math.floor(carta1.ataque * (Math.random() * 0.15 + 0.35));
-            const esCritico = Math.random() < 0.20;
+            const esCritico = Math.random() < 0.15;
             let mensajeAtaque = "";
 
             if (esCritico) {
@@ -196,7 +196,7 @@ function CampoDeBatalla() {
                         setCooldownDominio1(6);
                     } else {
                         let dmgBase = Math.floor(carta1.ataque * (Math.random() * 0.15 + 0.35));
-                        if (Math.random() < 0.20) {
+                        if (Math.random() < 0.15) {
                             dmgBase = Math.floor(dmgBase * 2.5);
                             dmgReal = calcularDañoReal(dmgBase, carta2.defensa);
                             mensajeAuto = `🤖 [AUTO] 🖤✨ ¡DESTELLO NEGRO! ${carta1.nombre} conecta un golpe crítico devastador de ${dmgReal}.`;
