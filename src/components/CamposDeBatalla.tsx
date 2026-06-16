@@ -4,35 +4,40 @@ import type { Carta } from "./index.tsx";
 import Cartadetalle from "./CartaProyecto";
 
 type FaseBatalla = "PRESENTACION" | "COMBATE" | "FINALIZADO";
+type Movimiento = { id: string; nombre: string; danio: number; cooldown: number };
 
 function CampoDeBatalla() {
     const { id1, id2 } = useParams<{ id1: string; id2: string }>();
     const location = useLocation();
     const navigate = useNavigate();
-    const cartasDesdeState = location.state as { carta1?: Carta; carta2?: Carta } | null;
+    
+    
+    // Extraemos las cartas y los movimientos  desde el state de React Router
+    const cartasDesdeState = location.state as { 
+        carta1?: Carta; 
+        carta2?: Carta;
+        movimientosCarta1?: Movimiento[];
+        movimientosCarta2?: Movimiento[];
+    } | null;
 
-    // Estados esenciales de los Guerreros
+    const movimientosUsuario = cartasDesdeState?.movimientosCarta1 || [];
+
     const [carta1, setCarta1] = useState<Carta | null>(null);
     const [carta2, setCarta2] = useState<Carta | null>(null);
     const [cargando, setCargando] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Estados de la Mecánica del Juego
     const [fase, setFase] = useState<FaseBatalla>("PRESENTACION");
     const [vidaActual1, setVidaActual1] = useState<number>(1000);
     const [vidaActual2, setVidaActual2] = useState<number>(1000);
-    const [turnoJugador, setTurnoJugador] = useState<boolean>(true); // true = Jugador 1, false = Jugador 2 (IA)
+    const [turnoJugador, setTurnoJugador] = useState<boolean>(true);
     const [historialBatalla, setHistorialBatalla] = useState<string[]>([]);
     const [ganador, setGanador] = useState<string | null>(null);
     const [esEmpate, setEsEmpate] = useState<boolean>(false);
 
-    // Cooldown para la Expansión de Dominio del Jugador 1
     const [cooldownDominio1, setCooldownDominio1] = useState<number>(0);
-
-    // Estados para combate automático 
     const [isAutomatic, setIsAutomatic] = useState<boolean>(false);
 
-    // Fallback de red seguro
     const getCartaDeServidor = async (id: string, signal: AbortSignal): Promise<Carta> => {
         const urlAPI = `https://educa-api.onrender.com/card/${id}`;
         const respuesta = await fetch(urlAPI, {
@@ -78,7 +83,6 @@ function CampoDeBatalla() {
                 setVidaActual1(encontrada1.hp || 1000);
                 setVidaActual2(encontrada2.hp || 1000);
 
-                // Validación de empate por estadísticas idénticas
                 if (
                     (encontrada1.hp || 1000) === (encontrada2.hp || 1000) &&
                     (encontrada1.ataque || 0) === (encontrada2.ataque || 0) &&
@@ -134,6 +138,38 @@ function CampoDeBatalla() {
             const nuevaVida2 = Math.max(0, vidaActual2 - dmgRealFinal);
             setVidaActual2(nuevaVida2);
             setHistorialBatalla(prev => [mensajeAtaque, ...prev]);
+
+            if (nuevaVida2 <= 0) {
+                finalizarDuelo(carta1.nombre);
+                return;
+            }
+
+            setCooldownDominio1(prev => Math.max(0, prev - 1));
+            setTurnoJugador(false);
+        }
+    };
+
+    // Nueva función para lanzar el movimiento personalizado 
+    const ejecutarMovimientoPersonalizado = (mov: Movimiento) => {
+        if (fase !== "COMBATE" || !carta1 || !carta2) return;
+        
+        if (turnoJugador) {
+            const esCritico = Math.random() < 0.15;
+            let mensaje = "";
+            let dmgFinalReal = 0;
+            
+            if (esCritico) {
+                const danioCritico = Math.floor(mov.danio * 2.5);
+                dmgFinalReal = calcularDañoReal(danioCritico, carta2.defensa);
+                mensaje = `🖤✨ ¡DESTELLO NEGRO! ${carta1.nombre} canalizó energía en "${mov.nombre}" causando ${dmgFinalReal} de daño crítico!`;
+            } else {
+                dmgFinalReal = calcularDañoReal(mov.danio, carta2.defensa);
+                mensaje = `✨ ${carta1.nombre} ejecutó su ataque "${mov.nombre}" e infligió ${dmgFinalReal} de daño.`;
+            }
+            
+            const nuevaVida2 = Math.max(0, vidaActual2 - dmgFinalReal);
+            setVidaActual2(nuevaVida2);
+            setHistorialBatalla(prev => [mensaje, ...prev]);
 
             if (nuevaVida2 <= 0) {
                 finalizarDuelo(carta1.nombre);
@@ -287,7 +323,6 @@ function CampoDeBatalla() {
         }
     };
 
-    // Estilo visual del historial de logs (Tamaños aumentados)
     const obtenerEstiloLog = (log: string, index: number) => {
         if (index !== 0) return "text-gray-500/80 text-xs md:text-sm pl-2 border-l border-white/5 font-medium"; 
 
@@ -303,7 +338,7 @@ function CampoDeBatalla() {
         if (log.includes("⚖️")) {
             return "text-cyan-400 font-extrabold text-sm md:text-base bg-cyan-950/40 px-3 py-1.5 rounded-xl border border-cyan-500/30";
         }
-        if (log.includes("Ataque Básico") || log.includes("responde con energía")) {
+        if (log.includes("Ataque Básico") || log.includes("responde con energía") || log.includes("ejecutó su ataque")) {
             return "text-gray-100 font-bold text-sm md:text-base border-l-4 border-purple-500 pl-3 py-0.5 bg-white/5 rounded-r-lg";
         }
         return "text-gray-200 font-semibold text-sm md:text-base pl-3";
@@ -335,7 +370,6 @@ function CampoDeBatalla() {
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-purple-900/10 rounded-full blur-[150px] pointer-events-none" />
             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none" />
 
-            {/* BOTÓN SALIR AL MENÚ PRINCIPAL */}
             <button 
                 onClick={() => navigate("/")}
                 className="absolute top-4 right-4 z-20 px-3 py-1.5 bg-white/5 hover:bg-red-950/40 border border-white/10 hover:border-red-500/30 rounded-xl text-[11px] font-bold tracking-wider uppercase text-gray-400 hover:text-red-400 transition-all flex items-center gap-1 shadow-md backdrop-blur-sm"
@@ -343,7 +377,6 @@ function CampoDeBatalla() {
                 🚪 Salir
             </button>
 
-            {/* CABECERA DINÁMICA */}
             <div className="z-10 text-center mt-2 w-full max-w-xl">
                 <h1 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Arena de Hechicería</h1>
                 <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-2" />
@@ -356,10 +389,8 @@ function CampoDeBatalla() {
                 )}
             </div>
 
-            {/* ÁREA CENTRAL DE COMBATE */}
             <div className="z-10 flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 w-full max-w-6xl my-auto">
 
-                {/* GUERRERO 1 (JUGADOR) */}
                 <div className="flex flex-col items-center gap-3 transition-all duration-300">
                     {fase === "COMBATE" && (
                         <div className="w-full max-w-[240px] bg-black/40 border border-purple-500/30 rounded-xl p-2 backdrop-blur-sm">
@@ -380,7 +411,6 @@ function CampoDeBatalla() {
                     </div>
                 </div>
 
-                {/* INTERFAZ CENTRAL DE ACCIÓN */}
                 <div className="flex flex-col items-center justify-center min-w-[200px] gap-6">
                     {fase === "PRESENTACION" && (
                         <div className="flex flex-col items-center gap-4 animate-fade-in">
@@ -397,8 +427,26 @@ function CampoDeBatalla() {
                     )}
 
                     {fase === "COMBATE" && (
-                        <div className="bg-black/30 border border-white/5 rounded-2xl p-4 w-full backdrop-blur-md flex flex-col gap-3 max-w-[240px] animate-fade-in">
-                            <p className="text-center text-xs tracking-widest text-gray-400 uppercase font-bold border-b border-white/10 pb-1.5">Acciones</p>
+                        <div className="bg-black/30 border border-white/5 rounded-2xl p-4 w-full backdrop-blur-md flex flex-col gap-3 max-w-[240px] animate-fade-in max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            
+                            {/* SECCIÓN DE MOVIMIENTOS PERSONALIZADOS  */}
+                            {movimientosUsuario.length > 0 && (
+                                <div className="w-full flex flex-col gap-2 border-b border-white/10 pb-3 mb-1">
+                                    <p className="text-center text-[10px] tracking-widest text-purple-400 uppercase font-bold">Mis Movimientos</p>
+                                    {movimientosUsuario.map((mov) => (
+                                        <button
+                                            key={mov.id}
+                                            disabled={!turnoJugador || isAutomatic}
+                                            onClick={() => ejecutarMovimientoPersonalizado(mov)}
+                                            className="w-full py-2 bg-gradient-to-r from-purple-900/40 to-blue-900/40 hover:from-purple-800/60 hover:to-blue-800/60 border border-purple-500/40 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-30 disabled:pointer-events-none shadow-sm"
+                                        >
+                                            ✨ {mov.nombre}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p className="text-center text-xs tracking-widest text-gray-400 uppercase font-bold border-b border-white/10 pb-1.5 mt-1">Acciones Base</p>
 
                             <button
                                 disabled={!turnoJugador || isAutomatic}
@@ -470,7 +518,6 @@ function CampoDeBatalla() {
                     )}
                 </div>
 
-                {/* GUERRERO 2 (IA / RIVAL) */}
                 <div className="flex flex-col items-center gap-3 transition-all duration-300">
                     {fase === "COMBATE" && (
                         <div className="w-full max-w-[240px] bg-black/40 border border-blue-500/30 rounded-xl p-2 backdrop-blur-sm">
@@ -493,7 +540,6 @@ function CampoDeBatalla() {
 
             </div>
 
-            {/* PANEL DE REGISTRO / LOG DE BATALLA (AUMENTADO Y MEJORADO) */}
             <div className="z-10 w-full max-w-4xl mt-6 bg-black/50 border border-white/10 rounded-2xl p-4 h-[160px] overflow-y-auto backdrop-blur-md shadow-2xl flex flex-col gap-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                 {historialBatalla.map((log, index) => (
                     <div key={index} className="transition-all duration-300 transform translate-x-0">
