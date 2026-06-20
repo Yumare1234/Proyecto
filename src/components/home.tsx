@@ -56,7 +56,11 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
                                 🃏 Crear Carta
                             </button>
                         </Link>
-                        
+                        <Link to="/generar-carta-ia" className="w-1/2 lg:w-auto">
+                            <button className="w-full bg-red-700 hover:bg-red-600 lg:px-6 py-3 bg-white/5 hover:bg-purple-900/30 border border-white/10 hover:border-purple-500/40 text-white text-xs font-bold rounded-xl tracking-widest uppercase transition-all duration-300 active:scale-95 whitespace-nowrap">
+                                🤖 Crear Carta con IA
+                            </button>
+                        </Link>
                         <Link to="/seleccionar-cartas" className="w-1/2 lg:w-auto">
                             <button className="w-full lg:px-6 py-3 bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white text-xs font-black rounded-xl tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-[0_0_20px_rgba(147,51,234,0.25)] hover:shadow-[0_0_25px_rgba(147,51,234,0.45)] whitespace-nowrap">
                                 ⚔️ Iniciar Batalla

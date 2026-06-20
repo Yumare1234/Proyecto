@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router';
 import { useState, useEffect } from 'react';
+import { GenerarCartaIA } from './components/CrearCartaIA';
 import Home from './components/home';
 import { FormularioCrearCarta } from './components/formularioCrearcarta';
 import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index.tsx';
@@ -33,7 +34,7 @@ function App() {
 
   useEffect(() => {
     fetchCards();
-  }, []);
+  }, );
 
   // --- 2. CREAR (POST) ---
   const addCarta = async (nuevaCarta: Carta) => {
@@ -130,6 +131,9 @@ function App() {
       />
       <Route
         path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla  />} 
+      />
+      <Route
+        path="/generar-carta-ia" element={<GenerarCartaIA  />} 
       />
     </Routes>
   );
