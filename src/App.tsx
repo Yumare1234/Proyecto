@@ -33,8 +33,10 @@ function App() {
   };
 
   useEffect(() => {
-    fetchCards();
-  }, );
+    if (cartas.length === 0 && !loading) {
+      fetchCards();
+    }
+  }, [cartas.length, loading]);
 
   // --- 2. CREAR (POST) ---
   const addCarta = async (nuevaCarta: Carta) => {

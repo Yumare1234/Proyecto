@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 export const GenerarCartaIA = () => {
   // 1. Definición de los estados requeridos
@@ -6,6 +7,7 @@ export const GenerarCartaIA = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [cartaGenerada, setCartaGenerada] = useState<Record<string, unknown> | null>(null);
+  const navigate = useNavigate();
 
   // 2. Función para manejar la petición POST
   const generarCarta = async () => {
@@ -14,7 +16,7 @@ export const GenerarCartaIA = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); 
     setError(null);
     setCartaGenerada(null);
 
@@ -51,6 +53,15 @@ export const GenerarCartaIA = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-6">
+      <button
+                onClick={() => navigate('/')}
+                className="absolute top-6 left-6 z-50 group flex items-center gap-2 px-5 py-2.5 bg-black/40 border border-white/10 hover:border-red-500/40 hover:bg-red-950/40 rounded-xl backdrop-blur-sm transition-all duration-300 text-gray-400 hover:text-red-400 font-bold text-xs uppercase tracking-widest shadow-lg"
+            >
+                <span className="transform group-hover:-translate-x-1 transition-transform duration-300 text-lg leading-none">
+                    ←
+                </span>
+                Salir
+            </button>
       <div className="w-full max-w-xl bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700">
         <h1 className="text-3xl font-bold mb-6 text-purple-400 text-center">Generar Carta con IA</h1>
         
