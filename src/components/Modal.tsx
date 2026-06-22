@@ -1,5 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+// --- COMPONENTE INTERACTIVO: LIBERACIÓN DE ENERGÍA MALDITA POR CLICK ---
+interface CardClickEffectProps {
+    children: React.ReactNode;
+}
+
+export const CardClickEffect = ({ children }: CardClickEffectProps) => {
+    const [isActivating, setIsActivating] = useState(false);
+
+    const handleCardClick = () => {
+        if (isActivating) return;
+        setIsActivating(true);
+        
+        // La animación dura 800ms antes de regresar al estado normal
+        setTimeout(() => {
+            setIsActivating(false);
+        }, 800);
+    };
+
+    return (
+        <div 
+            onClick={handleCardClick}
+            className={`relative rounded-xl overflow-hidden cursor-pointer shadow-[0_0_30px_rgba(0,0,0,0.8)] w-full h-full select-none transition-all duration-300
+                ${isActivating ? 'animate-bounce scale-[0.97] ring-4 ring-purple-500/50 shadow-[0_0_50px_rgba(168,85,247,0.6)]' : 'hover:scale-[1.01]'}
+            `}
+        >
+            {/* Onda expansiva de energía maldita (Efecto Onda/Shockwave) */}
+            {isActivating && (
+                <div className="absolute inset-0 z-30 pointer-events-none animate-ping rounded-xl bg-gradient-to-r from-purple-600/30 via-transparent to-pink-600/30 scale-150 duration-700" />
+            )}
+
+            {/* Brillo sobre la ilustración al activarse */}
+            <div 
+                className={`absolute inset-0 z-20 pointer-events-none transition-opacity duration-300 bg-gradient-to-t from-purple-900/40 via-transparent to-white/10 mix-blend-color-dodge
+                    ${isActivating ? 'opacity-100' : 'opacity-0'}
+                `}
+            />
+
+            {/* Aura perimetral parpadeante activa */}
+            <div 
+                className={`absolute -inset-1 bg-gradient-to-r from-purple-600 via-indigo-500 to-red-600 rounded-xl blur-md z-0 transition-opacity duration-300
+                    ${isActivating ? 'opacity-80 animate-pulse' : 'opacity-0'}
+                `}
+            />
+
+            {/* Contenedor del Render Interior */}
+            <div className="relative w-full h-full bg-[#0a0a0f] rounded-xl overflow-hidden z-10 border border-white/5">
+                {children}
+            </div>
+        </div>
+    );
+};
+
+
+// --- COMPONENTE PRINCIPAL: MODAL TÁCTICO ---
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -8,72 +62,58 @@ interface ModalProps {
 }
 
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        if (isOpen) window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 select-none">
-            {/* Fondo oscuro con desenfoque */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 select-none overflow-y-auto animate-in fade-in duration-200">
+            
             <div 
                 onClick={onClose} 
-                className="absolute inset-0 bg-[#050508]/85 backdrop-blur-md cursor-pointer transition-all"
+                className="fixed inset-0 bg-[#030306]/90 backdrop-blur-xl cursor-pointer transition-opacity"
             ></div>
             
-            {/* Contenedor principal */}
-            <div className="relative w-full max-w-md animate-in zoom-in-95 duration-300 z-10">
+            <div className="relative w-full max-w-4xl bg-[#06060a]/95 border border-purple-500/20 rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] z-10 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
                 
-                {/* Aura/Glow de fondo */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-purple-900 to-indigo-600 rounded-2xl blur-xl opacity-25"></div>
-                
-                {/* Marco del Contenedor */}
-                <div className="relative bg-black/40 backdrop-blur-2xl rounded-2xl border border-purple-500/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
-                    
-                    {/* Header */}
-                    <div className="relative px-6 py-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-950/30 via-transparent to-indigo-950/30">
-                        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400/40 to-transparent"></div>
-                        
-                        <div className="flex justify-between items-center gap-4">
-                            <h3 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-white to-indigo-400 tracking-[0.1em] uppercase drop-shadow-[0_0_12px_rgba(168,85,247,0.2)] truncate">
-                                {title}
-                            </h3>
-                            
-                            {/* BOTÓN X ROJO FÁCIL DE CLICKEAR (HITBOX OPTIMIZADA) */}
-                            <button 
-                                onClick={onClose} 
-                                aria-label="Cerrar modal"
-                                className="relative flex items-center justify-center min-w-[32px] min-h-[32px] w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 border border-red-400/40 shadow-[0_0_10px_rgba(220,38,38,0.4)] hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all duration-200 active:scale-90 group"
-                            >
-                                {/* Multiplicador de zona táctil invisible para clicks erráticos rápidos */}
-                                <span className="absolute -inset-2 rounded-full cursor-pointer"></span>
-                                
-                                <svg 
-                                    className="w-3.5 h-3.5 text-white stroke-[3.5] transition-transform group-hover:rotate-95 duration-200" 
-                                    fill="none" 
-                                    viewBox="0 0 24 24" 
-                                    stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                <div className="absolute -inset-10 bg-gradient-to-tr from-purple-900/10 via-indigo-900/5 to-red-900/10 blur-3xl pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent z-30"></div>
+
+                <div className="relative flex items-center justify-between px-6 py-4 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent z-20">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="relative flex h-2 w-2 flex-shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                         </div>
-                        
-                        <div className="absolute bottom-0 left-0 w-16 h-0.5 bg-gradient-to-r from-purple-500/50 to-transparent"></div>
-                    </div>
-                    
-                    {/* Contenido del modal */}
-                    <div className="relative p-6 space-y-4">
-                        <div className="relative z-10">
-                            {children}
-                        </div>
-                        
-                        {/* LEDs inferiores */}
-                        <div className="pt-2 flex justify-center gap-2.5 border-t border-white/5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_6px_#a855f7] animate-pulse"></div>
-                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_6px_#6366f1] animate-pulse delay-150"></div>
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] animate-pulse delay-300"></div>
-                        </div>
+                        <h3 className="text-sm md:text-base font-black tracking-[0.25em] text-white uppercase truncate">
+                            {title}
+                        </h3>
                     </div>
 
+                    <button 
+                        onClick={onClose} 
+                        aria-label="Cerrar terminal"
+                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/40 hover:bg-red-950/30 text-slate-400 hover:text-red-400 transition-all duration-200 active:scale-95 group"
+                    >
+                        <svg className="w-4 h-4 stroke-[2.5] transition-transform group-hover:rotate-90 duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
+
+                <div className="relative flex-1 p-5 md:p-8 overflow-y-auto max-h-[calc(100vh-120px)] z-10">
+                    {children}
+                </div>
+
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-purple-500/30 rounded-bl-lg pointer-events-none"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-purple-500/30 rounded-br-lg pointer-events-none"></div>
+
             </div>
         </div>
     );

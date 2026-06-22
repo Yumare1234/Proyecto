@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { Carta } from "./index";
-import { Link, useNavigate } from "react-router"; 
+import { Link, useNavigate } from "react-router";
 import Cartadetalle from "./CartaProyecto";
 import { LuSword } from "react-icons/lu";
 
-// Actualizamos el tipo para incluir el cooldown
+// Tipo de movimiento con su respectivo cooldown
 export type Movimiento = { id: string; nombre: string; danio: number; cooldown: number };
 
 type Props = {
@@ -19,14 +19,16 @@ function SeleccionarCartas({ mazo }: Props) {
     const [movimientosGlobales, setMovimientosGlobales] = useState<Record<number, Movimiento[]>>({});
     const [modalAbierto, setModalAbierto] = useState<number | null>(null);
     const [nombreMov, setNombreMov] = useState("");
-    const [danioMov, setDanioMov] = useState<number>(0);
+    
+    // Permitimos que el daño sea un número o un string vacío para evitar que se reinicie a 0 al borrar
+    const [danioMov, setDanioMov] = useState<number | "">("");
 
     const navigate = useNavigate();
 
-    // Cálculos de balance para el modal actual
+    // NUEVA LÓGICA DE LÍMITES: Basado estrictamente en el ataque de la carta (Mínimo: 0, Máximo: ataque base)
     const cartaModal = modalAbierto !== null ? mazo.find(c => c.id === modalAbierto) : null;
-    const limiteMinimo = cartaModal ? Math.floor(cartaModal.ataque * 0.4) : 0;
-    const limiteMaximo = cartaModal ? Math.floor(cartaModal.ataque + (cartaModal.defensa * 0.5)) : 100;
+    const limiteMinimo = 0;
+    const limiteMaximo = cartaModal ? cartaModal.ataque : 100;
 
     const handleSeleccionarCarta = (carta: Carta) => {
         const isSelected1 = cartaSeleccionada1?.id === carta.id;
@@ -56,10 +58,8 @@ function SeleccionarCartas({ mazo }: Props) {
         e.stopPropagation();
         setModalAbierto(carta.id);
         
-        // Sugerir un daño intermedio equilibrado al abrir el modal
-        const minSugerido = Math.floor(carta.ataque * 0.4);
-        const maxSugerido = Math.floor(carta.ataque + (carta.defensa * 0.5));
-        setDanioMov(Math.floor((minSugerido + maxSugerido) / 2));
+        // Inicializamos el daño con el ataque máximo de la carta por defecto
+        setDanioMov(carta.ataque);
     };
 
     const agregarMovimiento = (idCarta: number) => {
@@ -67,12 +67,13 @@ function SeleccionarCartas({ mazo }: Props) {
         const actuales = movimientosGlobales[idCarta] || [];
         if (actuales.length >= 3) return; 
 
-        // Forzar los límites de daño por si el usuario intenta excederse
-        let danioFinal = danioMov;
+        // Si el usuario dejó el input vacío, asumimos 0, de lo contrario usamos el valor numérico
+        let danioFinal = danioMov === "" ? 0 : danioMov;
+        
+        // Forzar los límites de seguridad en el submit
         if (danioFinal < limiteMinimo) danioFinal = limiteMinimo;
         if (danioFinal > limiteMaximo) danioFinal = limiteMaximo;
         
-        // Asignamos el cooldown progresivo (1, 2 o 3 dependiendo de cuántos lleve)
         const cooldownAsignado = actuales.length + 1;
 
         const nuevoMov: Movimiento = {
@@ -86,14 +87,14 @@ function SeleccionarCartas({ mazo }: Props) {
             ...movimientosGlobales,
             [idCarta]: [...actuales, nuevoMov]
         });
+        
+        // Reseteamos los campos del formulario de ataque
         setNombreMov("");
-        setDanioMov(Math.floor((limiteMinimo + limiteMaximo) / 2));
+        setDanioMov(cartaModal.ataque);
     };
 
     const eliminarMovimiento = (idCarta: number, idMov: string) => {
         const actuales = movimientosGlobales[idCarta] || [];
-        // Al eliminar, mantenemos los movimientos pero en tu caso puede que el cooldown de los restantes quede "desordenado" (ej: si borran el 1, queda el 2 y el 3).
-        // Si quisieras que se recalculen estrictamente, tendrías que mapear el arreglo resultante. Por ahora, se elimina y listo.
         setMovimientosGlobales({
             ...movimientosGlobales,
             [idCarta]: actuales.filter(m => m.id !== idMov)
@@ -218,7 +219,7 @@ function SeleccionarCartas({ mazo }: Props) {
                             <div className="flex flex-col gap-1">
                                 <div className="flex justify-between text-[10px] text-gray-500 uppercase px-1">
                                     <span>Mín: {limiteMinimo}</span>
-                                    <span>Máx: {limiteMaximo}</span>
+                                    <span>Máx: {limiteMaximo} (Ataque Base)</span>
                                 </div>
                                 <div className="flex gap-2 items-center">
                                     <span className="bg-black/50 border border-white/10 rounded-lg p-2.5 text-sm text-gray-400">Daño:</span>
@@ -227,7 +228,21 @@ function SeleccionarCartas({ mazo }: Props) {
                                         min={limiteMinimo}
                                         max={limiteMaximo}
                                         value={danioMov}
-                                        onChange={(e) => setDanioMov(Number(e.target.value))}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Si está vacío se setea como string vacío permitiendo borrar libremente
+                                            if (val === "") {
+                                                setDanioMov("");
+                                            } else {
+                                                const num = Number(val);
+                                                // Previene visualmente que escriban un número mayor al ataque base de la entidad
+                                                if (num > limiteMaximo) {
+                                                    setDanioMov(limiteMaximo);
+                                                } else {
+                                                    setDanioMov(num);
+                                                }
+                                            }
+                                        }}
                                         className="flex-1 bg-black/50 border border-white/10 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors"
                                     />
                                 </div>

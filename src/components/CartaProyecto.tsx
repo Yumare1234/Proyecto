@@ -1,25 +1,30 @@
 import { useState } from 'react';
-import { Modal } from './Modal';
+import { Modal, CardClickEffect } from './Modal'; // Importado el nuevo efecto de impacto
 import { FormularioEditarCarta } from './formularioEditarcarta';
 import type { Carta } from '.';
 
 type Props = {
-  carta: Carta, onEliminar?: (id: number) => void, onActualizar?: (cartaActualizada: Carta) => void,
+  carta: Carta,
+  onEliminar?: (id: number) => void,
+  onActualizar?: (cartaActualizada: Carta) => void,
   seleccionada: boolean,
   ocultarBotones?: boolean
 };
 
 function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBotones = false }: Props) {
   const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
+  
   const [mostrarModal, setMostrarModal] = useState(false);
   const alternarModal = () => setMostrarModal(!mostrarModal);
+  
   const [mostrarEditar, setMostrarEditar] = useState(false);
   const alternarEditar = () => setMostrarEditar(!mostrarEditar);
 
   return (
     <div className={`relative group p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/40 to-transparent hover:from-purple-500 transition-all duration-500 ${seleccionada ? 'ring-4 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]' : ''}`}>
+      
+      {/* TARJETA EXTERIOR (Sin modificaciones de estilos, intacta) */}
       <div className="flex flex-col items-center bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl transition-transform duration-300 group-hover:-translate-y-2">
-
         <h3 className="text-white font-black text-xl mb-3 uppercase tracking-tighter group-hover:text-purple-400 transition-colors">
           {nombre}
         </h3>
@@ -32,19 +37,26 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         </div>
+        
         {!ocultarBotones && (
-          <><button
-            onClick={alternarModal}
-            className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
-          >
-            Expandir Dominio
-          </button><button
-            onClick={alternarEditar}
-            className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest">
+          <>
+            <button
+              onClick={alternarModal}
+              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
+            >
+              Expandir Dominio
+            </button>
+            <button
+              onClick={alternarEditar}
+              className="w-full py-2.5 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
+            >
               Editar Carta
-            </button></>
+            </button>
+          </>
         )}
       </div>
+
+      {/* MODAL DE EDICIÓN */}
       <Modal
         isOpen={mostrarEditar}
         onClose={alternarEditar}
@@ -57,96 +69,109 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
         />
       </Modal>
 
-
-
+      {/* MODAL DE EXPEDIENTE */}
       <Modal
         isOpen={mostrarModal}
         onClose={alternarModal}
-        title={`Expediente: ${nombre}`}
+        title={`EXPEDIENTE: ${nombre}`}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-2">
-
-
-          <div className="flex flex-col items-center space-y-6">
-            <div className="relative p-1 bg-gradient-to-tr rounded-2xl shadow-2xl">
+        <div className="flex flex-col md:flex-row gap-6 items-stretch w-full h-full min-h-[450px]">
+          
+          {/* SECCIÓN IZQUIERDA: Contenedor envuelto con el nuevo efecto de Click */}
+          <div className="relative w-full md:w-[45%] lg:w-[40%] h-64 md:h-auto rounded-xl overflow-hidden border border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex-shrink-0 bg-black/50">
+            <CardClickEffect>
+              {/* Truco de fondo desenfocado */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center blur-md opacity-30 transform scale-110"
+                style={{ backgroundImage: `url(${imagen})` }}
+              ></div>
+              
+              {/* Imagen principal adaptativa */}
               <img
                 src={imagen}
                 alt={nombre}
-                className="w-64 h-80 object-cover rounded-xl border-4 border-slate-900"
+                className="relative z-10 w-full h-full object-cover object-center transition-transform duration-1000"
               />
-            </div>
-            {/* 1. Asegúrate de que el contenedor GRID tenga suficiente espacio y separación */}
-            <div className="grid grid-cols-2 gap-4 w-full max-w-xs mx-auto">
-
-              {/* BLOQUE DE ATAQUE */}
-              <div className="flex flex-col items-center justify-center p-3 bg-black/40 border border-red-500/20 rounded-xl min-w-0 w-full">
-                <span className="text-[10px] text-red-400 font-bold tracking-widest uppercase mb-1">Ataque</span>
-                {/* Icono de espadas */}
-                <span className="text-xl mb-1">⚔️</span>
-                {/* Ajustamos el tamaño del texto para que no desborde */}
-                <span className="text-sm md:text-base font-black tracking-tight text-white w-full text-center truncate px-1">
-                  {carta.ataque}
-                </span>
+              
+              {/* Degradado inferior */}
+              <div className="absolute inset-0 z-20 bg-gradient-to-t from-[#0a0a0f] via-transparent to-transparent opacity-80 pointer-events-none"></div>
+              
+              {/* Etiqueta flotante */}
+              <div className="absolute top-4 left-4 z-30 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 rounded-md">
+                <span className="text-[10px] text-white/70 tracking-[0.2em] uppercase font-black">{categoria}</span>
               </div>
-
-              {/* BLOQUE DE DEFENSA */}
-              <div className="flex flex-col items-center justify-center p-3 bg-black/40 border border-blue-500/20 rounded-xl min-w-0 w-full">
-                <span className="text-[10px] text-blue-400 font-bold tracking-widest uppercase mb-1">Defensa</span>
-                {/* Icono del escudo */}
-                <span className="text-xl mb-1">🛡️</span>
-                {/* Usamos text-sm por defecto y tracking-tighter para números densos */}
-                <span className="text-sm md:text-base font-black tracking-tighter text-white w-full text-center truncate px-1">
-                  {carta.defensa}
-                </span>
-              </div>
-
-            </div>
-
-            {/* 2. BARRA DE VIDA (Abajo, ocupando todo el ancho disponible) */}
-            <div className="w-full max-w-xs mx-auto mt-3 p-3 bg-black/40 border border-emerald-500/20 rounded-xl flex items-center justify-between gap-4">
-              <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
-                <span>💚</span>
-                <span>Vida</span>
-              </div>
-              <span className="text-sm md:text-base font-black text-white px-1">
-                {carta.hp}
-              </span>
-            </div>
+            </CardClickEffect>
           </div>
-          <div className="w-full space-y-3 text-slate-200">
-            <div className="space-y-2">
-              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-purple-500">
-                <strong className="text-purple-400">💎 Clan:</strong> {clan}
-              </p>
-              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-blue-500">
-                <strong className="text-blue-400">🎴 Categoría:</strong> {categoria}
-              </p>
-              <p className="bg-white/5 p-3 rounded-xl border-l-4 border-pink-500">
-                <strong className="text-pink-400">🔥 Ritual:</strong> {ritual}
-              </p>
-              <div className="bg-white/5 p-4 rounded-xl border-l-4 border-slate-400 mt-4">
-                <strong className="text-slate-100 mb-1 underline decoration-purple-500">Descripción:</strong>
-                <p className="text-sm leading-relaxed text-slate-400 italic">
-                  "{descripcion}"
+
+          {/* SECCIÓN DERECHA: Datos Holográficos */}
+          <div className="flex-1 flex flex-col justify-between space-y-6">
+            
+            <div className="space-y-5">
+              {/* Bloques de Información Básica */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-transparent border-l-2 border-purple-500 rounded-r-lg">
+                  <span className="text-[10px] text-purple-400 uppercase tracking-widest font-bold">Clan Afiliado</span>
+                  <span className="text-white text-sm font-black tracking-wider">{clan}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-pink-500/10 to-transparent border-l-2 border-pink-500 rounded-r-lg">
+                  <span className="text-[10px] text-pink-400 uppercase tracking-widest font-bold">Técnica Ritual</span>
+                  <span className="text-white text-sm font-black tracking-wider">{ritual}</span>
+                </div>
+              </div>
+
+              {/* Estadísticas de Combate */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Ataque */}
+                <div className="relative overflow-hidden rounded-lg bg-[#0f0f13] border border-red-500/20 p-3 flex flex-col items-center group/stat">
+                  <div className="absolute bottom-0 left-0 w-full h-[2px] bg-red-600/50 group-hover/stat:shadow-[0_0_10px_#dc2626] transition-shadow"></div>
+                  <span className="text-[10px] text-red-500 font-bold tracking-[0.2em] mb-1">ATQ</span>
+                  <span className="text-lg font-black text-white">{ataque}</span>
+                </div>
+                
+                {/* Defensa */}
+                <div className="relative overflow-hidden rounded-lg bg-[#0f0f13] border border-blue-500/20 p-3 flex flex-col items-center group/stat">
+                  <div className="absolute bottom-0 left-0 w-full h-[2px] bg-blue-600/50 group-hover/stat:shadow-[0_0_10px_#2563eb] transition-shadow"></div>
+                  <span className="text-[10px] text-blue-500 font-bold tracking-[0.2em] mb-1">DEF</span>
+                  <span className="text-lg font-black text-white">{defensa}</span>
+                </div>
+
+                {/* Vida */}
+                <div className="relative overflow-hidden rounded-lg bg-[#0f0f13] border border-emerald-500/20 p-3 flex flex-col items-center group/stat">
+                  <div className="absolute bottom-0 left-0 w-full h-[2px] bg-emerald-600/50 group-hover/stat:shadow-[0_0_10px_#059669] transition-shadow"></div>
+                  <span className="text-[10px] text-emerald-500 font-bold tracking-[0.2em] mb-1">VIT</span>
+                  <span className="text-lg font-black text-white">{hp}</span>
+                </div>
+              </div>
+
+              {/* Descripción */}
+              <div className="relative mt-2">
+                <div className="absolute -left-3 top-0 bottom-0 w-[1px] bg-gradient-to-b from-indigo-500 via-indigo-500/20 to-transparent"></div>
+                <h4 className="text-[10px] text-indigo-400 mb-2 uppercase tracking-[0.3em] font-black">Registro del Expediente</h4>
+                <p className="text-slate-300 text-sm leading-relaxed tracking-wide font-light italic opacity-90">
+                  {descripcion}
                 </p>
               </div>
             </div>
 
-            <button
-              onClick={alternarModal}
-              className="mt-6 w-full bg-gradient-to-r from-slate-800 to-slate-900 text-slate-300 py-4 p-2 rounded-xl font-bold border border-white/10 hover:border-purple-500 transition-colors uppercase text-sm tracking-widest"
-            >
-              Cerrar Descripcion
-            </button>
-            <button
-              onClick={() => {
-                if (onEliminar) {
-                  onEliminar(id);
-                }
-              }}
-              className="flex mx-auto mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-colors">
-              ELIMINAR CARTA
-            </button>
+            {/* Zona de Controles */}
+            <div className="flex justify-end items-center gap-3 pt-4 mt-auto">
+              <button 
+                onClick={alternarModal}
+                className="px-5 py-2.5 rounded-lg bg-transparent text-slate-300 text-[11px] font-black hover:text-white hover:bg-white/5 transition-all uppercase tracking-[0.15em]"
+              >
+                Cerrar
+              </button>
+              <button 
+                onClick={() => {
+                  if (onEliminar) onEliminar(id);
+                }}
+                className="px-5 py-2.5 rounded-lg bg-red-600/10 text-red-500 border border-red-600/30 text-[11px] font-black hover:bg-red-600 hover:text-white hover:shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:border-red-500 transition-all uppercase tracking-[0.15em]"
+              >
+                Purgar Entidad
+              </button>
+            </div>
+            
           </div>
         </div>
       </Modal>

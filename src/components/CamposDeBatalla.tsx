@@ -5,14 +5,13 @@ import Cartadetalle from "./CartaProyecto";
 
 type FaseBatalla = "PRESENTACION" | "COMBATE" | "FINALIZADO";
 type Movimiento = { id: string; nombre: string; danio: number; cooldown: number };
+type TipoEfecto = "NORMAL" | "CRITICO" | "DOMINIO" | null;
 
 function CampoDeBatalla() {
     const { id1, id2 } = useParams<{ id1: string; id2: string }>();
     const location = useLocation();
     const navigate = useNavigate();
     
-    
-    // Extraemos las cartas y los movimientos  desde el state de React Router
     const cartasDesdeState = location.state as { 
         carta1?: Carta; 
         carta2?: Carta;
@@ -36,7 +35,15 @@ function CampoDeBatalla() {
     const [esEmpate, setEsEmpate] = useState<boolean>(false);
 
     const [cooldownDominio1, setCooldownDominio1] = useState<number>(0);
+    const [cooldownsMovimientos, setCooldownsMovimientos] = useState<Record<string, number>>({});
     const [isAutomatic, setIsAutomatic] = useState<boolean>(false);
+
+    // NUEVO ESTADO: Controlador de Animaciones Visuales
+    const [animacionActiva, setAnimacionActiva] = useState<{
+        atacante: "CARTA1" | "CARTA2" | null;
+        objetivo: "CARTA1" | "CARTA2" | null;
+        tipo: TipoEfecto;
+    }>({ atacante: null, objetivo: null, tipo: null });
 
     const getCartaDeServidor = async (id: string, signal: AbortSignal): Promise<Carta> => {
         const urlAPI = `https://educa-api.onrender.com/card/${id}`;
@@ -117,6 +124,25 @@ function CampoDeBatalla() {
         return Math.max(danioCalculado, danioMinimo);
     };
 
+    const reducirTodosLosCooldowns = () => {
+        setCooldownDominio1(prev => Math.max(0, prev - 1));
+        setCooldownsMovimientos(prev => {
+            const nuevos = { ...prev };
+            Object.keys(nuevos).forEach(id => {
+                if (nuevos[id] > 0) nuevos[id] -= 1;
+            });
+            return nuevos;
+        });
+    };
+
+    // NUEVA FUNCIÓN: Dispara los efectos visuales
+    const dispararVFX = (atacante: "CARTA1" | "CARTA2", objetivo: "CARTA1" | "CARTA2", tipo: TipoEfecto) => {
+        setAnimacionActiva({ atacante, objetivo, tipo });
+        setTimeout(() => {
+            setAnimacionActiva({ atacante: null, objetivo: null, tipo: null });
+        }, 800);
+    };
+
     const ejecutarAtaqueManual = () => {
         if (fase !== "COMBATE" || !carta1 || !carta2) return;
 
@@ -136,22 +162,24 @@ function CampoDeBatalla() {
 
             const dmgRealFinal = calcularDañoReal(baseDmg, carta2.defensa);
             const nuevaVida2 = Math.max(0, vidaActual2 - dmgRealFinal);
+            
+            dispararVFX("CARTA1", "CARTA2", esCritico ? "CRITICO" : "NORMAL");
             setVidaActual2(nuevaVida2);
             setHistorialBatalla(prev => [mensajeAtaque, ...prev]);
 
             if (nuevaVida2 <= 0) {
-                finalizarDuelo(carta1.nombre);
+                setTimeout(() => finalizarDuelo(carta1.nombre), 800);
                 return;
             }
 
-            setCooldownDominio1(prev => Math.max(0, prev - 1));
+            reducirTodosLosCooldowns();
             setTurnoJugador(false);
         }
     };
 
-    // Nueva función para lanzar el movimiento personalizado 
     const ejecutarMovimientoPersonalizado = (mov: Movimiento) => {
         if (fase !== "COMBATE" || !carta1 || !carta2) return;
+        if ((cooldownsMovimientos[mov.id] || 0) > 0) return; 
         
         if (turnoJugador) {
             const esCritico = Math.random() < 0.15;
@@ -168,15 +196,18 @@ function CampoDeBatalla() {
             }
             
             const nuevaVida2 = Math.max(0, vidaActual2 - dmgFinalReal);
+            
+            dispararVFX("CARTA1", "CARTA2", esCritico ? "CRITICO" : "NORMAL");
             setVidaActual2(nuevaVida2);
             setHistorialBatalla(prev => [mensaje, ...prev]);
 
             if (nuevaVida2 <= 0) {
-                finalizarDuelo(carta1.nombre);
+                setTimeout(() => finalizarDuelo(carta1.nombre), 800);
                 return;
             }
 
-            setCooldownDominio1(prev => Math.max(0, prev - 1));
+            reducirTodosLosCooldowns(); 
+            setCooldownsMovimientos(prev => ({ ...prev, [mov.id]: mov.cooldown }));
             setTurnoJugador(false);
         }
     };
@@ -201,11 +232,13 @@ function CampoDeBatalla() {
 
                 const dmgRealFinal = calcularDañoReal(dmgIA, carta1.defensa);
                 const nuevaVida1 = Math.max(0, vidaActual1 - dmgRealFinal);
+                
+                dispararVFX("CARTA2", "CARTA1", iaCritico ? "CRITICO" : "NORMAL");
                 setVidaActual1(nuevaVida1);
                 setHistorialBatalla(prev => [mensajeIA, ...prev]);
 
                 if (nuevaVida1 <= 0) {
-                    finalizarDuelo(carta2.nombre);
+                    setTimeout(() => finalizarDuelo(carta2.nombre), 800);
                     return;
                 }
                 setTurnoJugador(true);
@@ -224,11 +257,14 @@ function CampoDeBatalla() {
                     let dmgReal = 0;
                     let mensajeAuto = "";
                     let nuevaVida2 = 0;
+                    let tipoEfectoAuto: TipoEfecto = "NORMAL";
 
                     if (usarExpansion) {
                         const dmgBase = Math.floor(carta1.ataque * 1.1);
                         dmgReal = calcularDañoReal(dmgBase, carta2.defensa);
                         mensajeAuto = `🤖 [AUTO] ${carta1.nombre} ejecuta 👁️ "Expansión de Dominio" haciendo ${dmgReal} de daño.`;
+                        tipoEfectoAuto = "DOMINIO";
+                        reducirTodosLosCooldowns();
                         setCooldownDominio1(6);
                     } else {
                         let dmgBase = Math.floor(carta1.ataque * (Math.random() * 0.15 + 0.35));
@@ -236,18 +272,20 @@ function CampoDeBatalla() {
                             dmgBase = Math.floor(dmgBase * 2.5);
                             dmgReal = calcularDañoReal(dmgBase, carta2.defensa);
                             mensajeAuto = `🤖 [AUTO] 🖤✨ ¡DESTELLO NEGRO! ${carta1.nombre} conecta un golpe crítico devastador de ${dmgReal}.`;
+                            tipoEfectoAuto = "CRITICO";
                         } else {
                             dmgReal = calcularDañoReal(dmgBase, carta2.defensa);
                             mensajeAuto = `🤖 [AUTO] ${carta1.nombre} realiza un 🥊 "Ataque Básico" de ${dmgReal} de daño.`;
                         }
-                        setCooldownDominio1(prev => Math.max(0, prev - 1));
+                        reducirTodosLosCooldowns();
                     }
 
                     nuevaVida2 = Math.max(0, vidaActual2 - dmgReal);
+                    dispararVFX("CARTA1", "CARTA2", tipoEfectoAuto);
 
                     if (nuevaVida2 <= 0 && vidaActual1 <= 0) {
                         setVidaActual2(0);
-                        finalizarDuelo("EMPATE");
+                        setTimeout(() => finalizarDuelo("EMPATE"), 800);
                         return;
                     }
 
@@ -255,7 +293,7 @@ function CampoDeBatalla() {
                     setHistorialBatalla(prev => [mensajeAuto, ...prev]);
 
                     if (nuevaVida2 <= 0) {
-                        finalizarDuelo(carta1.nombre);
+                        setTimeout(() => finalizarDuelo(carta1.nombre), 800);
                         return;
                     }
                     setTurnoJugador(false);
@@ -265,6 +303,7 @@ function CampoDeBatalla() {
                     const ataqueIAElegido = ataquesIADisponibles[Math.floor(Math.random() * ataquesIADisponibles.length)];
                     let dmgBase = 0;
                     let mensajeIAAuto = "";
+                    let tipoEfectoIA: TipoEfecto = "NORMAL";
 
                     if (ataqueIAElegido === "RAFAGA") {
                         dmgBase = Math.floor(carta2.ataque * (Math.random() * 0.15 + 0.35));
@@ -272,6 +311,7 @@ function CampoDeBatalla() {
                             dmgBase = Math.floor(dmgBase * 2.5);
                             const dmgReal = calcularDañoReal(dmgBase, carta1.defensa);
                             mensajeIAAuto = `🔮 [AUTO] 🖤 ¡DESTELLO NEGRO! ${carta2.nombre} castiga con un golpe crítico de ${dmgReal}.`;
+                            tipoEfectoIA = "CRITICO";
                         } else {
                             const dmgReal = calcularDañoReal(dmgBase, carta1.defensa);
                             mensajeIAAuto = `🔮 [AUTO] ${carta2.nombre} arremete con "Ráfaga Maldita" causando ${dmgReal} de daño.`;
@@ -284,14 +324,17 @@ function CampoDeBatalla() {
                         const baseIA = Math.floor(carta2.ataque * 1.1);
                         const dmgReal = calcularDañoReal(baseIA, carta1.defensa);
                         mensajeIAAuto = `⚡ [AUTO] ${carta2.nombre} libera su 👁️ "Expansión de Dominio Rival" causando ${dmgReal} de daño.`;
+                        tipoEfectoIA = "DOMINIO";
                     }
 
                     const dmgRealFinal = calcularDañoReal(dmgBase, carta1.defensa);
                     const nuevaVida1 = Math.max(0, vidaActual1 - dmgRealFinal);
+                    
+                    dispararVFX("CARTA2", "CARTA1", tipoEfectoIA);
 
                     if (nuevaVida1 <= 0 && vidaActual2 <= 0) {
                         setVidaActual1(0);
-                        finalizarDuelo("EMPATE");
+                        setTimeout(() => finalizarDuelo("EMPATE"), 800);
                         return;
                     }
 
@@ -299,13 +342,13 @@ function CampoDeBatalla() {
                     setHistorialBatalla(prev => [mensajeIAAuto, ...prev]);
 
                     if (nuevaVida1 <= 0) {
-                        finalizarDuelo(carta2.nombre);
+                        setTimeout(() => finalizarDuelo(carta2.nombre), 800);
                         return;
                     }
                     setTurnoJugador(true);
                 }
 
-            }, 1200);
+            }, 1600); // Aumenté un poco el timer automático para apreciar la animación
 
             return () => clearTimeout(timerAuto);
         }
@@ -338,10 +381,30 @@ function CampoDeBatalla() {
         if (log.includes("⚖️")) {
             return "text-cyan-400 font-extrabold text-sm md:text-base bg-cyan-950/40 px-3 py-1.5 rounded-xl border border-cyan-500/30";
         }
-        if (log.includes("Ataque Básico") || log.includes("responde con energía") || log.includes("ejecutó su ataque")) {
+        if (log.includes("Ataque Básico") || log.includes("responde con energía") || log.includes("ejecutó su ataque") || log.includes("Desmantelar")) {
             return "text-gray-100 font-bold text-sm md:text-base border-l-4 border-purple-500 pl-3 py-0.5 bg-white/5 rounded-r-lg";
         }
         return "text-gray-200 font-semibold text-sm md:text-base pl-3";
+    };
+
+    // FUNCIONES AUXILIARES PARA LAS CLASES CSS DINÁMICAS
+    const getClasesAtacante = (id: "CARTA1" | "CARTA2") => {
+        if (animacionActiva.atacante === id) {
+            return id === "CARTA1" 
+                ? "scale-110 translate-x-8 md:translate-x-16 -rotate-3 z-50 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]" 
+                : "scale-110 -translate-x-8 md:-translate-x-16 rotate-3 z-50 drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]";
+        }
+        return "";
+    };
+
+    const getClasesObjetivo = (id: "CARTA1" | "CARTA2") => {
+        if (animacionActiva.objetivo === id) {
+            const baseShake = "animate-pulse scale-95 brightness-150 saturate-200 z-40";
+            if (animacionActiva.tipo === "CRITICO") return `${baseShake} ring-4 ring-red-600 blur-[1px]`;
+            if (animacionActiva.tipo === "DOMINIO") return `${baseShake} ring-4 ring-purple-600 hue-rotate-90`;
+            return `${baseShake} ring-2 ring-white blur-[0.5px]`;
+        }
+        return "";
     };
 
     if (cargando) {
@@ -367,6 +430,11 @@ function CampoDeBatalla() {
 
     return (
         <div className="min-h-screen w-full bg-[#0b0c10] text-white flex flex-col items-center justify-between p-4 md:p-8 relative overflow-hidden select-none">
+            
+            {/* Efecto visual de fondo cuando hay un Destello Negro o Dominio */}
+            {animacionActiva.tipo === "CRITICO" && <div className="absolute inset-0 bg-red-900/20 z-0 animate-pulse pointer-events-none" />}
+            {animacionActiva.tipo === "DOMINIO" && <div className="absolute inset-0 bg-purple-900/30 z-0 animate-pulse pointer-events-none backdrop-invert-[.1]" />}
+
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-purple-900/10 rounded-full blur-[150px] pointer-events-none" />
             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none" />
 
@@ -391,14 +459,17 @@ function CampoDeBatalla() {
 
             <div className="z-10 flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 w-full max-w-6xl my-auto">
 
-                <div className="flex flex-col items-center gap-3 transition-all duration-300">
+                {/* CONTENEDOR CARTA 1 */}
+                <div className={`flex flex-col items-center gap-3 transition-all duration-300 ${getClasesAtacante("CARTA1")} ${getClasesObjetivo("CARTA1")}`}>
                     {fase === "COMBATE" && (
                         <div className="w-full max-w-[240px] bg-black/40 border border-purple-500/30 rounded-xl p-2 backdrop-blur-sm">
                             <div className="flex justify-between text-xs font-bold mb-1 px-1">
                                 <span className="text-purple-400">HP</span>
-                                <span>{vidaActual1} / {carta1.hp || 1000}</span>
+                                <span className={animacionActiva.objetivo === "CARTA1" ? "text-red-400 animate-bounce" : ""}>
+                                    {vidaActual1} / {carta1.hp || 1000}
+                                </span>
                             </div>
-                            <div className="w-full bg-gray-900 h-2.5 rounded-full overflow-hidden border border-white/5">
+                            <div className="w-full bg-gray-900 h-2.5 rounded-full overflow-hidden border border-white/5 relative">
                                 <div
                                     className="bg-gradient-to-r from-purple-600 to-indigo-500 h-full transition-all duration-300"
                                     style={{ width: `${(vidaActual1 / (carta1.hp || 1000)) * 100}%` }}
@@ -406,12 +477,29 @@ function CampoDeBatalla() {
                             </div>
                         </div>
                     )}
-                    <div className={`bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && turnoJugador ? 'border-purple-500 ring-2 ring-purple-500/20 scale-105' : 'border-white/10 opacity-80'}`}>
+                    <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && turnoJugador && animacionActiva.atacante !== "CARTA1" ? 'border-purple-500 ring-2 ring-purple-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
+                        {/* OVERLAYS DE IMPACTO CARTA 1 */}
+                        {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "CRITICO" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/60 via-transparent to-transparent rounded-2xl animate-ping">
+                                <span className="text-8xl drop-shadow-[0_0_20px_rgba(239,68,68,1)]">🖤</span>
+                            </div>
+                        )}
+                        {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "NORMAL" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl">
+                                <span className="text-7xl animate-pulse drop-shadow-xl">💥</span>
+                            </div>
+                        )}
+                        {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "DOMINIO" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-purple-600/30 rounded-2xl">
+                                <span className="text-8xl animate-pulse">🌌</span>
+                            </div>
+                        )}
                         <Cartadetalle carta={carta1} seleccionada={true} ocultarBotones={true} />
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center min-w-[200px] gap-6">
+                {/* CONTENEDOR CENTRAL (BOTONES Y VS) */}
+                <div className="flex flex-col items-center justify-center min-w-[200px] gap-6 z-20">
                     {fase === "PRESENTACION" && (
                         <div className="flex flex-col items-center gap-4 animate-fade-in">
                             <p className="number-font text-7xl md:text-8xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-white to-blue-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.3)]">
@@ -427,29 +515,38 @@ function CampoDeBatalla() {
                     )}
 
                     {fase === "COMBATE" && (
-                        <div className="bg-black/30 border border-white/5 rounded-2xl p-4 w-full backdrop-blur-md flex flex-col gap-3 max-w-[240px] animate-fade-in max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                        <div className="bg-black/40 border border-white/5 rounded-2xl p-4 w-full backdrop-blur-md flex flex-col gap-3 max-w-[240px] animate-fade-in max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                             
-                            {/* SECCIÓN DE MOVIMIENTOS PERSONALIZADOS  */}
                             {movimientosUsuario.length > 0 && (
                                 <div className="w-full flex flex-col gap-2 border-b border-white/10 pb-3 mb-1">
                                     <p className="text-center text-[10px] tracking-widest text-purple-400 uppercase font-bold">Mis Movimientos</p>
-                                    {movimientosUsuario.map((mov) => (
-                                        <button
-                                            key={mov.id}
-                                            disabled={!turnoJugador || isAutomatic}
-                                            onClick={() => ejecutarMovimientoPersonalizado(mov)}
-                                            className="w-full py-2 bg-gradient-to-r from-purple-900/40 to-blue-900/40 hover:from-purple-800/60 hover:to-blue-800/60 border border-purple-500/40 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-30 disabled:pointer-events-none shadow-sm"
-                                        >
-                                            ✨ {mov.nombre}
-                                        </button>
-                                    ))}
+                                    {movimientosUsuario.map((mov) => {
+                                        const cdActual = cooldownsMovimientos[mov.id] || 0;
+                                        const enCooldown = cdActual > 0;
+
+                                        return (
+                                            <button
+                                                key={mov.id}
+                                                disabled={!turnoJugador || isAutomatic || enCooldown || animacionActiva.atacante !== null}
+                                                onClick={() => ejecutarMovimientoPersonalizado(mov)}
+                                                className="w-full py-2 bg-gradient-to-r from-purple-900/40 to-blue-900/40 hover:from-purple-800/60 hover:to-blue-800/60 border border-purple-500/40 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-30 disabled:pointer-events-none shadow-sm flex flex-col items-center justify-center gap-0.5"
+                                            >
+                                                <span>✨ {mov.nombre}</span>
+                                                {enCooldown && (
+                                                    <span className="text-[10px] text-red-400 font-medium">
+                                                        (Espera: {cdActual} T)
+                                                    </span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
 
                             <p className="text-center text-xs tracking-widest text-gray-400 uppercase font-bold border-b border-white/10 pb-1.5 mt-1">Acciones Base</p>
 
                             <button
-                                disabled={!turnoJugador || isAutomatic}
+                                disabled={!turnoJugador || isAutomatic || animacionActiva.atacante !== null}
                                 onClick={ejecutarAtaqueManual}
                                 className="w-full py-2 bg-white/5 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/40 rounded-xl text-xs font-semibold transition-all disabled:opacity-30 disabled:pointer-events-none"
                             >
@@ -457,20 +554,23 @@ function CampoDeBatalla() {
                             </button>
 
                             <button
-                                disabled={!turnoJugador || isAutomatic || cooldownDominio1 > 0}
+                                disabled={!turnoJugador || isAutomatic || cooldownDominio1 > 0 || animacionActiva.atacante !== null}
                                 onClick={() => {
                                     if (fase !== "COMBATE" || !carta1 || !carta2) return;
                                     const baseDmg = Math.floor(carta1.ataque * 1.1);
                                     const dmgReal = calcularDañoReal(baseDmg, carta2.defensa);
                                     const nuevaVida2 = Math.max(0, vidaActual2 - dmgReal);
+                                    
+                                    dispararVFX("CARTA1", "CARTA2", "DOMINIO");
                                     setVidaActual2(nuevaVida2);
                                     setHistorialBatalla(prev => [`👁️ ${carta1.nombre} usó "Expansión de Dominio" infligiendo ${dmgReal} de daño.`, ...prev]);
                                     
                                     if (nuevaVida2 <= 0) {
-                                        finalizarDuelo(carta1.nombre);
+                                        setTimeout(() => finalizarDuelo(carta1.nombre), 800);
                                         return;
                                     }
                                     
+                                    reducirTodosLosCooldowns(); 
                                     setCooldownDominio1(6);
                                     setTurnoJugador(false);
                                 }}
@@ -486,7 +586,8 @@ function CampoDeBatalla() {
 
                             <button
                                 onClick={() => setIsAutomatic(!isAutomatic)}
-                                className={`w-full py-2 rounded-xl text-xs font-black tracking-wider transition-all uppercase shadow-md active:scale-95 ${isAutomatic
+                                disabled={animacionActiva.atacante !== null}
+                                className={`w-full py-2 rounded-xl text-xs font-black tracking-wider transition-all uppercase shadow-md active:scale-95 disabled:opacity-50 ${isAutomatic
                                     ? "bg-red-600 hover:bg-red-500 text-white animate-pulse shadow-red-600/20"
                                     : "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black"
                                     }`}
@@ -518,14 +619,17 @@ function CampoDeBatalla() {
                     )}
                 </div>
 
-                <div className="flex flex-col items-center gap-3 transition-all duration-300">
+                {/* CONTENEDOR CARTA 2 */}
+                <div className={`flex flex-col items-center gap-3 transition-all duration-300 ${getClasesAtacante("CARTA2")} ${getClasesObjetivo("CARTA2")}`}>
                     {fase === "COMBATE" && (
                         <div className="w-full max-w-[240px] bg-black/40 border border-blue-500/30 rounded-xl p-2 backdrop-blur-sm">
                             <div className="flex justify-between text-xs font-bold mb-1 px-1">
                                 <span className="text-blue-400">HP</span>
-                                <span>{vidaActual2} / {carta2.hp || 1000}</span>
+                                <span className={animacionActiva.objetivo === "CARTA2" ? "text-red-400 animate-bounce" : ""}>
+                                    {vidaActual2} / {carta2.hp || 1000}
+                                </span>
                             </div>
-                            <div className="w-full bg-gray-900 h-2.5 rounded-full overflow-hidden border border-white/5">
+                            <div className="w-full bg-gray-900 h-2.5 rounded-full overflow-hidden border border-white/5 relative">
                                 <div
                                     className="bg-gradient-to-r from-blue-600 to-cyan-500 h-full transition-all duration-300"
                                     style={{ width: `${(vidaActual2 / (carta2.hp || 1000)) * 100}%` }}
@@ -533,7 +637,23 @@ function CampoDeBatalla() {
                             </div>
                         </div>
                     )}
-                    <div className={`bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && !turnoJugador ? 'border-blue-500 ring-2 ring-blue-500/20 scale-105' : 'border-white/10 opacity-80'}`}>
+                    <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && !turnoJugador && animacionActiva.atacante !== "CARTA2" ? 'border-blue-500 ring-2 ring-blue-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
+                        {/* OVERLAYS DE IMPACTO CARTA 2 */}
+                        {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "CRITICO" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/60 via-transparent to-transparent rounded-2xl animate-ping">
+                                <span className="text-8xl drop-shadow-[0_0_20px_rgba(239,68,68,1)]">🖤</span>
+                            </div>
+                        )}
+                        {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "NORMAL" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl">
+                                <span className="text-7xl animate-pulse drop-shadow-xl">💥</span>
+                            </div>
+                        )}
+                        {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "DOMINIO" && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-purple-600/30 rounded-2xl">
+                                <span className="text-8xl animate-pulse">🌌</span>
+                            </div>
+                        )}
                         <Cartadetalle carta={carta2} seleccionada={true} ocultarBotones={true} />
                     </div>
                 </div>
