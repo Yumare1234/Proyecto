@@ -6,6 +6,7 @@ import { FormularioCrearCarta } from './components/formularioCrearcarta';
 import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index.tsx';
 import SeleccionarCartas from './components/seleccionarCartas.tsx';
 import CampoDeBatalla from './components/CamposDeBatalla.tsx';
+import ErrorBoundary from './components/ErrorBoundary.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -111,6 +112,7 @@ function App() {
 };
 
   return (
+    <ErrorBoundary> 
     <Routes>
       <Route 
         path="/" 
@@ -122,6 +124,10 @@ function App() {
             onActualizar={actualizarCarta}
           />
         } 
+      />
+      <Route 
+        path="/"
+        element={<Home cartas={cartas} onEliminar={eliminarCarta} onAñadirCarta={addCarta} onActualizar={actualizarCarta} />} 
       />
       <Route 
         path="/crear-carta" 
@@ -138,6 +144,7 @@ function App() {
         path="/generar-carta-ia" element={<GenerarCartaIA  />} 
       />
     </Routes>
+    </ErrorBoundary>
   );
 }
 

@@ -1,12 +1,60 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import type { Carta } from "./index.tsx";
 import Cartadetalle from "./CartaProyecto";
 
+// --- SUBCOMPONENTE DE VICTORIA ANIMADA ---
+const PantallaVictoria = ({ ganador, esEmpate, onReinicio }: { ganador: string | null, esEmpate: boolean, onReinicio: () => void }) => {
+    const [showContent, setShowContent] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setShowContent(true), 200);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-500">
+            {showContent && (
+                <div className="text-center animate-screen-shake-vic relative px-4">
+                    {/* Destello de fondo (Aura) */}
+                    <div className="absolute inset-0 bg-amber-500/20 blur-3xl rounded-full scale-150 animate-pulse-slow" />
+
+                    <h2 className="text-xl md:text-3xl font-extrabold uppercase tracking-[0.4em] text-amber-400 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-fade-in-down">
+                        ¡Combate Terminado!
+                    </h2>
+
+                    <div className="relative my-6 animate-slam">
+                        <h1 className="text-5xl md:text-8xl font-black uppercase italic tracking-wider bg-gradient-to-r from-yellow-200 via-amber-400 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_10px_10px_rgba(0,0,0,1)]">
+                            {esEmpate ? "¡EMPATE TOTAL!" : ganador}
+                        </h1>
+                        {/* Reflejo metálico pasando por el texto */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 translate-x-[-100%] animate-shine" />
+                    </div>
+
+                    <p className="text-xs md:text-base font-medium uppercase tracking-[0.2em] text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                        {esEmpate ? "Aniquilación Mutua" : "Dominación Absoluta"}
+                    </p>
+
+                    <button
+                        onClick={onReinicio}
+                        className="mt-12 px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-black font-black uppercase tracking-widest rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.5)] hover:shadow-[0_0_25px_rgba(245,158,11,0.8)] hover:scale-105 transition-all duration-300 animate-fade-in-up"
+                        style={{ animationDelay: '0.5s' }}
+                    >
+                        Volver a Jugar
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+// --- TIPOS ---
 type FaseBatalla = "PRESENTACION" | "COMBATE" | "FINALIZADO";
 type Movimiento = { id: string; nombre: string; danio: number; cooldown: number };
 type TipoEfecto = "NORMAL" | "CRITICO" | "DOMINIO" | null;
 
+// --- COMPONENTE PRINCIPAL ---
 function CampoDeBatalla() {
     const { id1, id2 } = useParams<{ id1: string; id2: string }>();
     const location = useLocation();
@@ -38,13 +86,11 @@ function CampoDeBatalla() {
     const [cooldownsMovimientos, setCooldownsMovimientos] = useState<Record<string, number>>({});
     const [isAutomatic, setIsAutomatic] = useState<boolean>(false);
 
-    // --- ESTADOS: EVENTO ESPECIAL GOJO VS SUKUNA ---
     const [choqueDominiosActivo, setChoqueDominiosActivo] = useState<boolean>(false);
     const [turnosRestantesClash, setTurnosRestantesClash] = useState<number>(0);
     const [cooldownChoque, setCooldownChoque] = useState<number>(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Controla la animación de dominio que se muestra (uno solo o ambos)
     const [dominioVisual, setDominioVisual] = useState<"CARTA1" | "CARTA2" | "AMBOS" | null>(null);
     const domainTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,6 +109,22 @@ function CampoDeBatalla() {
         objetivo: "CARTA1" | "CARTA2" | null;
         tipo: TipoEfecto;
     }>({ atacante: null, objetivo: null, tipo: null });
+
+    // Función para definir qué fondo de dominio usar estrictamente por nombre
+    const obtenerFondoDominio = (carta: Carta | null) => {
+        if (!carta) return "none";
+        const nombreStr = carta.nombre || "";
+        
+        if (nombreStr.includes("Satoru Gojo")) {
+            return `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`;
+        }
+        if (nombreStr.includes("Ryomen Sukuna")) {
+            return `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`;
+        }
+        
+        // Dominio genérico por si otra carta usa la habilidad
+        return `linear-gradient(to bottom, rgba(107, 33, 168, 0.6), rgba(0, 0, 0, 0.9))`;
+    };
 
     const getCartaDeServidor = async (id: string, signal: AbortSignal): Promise<Carta> => {
         const urlAPI = `https://educa-api.onrender.com/card/${id}`;
@@ -176,6 +238,19 @@ function CampoDeBatalla() {
 
     const dispararVFX = (atacante: "CARTA1" | "CARTA2", objetivo: "CARTA1" | "CARTA2", tipo: TipoEfecto) => {
         setAnimacionActiva({ atacante, objetivo, tipo });
+
+        const audioGolpeBase = new Audio("/sounds/golpe.mp3");
+        audioGolpeBase.volume = 0.7;
+        audioGolpeBase.play().catch(e => console.log("Audio de golpe bloqueado", e));
+
+        if (tipo === "CRITICO") {
+            setTimeout(() => {
+                const audioCritico = new Audio("/sounds/black-flash.mp3"); 
+                audioCritico.volume = 1.0;
+                audioCritico.play().catch(e => console.log("Audio black-flash bloqueado", e));
+            }, 50); 
+        }
+
         setTimeout(() => {
             setAnimacionActiva({ atacante: null, objetivo: null, tipo: null });
         }, 800);
@@ -505,12 +580,71 @@ function CampoDeBatalla() {
     }
 
     return (
-        <div className={`min-h-screen w-full text-white flex flex-col items-center justify-between p-4 md:p-8 relative overflow-hidden select-none transition-colors duration-1000 ${choqueDominiosActivo ? 'bg-black' : 'bg-[#0b0c10]'}`}>
+        <div className={`min-h-screen w-full text-white flex flex-col items-center justify-between p-4 md:p-8 relative overflow-hidden select-none transition-colors duration-1000 ${choqueDominiosActivo ? 'bg-black' : 'bg-[#0b0c10]'} ${animacionActiva.tipo === "CRITICO" ? 'animate-shake-extreme' : ''}`}>
 
-            {/* ========== ESTILOS CSS PARA LOS DOMINIOS ========== */}
+            {/* PANTALLA DE VICTORIA */}
+            {fase === "FINALIZADO" && (
+                <PantallaVictoria 
+                    ganador={ganador} 
+                    esEmpate={esEmpate} 
+                    onReinicio={() => navigate("/seleccionar-cartas")} 
+                />
+            )}
+
+            {/* ========== ESTILOS CSS ANIMACIONES Y EFECTOS ========== */}
             <style>
                 {`
-                    /* Choque rgb (botón) */
+                    /* ================= ANIMACIONES DE VICTORIA ================= */
+                    @keyframes screenShakeVic {
+                      0% { transform: translate(0, 0) scale(1); }
+                      10% { transform: translate(-4px, 3px) scale(1.02); }
+                      20% { transform: translate(4px, -2px) scale(1.01); }
+                      30% { transform: translate(-2px, -3px) scale(1); }
+                      40% { transform: translate(2px, 2px) scale(1); }
+                      100% { transform: translate(0, 0) scale(1); }
+                    }
+                    @keyframes slamImpact {
+                      0% { transform: scale(5); opacity: 0; filter: blur(10px); }
+                      70% { transform: scale(0.95); opacity: 1; filter: blur(0px); }
+                      100% { transform: scale(1); }
+                    }
+                    @keyframes metallicShine {
+                      0% { transform: translate(-100%) skewX(-15deg); }
+                      30% { transform: translate(100%) skewX(-15deg); }
+                      100% { transform: translate(100%) skewX(-15deg); }
+                    }
+                    @keyframes fadeInDown {
+                      from { opacity: 0; transform: translateY(-20px); }
+                      to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes fadeInUp {
+                      from { opacity: 0; transform: translateY(20px); }
+                      to { opacity: 1; transform: translateY(0); }
+                    }
+
+                    .animate-screen-shake-vic { animation: screenShakeVic 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+                    .animate-slam { animation: slamImpact 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+                    .animate-shine { animation: metallicShine 3s infinite ease-in-out; animation-delay: 0.6s; }
+                    .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+                    .animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
+                    .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; fill-mode: both; }
+
+                    /* ================= ANIMACIONES DE COMBATE ================= */
+                    @keyframes shake-extreme {
+                        0% { transform: translate(0, 0) rotate(0deg); }
+                        10% { transform: translate(-15px, -15px) rotate(-2deg); }
+                        20% { transform: translate(15px, -15px) rotate(2deg); filter: invert(1); }
+                        30% { transform: translate(-15px, 15px) rotate(-2deg); filter: invert(1); }
+                        40% { transform: translate(15px, 15px) rotate(2deg); filter: none; }
+                        50% { transform: translate(-8px, -8px) rotate(-1deg); }
+                        60% { transform: translate(8px, -8px) rotate(1deg); }
+                        70% { transform: translate(-8px, 8px) rotate(-1deg); }
+                        80% { transform: translate(8px, 8px) rotate(1deg); }
+                        90% { transform: translate(-3px, -3px) rotate(0deg); }
+                        100% { transform: translate(0, 0) rotate(0deg); }
+                    }
+                    .animate-shake-extreme { animation: shake-extreme 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
                     @keyframes rgb-clash {
                         0% { border-color: #ef4444; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
                         33% { border-color: #22c55e; box-shadow: 0 0 18px rgba(34, 197, 94, 0.6); }
@@ -519,48 +653,77 @@ function CampoDeBatalla() {
                     }
                     .animate-rgb { animation: rgb-clash 1.2s linear infinite; }
 
-                    /* ===== ANIMACIÓN DE APARICIÓN PARA LOS DOMINIOS ===== */
                     @keyframes domainAppear {
                         0% { opacity: 0; transform: scale(0.5); }
                         100% { opacity: 1; transform: scale(1); }
                     }
-                    .animate-domain-in {
-                        animation: domainAppear 0.6s ease-out forwards;
+                    .animate-domain-in { animation: domainAppear 0.6s ease-out forwards; }
+
+                    /* VFX: ATAQUE NORMAL */
+                    @keyframes slash-cross {
+                        0% { opacity: 0; transform: scale(0.2); }
+                        20% { opacity: 1; transform: scale(1.1); filter: brightness(2); }
+                        100% { opacity: 0; transform: scale(1.4); }
+                    }
+                    @keyframes hit-spark {
+                        0% { transform: scale(0); opacity: 1; }
+                        50% { transform: scale(1.5); opacity: 1; }
+                        100% { transform: scale(0); opacity: 0; }
+                    }
+                    
+                    .vfx-corte-1 {
+                        position: absolute; inset: -10px;
+                        background: linear-gradient(transparent 47%, rgba(255,255,255,1) 48%, rgba(168,85,247,0.9) 50%, rgba(255,255,255,1) 52%, transparent 53%);
+                        transform: rotate(45deg); animation: slash-cross 0.25s ease-out forwards; z-index: 50;
+                    }
+                    .vfx-corte-2 {
+                        position: absolute; inset: -10px;
+                        background: linear-gradient(transparent 47%, rgba(255,255,255,1) 48%, rgba(59,130,246,0.9) 50%, rgba(255,255,255,1) 52%, transparent 53%);
+                        transform: rotate(-45deg); animation: slash-cross 0.25s ease-out forwards; animation-delay: 0.05s; z-index: 50;
+                    }
+                    .vfx-chispa {
+                        position: absolute; inset: 0; margin: auto; width: 100px; height: 100px;
+                        background: radial-gradient(circle, #fff 10%, #a855f7 40%, transparent 70%);
+                        border-radius: 50%; animation: hit-spark 0.3s ease-out forwards; mix-blend-mode: screen; z-index: 51;
                     }
 
-                    /* ===== EFECTO DE CHOQUE: LÍNEA DIVISORIA VIBRANTE ===== */
-                    @keyframes clash-border-pulse {
-                        0% { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
-                        50% { border-color: rgba(168,85,247,0.9); box-shadow: 0 0 40px rgba(168,85,247,0.6); }
-                        100% { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+                    /* VFX: DESTELLO NEGRO */
+                    @keyframes black-flash-explode {
+                        0% { transform: scale(0.1) rotate(0deg); opacity: 0; filter: contrast(3) brightness(2); }
+                        15% { transform: scale(1.6) rotate(45deg); opacity: 1; }
+                        100% { transform: scale(2.5) rotate(135deg); opacity: 0; }
                     }
-                    .clash-divider {
-                        border-right: 4px solid white;
-                        animation: clash-border-pulse 1.2s ease-in-out infinite;
+                    @keyframes black-flash-core {
+                        0% { transform: scale(0.5); opacity: 1; }
+                        100% { transform: scale(3); opacity: 0; }
                     }
 
-                    /* ===== MEJORA DEL FONDO DURANTE CHOQUE ===== */
-                    .bg-clash-dark {
-                        background-color: #000;
-                        background-image: radial-gradient(circle at 30% 50%, rgba(168,85,247,0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 50%, rgba(220,38,38,0.15) 0%, transparent 50%);
+                    .vfx-destello-negro {
+                        position: absolute; inset: -40px;
+                        background: radial-gradient(circle, #fff 5%, #000 15%, #dc2626 40%, transparent 70%);
+                        box-shadow: inset 0 0 80px #000, 0 0 100px rgba(220, 38, 38, 1);
+                        border-radius: 50%; animation: black-flash-explode 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                        pointer-events: none; z-index: 60; mix-blend-mode: hard-light;
+                    }
+                    .vfx-destello-rayos {
+                        position: absolute; inset: -80px;
+                        background: conic-gradient(from 0deg, transparent 0deg, #000 5deg, #ef4444 8deg, transparent 15deg, transparent 90deg, #000 95deg, #ef4444 98deg, transparent 105deg, transparent 180deg, #000 185deg, #ef4444 188deg, transparent 195deg, transparent 270deg, #000 275deg, #ef4444 278deg, transparent 285deg);
+                        animation: black-flash-explode 0.4s linear forwards; pointer-events: none; z-index: 61;
+                    }
+                    .vfx-destello-nucleo {
+                        position: absolute; inset: 0; margin: auto; width: 50px; height: 50px;
+                        background-color: black; border-radius: 50%; box-shadow: 0 0 40px 20px red;
+                        animation: black-flash-core 0.4s ease-out forwards; z-index: 62;
                     }
                 `}
             </style>
 
             {/* ========== OVERLAYS DE DOMINIOS (GIFs) ========== */}
-            {/* DOMINIO ÚNICO (CARTA1 o CARTA2) – ahora con z-0 para no tapar la interfaz */}
             {dominioVisual && dominioVisual !== "AMBOS" && (
                 <div
                     className="absolute inset-0 z-0 pointer-events-none animate-domain-in"
                     style={{
-                        backgroundImage: dominioVisual === "CARTA1"
-                            ? (carta1?.nombre.includes("Satoru Gojo")
-                                ? `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`
-                                : `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`)
-                            : (carta2?.nombre.includes("Satoru Gojo")
-                                ? `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`
-                                : `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`),
+                        background: dominioVisual === "CARTA1" ? obtenerFondoDominio(carta1) : obtenerFondoDominio(carta2),
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
@@ -568,16 +731,13 @@ function CampoDeBatalla() {
                 />
             )}
 
-            {/* CHOQUE DE DOMINIOS: PANTALLA DIVIDIDA – también con z-0 */}
+            {/* CHOQUE DE DOMINIOS: PANTALLA DIVIDIDA */}
             {dominioVisual === "AMBOS" && (
                 <div className="absolute inset-0 z-0 flex pointer-events-none bg-clash-dark">
-                    {/* Lado izquierdo */}
                     <div
                         className="w-1/2 h-full animate-domain-in"
                         style={{
-                            backgroundImage: carta1?.nombre.includes("Satoru Gojo")
-                                ? `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`
-                                : `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`,
+                            background: obtenerFondoDominio(carta1),
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
@@ -585,13 +745,10 @@ function CampoDeBatalla() {
                             boxShadow: 'inset 0 0 60px rgba(168,85,247,0.3)',
                         }}
                     />
-                    {/* Lado derecho */}
                     <div
                         className="w-1/2 h-full animate-domain-in"
                         style={{
-                            backgroundImage: carta2?.nombre.includes("Satoru Gojo")
-                                ? `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`
-                                : `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`,
+                            background: obtenerFondoDominio(carta2),
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
@@ -601,15 +758,13 @@ function CampoDeBatalla() {
                 </div>
             )}
 
-            {/* Efectos de ataque (crítico, normal, dominio) */}
-            {animacionActiva.tipo === "CRITICO" && <div className="absolute inset-0 bg-red-900/20 z-0 animate-pulse pointer-events-none" />}
+            {/* Efectos de ataque globales de la arena */}
+            {animacionActiva.tipo === "CRITICO" && <div className="absolute inset-0 bg-red-900/40 z-0 animate-pulse pointer-events-none mix-blend-color-burn" />}
             {animacionActiva.tipo === "DOMINIO" && <div className="absolute inset-0 bg-purple-900/30 z-0 animate-pulse pointer-events-none backdrop-invert-[.1]" />}
 
-            {/* Fondo decorativo */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-purple-900/10 rounded-full blur-[150px] pointer-events-none" />
             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[40vw] h-[40vw] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none" />
 
-            {/* Botón salir */}
             <button
                 onClick={() => navigate("/")}
                 className="absolute top-4 right-4 z-20 px-3 py-1.5 bg-white/5 hover:bg-red-950/40 border border-white/10 hover:border-red-500/30 rounded-xl text-[11px] font-bold tracking-wider uppercase text-gray-400 hover:text-red-400 transition-all flex items-center gap-1 shadow-md backdrop-blur-sm"
@@ -617,7 +772,6 @@ function CampoDeBatalla() {
                 🚪 Salir
             </button>
 
-            {/* Cabecera */}
             <div className="z-10 text-center mt-2 w-full max-w-xl">
                 <h1 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Arena de Hechicería</h1>
                 <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-2" />
@@ -639,7 +793,6 @@ function CampoDeBatalla() {
                 )}
             </div>
 
-            {/* Cartas y controles centrales */}
             <div className="z-10 flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 w-full max-w-6xl my-auto">
 
                 {/* Carta 1 */}
@@ -661,21 +814,27 @@ function CampoDeBatalla() {
                         </div>
                     )}
                     <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && turnoJugador && animacionActiva.atacante !== "CARTA1" ? 'border-purple-500 ring-2 ring-purple-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
+                        
                         {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "CRITICO" && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/60 via-transparent to-transparent rounded-2xl animate-ping">
-                                <span className="text-8xl drop-shadow-[0_0_20px_rgba(239,68,68,1)]">🖤</span>
-                            </div>
+                            <>
+                                <div className="vfx-destello-negro"></div>
+                                <div className="vfx-destello-rayos"></div>
+                                <div className="vfx-destello-nucleo"></div>
+                            </>
                         )}
                         {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "NORMAL" && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl">
-                                <span className="text-7xl animate-pulse drop-shadow-xl">💥</span>
-                            </div>
+                            <>
+                                <div className="vfx-corte-1"></div>
+                                <div className="vfx-corte-2"></div>
+                                <div className="vfx-chispa"></div>
+                            </>
                         )}
                         {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "DOMINIO" && (
                             <div className="absolute inset-0 z-50 flex items-center justify-center bg-purple-600/30 rounded-2xl">
                                 <span className="text-8xl animate-pulse">🌌</span>
                             </div>
                         )}
+                        
                         <Cartadetalle carta={carta1} seleccionada={true} ocultarBotones={true} />
                     </div>
                 </div>
@@ -758,7 +917,6 @@ function CampoDeBatalla() {
                                         return;
                                     }
 
-                                    // Mostrar animación de dominio de CARTA1 (si no es choque)
                                     if (domainTimeoutRef.current) clearTimeout(domainTimeoutRef.current);
                                     setDominioVisual("CARTA1");
                                     domainTimeoutRef.current = setTimeout(() => {
@@ -798,27 +956,6 @@ function CampoDeBatalla() {
                             </button>
                         </div>
                     )}
-
-                    {fase === "FINALIZADO" && (
-                        <div className="bg-black/50 border border-yellow-500/30 rounded-2xl p-5 text-center backdrop-blur-md max-w-[260px] shadow-[0_0_30px_rgba(234,179,8,0.15)] animate-scale-up">
-                            <p className="text-yellow-400 text-xs font-black tracking-widest uppercase mb-1">Fin del Combate</p>
-
-                            {esEmpate ? (
-                                <p className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 mb-4 drop-shadow-md uppercase tracking-wider">
-                                    ¡Empate Total!
-                                </p>
-                            ) : (
-                                <p className="text-xl font-extrabold text-white mb-4 drop-shadow-md">¡Ganador {ganador}!</p>
-                            )}
-
-                            <button
-                                onClick={() => navigate("/seleccionar-cartas")}
-                                className="w-full py-2 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-black text-xs font-bold rounded-xl transition-transform active:scale-95"
-                            >
-                                Volver a Jugar
-                            </button>
-                        </div>
-                    )}
                 </div>
 
                 {/* Carta 2 */}
@@ -840,21 +977,27 @@ function CampoDeBatalla() {
                         </div>
                     )}
                     <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && !turnoJugador && animacionActiva.atacante !== "CARTA2" ? 'border-blue-500 ring-2 ring-blue-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
+                        
                         {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "CRITICO" && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/60 via-transparent to-transparent rounded-2xl animate-ping">
-                                <span className="text-8xl drop-shadow-[0_0_20px_rgba(239,68,68,1)]">🖤</span>
-                            </div>
+                            <>
+                                <div className="vfx-destello-negro"></div>
+                                <div className="vfx-destello-rayos"></div>
+                                <div className="vfx-destello-nucleo"></div>
+                            </>
                         )}
                         {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "NORMAL" && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl">
-                                <span className="text-7xl animate-pulse drop-shadow-xl">💥</span>
-                            </div>
+                            <>
+                                <div className="vfx-corte-1"></div>
+                                <div className="vfx-corte-2"></div>
+                                <div className="vfx-chispa"></div>
+                            </>
                         )}
                         {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "DOMINIO" && (
                             <div className="absolute inset-0 z-50 flex items-center justify-center bg-purple-600/30 rounded-2xl">
                                 <span className="text-8xl animate-pulse">🌌</span>
                             </div>
                         )}
+
                         <Cartadetalle carta={carta2} seleccionada={true} ocultarBotones={true} />
                     </div>
                 </div>

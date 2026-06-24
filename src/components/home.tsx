@@ -7,12 +7,13 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
     const [busqueda, setBusqueda] = useState('');
     
     const cartasfiltradas = useMemo(() => {
-        const term = busqueda.toLowerCase();
-        return cartas.filter(carta => 
-            carta.nombre.toLowerCase().includes(term) || 
-            carta.categoria.toLowerCase().includes(term)
-        );
-    }, [busqueda, cartas]);
+    const term = busqueda.toLowerCase();
+    return cartas.filter(carta => {
+    const nombre = (carta.nombre || '').toLowerCase();
+    const categoria = (carta.categoria || '').toLowerCase();
+    return nombre.includes(term) || categoria.includes(term);
+    });
+}, [busqueda, cartas]);
 
     return (
         <div className="flex flex-col min-h-screen bg-[#050508] text-gray-200 relative overflow-hidden">
