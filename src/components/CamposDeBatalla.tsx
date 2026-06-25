@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import type { Carta } from "./index.tsx";
 import Cartadetalle from "./CartaProyecto";
