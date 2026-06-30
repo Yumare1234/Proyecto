@@ -1227,11 +1227,10 @@ function CamposDeBatalla2() {
                     <button
                         onClick={() => startGame("facil")}
                         disabled={!facilDisponible}
-                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${
-                            facilDisponible 
-                                ? 'bg-black border-green-600 hover:bg-green-950 hover:-translate-y-2 shadow-[8px_8px_0_#166534] cursor-pointer' 
-                                : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
-                        }`}
+                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${facilDisponible
+                            ? 'bg-black border-green-600 hover:bg-green-950 hover:-translate-y-2 shadow-[8px_8px_0_#166534] cursor-pointer'
+                            : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
+                            }`}
                     >
                         <div className="flex items-center justify-between mb-2">
                             <div className="text-green-500 text-sm font-bold">[ GRADO 4 ]</div>
@@ -1253,11 +1252,10 @@ function CamposDeBatalla2() {
                     <button
                         onClick={() => startGame("medio")}
                         disabled={!medioDisponible}
-                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${
-                            medioDisponible 
-                                ? 'bg-black border-yellow-600 hover:bg-yellow-950 hover:-translate-y-2 shadow-[8px_8px_0_#854d0e] cursor-pointer' 
-                                : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
-                        }`}
+                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${medioDisponible
+                            ? 'bg-black border-yellow-600 hover:bg-yellow-950 hover:-translate-y-2 shadow-[8px_8px_0_#854d0e] cursor-pointer'
+                            : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
+                            }`}
                     >
                         <div className="flex items-center justify-between mb-2">
                             <div className="text-yellow-500 text-sm font-bold">[ GRADO 1 ]</div>
@@ -1279,11 +1277,10 @@ function CamposDeBatalla2() {
                     <button
                         onClick={() => startGame("dificil")}
                         disabled={!dificilDisponible}
-                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${
-                            dificilDisponible 
-                                ? 'bg-black border-red-600 hover:bg-red-950 hover:-translate-y-2 shadow-[8px_8px_0_#7f1d1d] cursor-pointer' 
-                                : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
-                        }`}
+                        className={`group flex-1 p-6 border-4 transition-all duration-200 ${dificilDisponible
+                            ? 'bg-black border-red-600 hover:bg-red-950 hover:-translate-y-2 shadow-[8px_8px_0_#7f1d1d] cursor-pointer'
+                            : 'bg-gray-950 border-gray-700 opacity-60 cursor-not-allowed shadow-[8px_8px_0_#374151]'
+                            }`}
                     >
                         <div className="flex items-center justify-between mb-2">
                             <div className={`text-sm font-bold ${dificilDisponible ? 'text-red-500 animate-pulse' : 'text-red-700'}`}>[ GRADO ESPECIAL ]</div>
@@ -1517,11 +1514,10 @@ function CamposDeBatalla2() {
                                         <span className="flex items-center gap-1.5"><LuZap className={`${p1.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'text-red-500' : p1.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'text-green-400' : p1.energy >= BUFF_THRESHOLD ? 'text-amber-400' : 'text-cyan-400'}`} size={14} /> {Math.floor(p1.energy)}%</span>
                                     </div>
                                     <div className="h-2.5 bg-gray-900 border border-gray-700 mb-3">
-                                        <div className={`h-full transition-all duration-300 ${
-                                            p1.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'bg-red-500 animate-pulse' : 
-                                            p1.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'bg-green-500' : 
-                                            p1.energy >= BUFF_THRESHOLD ? 'bg-amber-500' : 'bg-blue-600'
-                                        }`} style={{ width: `${(p1.energy / MAX_ENERGY) * 100}%` }} />
+                                        <div className={`h-full transition-all duration-300 ${p1.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'bg-red-500 animate-pulse' :
+                                            p1.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'bg-green-500' :
+                                                p1.energy >= BUFF_THRESHOLD ? 'bg-amber-500' : 'bg-blue-600'
+                                            }`} style={{ width: `${(p1.energy / MAX_ENERGY) * 100}%` }} />
                                     </div>
                                     {/* Indicadores de habilidades especiales */}
                                     <div className="flex gap-3 text-xs mb-2">
@@ -1545,11 +1541,10 @@ function CamposDeBatalla2() {
                                                     key={move.id}
                                                     onClick={() => selectAttack(1, move)}
                                                     disabled={isOnCooldown || gameState.isAnimating}
-                                                    className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${
-                                                        isSelected ? "bg-white text-black border-white" : 
-                                                        isOnCooldown ? "bg-gray-900 text-gray-600 border-gray-700 cursor-not-allowed" : 
-                                                        "bg-black text-white border-orange-800 hover:bg-orange-950 hover:border-orange-500"
-                                                    }`}
+                                                    className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${isSelected ? "bg-white text-black border-white" :
+                                                        isOnCooldown ? "bg-gray-900 text-gray-600 border-gray-700 cursor-not-allowed" :
+                                                            "bg-black text-white border-orange-800 hover:bg-orange-950 hover:border-orange-500"
+                                                        }`}
                                                 >
                                                     <div className="flex justify-between items-center">
                                                         <span className="truncate mr-2">{isSelected ? '▸ ' : ''}{move.nombre}</span>
@@ -1561,10 +1556,9 @@ function CamposDeBatalla2() {
                                         <button
                                             onClick={() => selectDefense(1)}
                                             disabled={gameState.isAnimating}
-                                            className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${
-                                                gameState.selectedDefense1 ? "bg-white text-black border-white" : 
+                                            className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${gameState.selectedDefense1 ? "bg-white text-black border-white" :
                                                 "bg-black text-white border-blue-800 hover:bg-blue-950 hover:border-blue-500"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center gap-2">
                                                 {gameState.selectedDefense1 ? '▸ ' : ''} <LuShield size={16} /> DEFENDER [GUARD]
@@ -1591,11 +1585,10 @@ function CamposDeBatalla2() {
                                         <span className="flex items-center gap-1.5"><LuZap className={`${p2.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'text-red-500' : p2.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'text-green-400' : p2.energy >= BUFF_THRESHOLD ? 'text-amber-400' : 'text-cyan-400'}`} size={14} /> {Math.floor(p2.energy)}%</span>
                                     </div>
                                     <div className="h-2.5 bg-gray-900 border border-gray-700 mb-3">
-                                        <div className={`h-full transition-all duration-300 ${
-                                            p2.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'bg-red-500 animate-pulse' : 
-                                            p2.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'bg-green-500' : 
-                                            p2.energy >= BUFF_THRESHOLD ? 'bg-amber-500' : 'bg-blue-600'
-                                        }`} style={{ width: `${(p2.energy / MAX_ENERGY) * 100}%` }} />
+                                        <div className={`h-full transition-all duration-300 ${p2.energy >= DOMAIN_EXPANSION_THRESHOLD ? 'bg-red-500 animate-pulse' :
+                                            p2.energy >= REVERSE_TECHNIQUE_THRESHOLD ? 'bg-green-500' :
+                                                p2.energy >= BUFF_THRESHOLD ? 'bg-amber-500' : 'bg-blue-600'
+                                            }`} style={{ width: `${(p2.energy / MAX_ENERGY) * 100}%` }} />
                                     </div>
                                     {/* Indicadores de habilidades especiales */}
                                     <div className="flex gap-3 text-xs mb-2">
@@ -1619,11 +1612,10 @@ function CamposDeBatalla2() {
                                                     key={move.id}
                                                     onClick={() => selectAttack(2, move)}
                                                     disabled={isOnCooldown || gameState.isAnimating}
-                                                    className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${
-                                                        isSelected ? "bg-white text-black border-white" : 
-                                                        isOnCooldown ? "bg-gray-900 text-gray-600 border-gray-700 cursor-not-allowed" : 
-                                                        "bg-black text-white border-blue-800 hover:bg-blue-950 hover:border-blue-500"
-                                                    }`}
+                                                    className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${isSelected ? "bg-white text-black border-white" :
+                                                        isOnCooldown ? "bg-gray-900 text-gray-600 border-gray-700 cursor-not-allowed" :
+                                                            "bg-black text-white border-blue-800 hover:bg-blue-950 hover:border-blue-500"
+                                                        }`}
                                                 >
                                                     <div className="flex justify-between items-center">
                                                         <span className="truncate mr-2">{isSelected ? '▸ ' : ''}{move.nombre}</span>
@@ -1635,10 +1627,9 @@ function CamposDeBatalla2() {
                                         <button
                                             onClick={() => selectDefense(2)}
                                             disabled={gameState.isAnimating}
-                                            className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${
-                                                gameState.selectedDefense2 ? "bg-white text-black border-white" : 
+                                            className={`text-left px-3 py-2 border-2 text-sm font-bold transition-none ${gameState.selectedDefense2 ? "bg-white text-black border-white" :
                                                 "bg-black text-white border-blue-800 hover:bg-blue-950 hover:border-blue-500"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center gap-2">
                                                 {gameState.selectedDefense2 ? '▸ ' : ''} <LuShield size={16} /> DEFENDER [GUARD]
