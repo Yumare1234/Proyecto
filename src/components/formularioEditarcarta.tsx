@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sword, Shield } from 'lucide-react';
+import { Sword, Shield, Heart } from 'lucide-react';
 import { type Carta } from './index.tsx';
 
 interface Props {
@@ -29,6 +29,13 @@ export const FormularioEditarCarta = ({ carta, onActualizar, onClose }: Props) =
         placeholder="Nombre de la carta"
       />
 
+      <input 
+        className="bg-zinc-900/80 p-3 rounded-lg border-2 border-purple-500/80 focus:border-purple-300 focus:ring-2 focus:ring-purple-300 transition-colors text-white"
+        value={formData.serie}
+        onChange={(e) => setFormData({...formData, serie: e.target.value})}
+        placeholder="Serie al que pertenece"
+      />
+
       {/* Inputs de Ataque y Defensa con el fix para el 0 */}
       <div className="grid grid-cols-2 gap-4">
         <div className="relative">
@@ -54,6 +61,18 @@ export const FormularioEditarCarta = ({ carta, onActualizar, onClose }: Props) =
           />
         </div>
       </div>
+
+      <div className="relative">
+          <Heart className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-300" />
+          <input 
+            type="number"
+            className="bg-zinc-900/80 p-3 pl-10 w-full rounded-lg border-2 border-purple-500/80 focus:border-purple-300 text-white"
+            // Si el valor es 0, mostramos cadena vacía para que puedas borrar
+            value={formData.hp === 0 ? "" : formData.hp}
+            onChange={(e) => setFormData({...formData, hp: e.target.value === "" ? 0 : Number(e.target.value)})}
+            placeholder="Vida"
+          />
+        </div>
 
       <textarea 
         className="bg-zinc-900/80 p-3 h-32 rounded-lg border-2 border-purple-500/80 focus:border-purple-300 text-white resize-none"

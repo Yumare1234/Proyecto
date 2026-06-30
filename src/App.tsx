@@ -7,6 +7,8 @@ import { toCardApiMapper, toApiCardMapper, type Carta } from './components/index
 import SeleccionarCartas from './components/seleccionarCartas.tsx';
 import CampoDeBatalla from './components/CamposDeBatalla.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
+import SeleccionarCartas2 from './components/seleccionarCartas2.tsx';
+import CampoDeBatalla2 from './components/CamposDeBatalla2.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -138,7 +140,14 @@ function App() {
         element={<SeleccionarCartas mazo={cartas} />}
       />
       <Route
+        path="/seleccionar-cartas-2"
+        element={<SeleccionarCartas2 mazo={cartas} />}
+      />
+      <Route
         path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla  />} 
+      />
+      <Route
+        path="/campo-de-batalla-2/:id1/:id2" element={<CampoDeBatalla2 />} 
       />
       <Route
         path="/generar-carta-ia" element={<GenerarCartaIA  />} 

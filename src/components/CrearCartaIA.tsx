@@ -45,6 +45,7 @@ export const GenerarCartaIA = () => {
       const carta: Carta = {
           id: data.id || Date.now(),
           nombre: data.nombre || 'Hechicero sin nombre',
+          serie: data.serie || 'Jujutsu Kaisen',
           categoria: data.categoria || 'Grado 4',
           descripcion: data.descripcion || 'Sin descripción.',
           imagen: data.pictureUrl || data.imagen || '/imagenes/placeholder.png',

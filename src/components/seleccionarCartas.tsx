@@ -116,14 +116,23 @@ function SeleccionarCartas({ mazo }: Props) {
             <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-950/20 rounded-full blur-[130px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-950/20 rounded-full blur-[130px] pointer-events-none" />
 
-            <div className="z-10 text-center mb-8 mt-4">
-                <h1 className="text-3xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 drop-shadow-md">
-                    Selecciona tus Guerreros
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Elige los personajes que se enfrentarán en el campo de batalla
-                </p>
-            </div>
+            <div className="z-10 text-center mb-8 mt-4 flex flex-col items-center gap-4">
+    <div>
+        <h1 className="text-3xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 drop-shadow-md">
+            Selecciona tus Guerreros
+        </h1>
+        <p className="text-gray-400 text-sm mt-1">
+            Elige los personajes que se enfrentarán en el campo de batalla
+        </p>
+    </div>
+
+    <Link to="/seleccionar-cartas-2">
+        <button className="px-5 py-2.5 bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/30 hover:border-red-400 hover:bg-gradient-to-r hover:from-red-700 hover:to-orange-600 text-red-200 hover:text-white font-bold text-xs uppercase tracking-widest rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 shadow-md">
+            Ir a la Mazmorra de Jujutsu 
+        </button>
+    </Link>
+</div>
+            
 
             <div className="z-10 w-full max-w-6xl flex-1 flex items-center justify-center px-2">
                 {mazo && (

@@ -12,7 +12,7 @@ type Props = {
 };
 
 function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBotones = false }: Props) {
-  const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp } = carta;
+  const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp, serie } = carta;
   
   const [mostrarModal, setMostrarModal] = useState(false);
   const alternarModal = () => setMostrarModal(!mostrarModal);
@@ -63,7 +63,7 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
         title={`Editando a: ${nombre}`}
       >
         <FormularioEditarCarta
-          carta={{ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp }}
+          carta={{ ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp, serie }}
           onActualizar={onActualizar}
           onClose={alternarEditar}
         />
@@ -117,6 +117,11 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
                 <div className="flex items-center justify-between p-3 bg-gradient-to-r from-pink-500/10 to-transparent border-l-2 border-pink-500 rounded-r-lg">
                   <span className="text-[10px] text-pink-400 uppercase tracking-widest font-bold">Técnica Ritual</span>
                   <span className="text-white text-sm font-black tracking-wider">{ritual}</span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-500/10 to-transparent border-l-2 border-blue-500 rounded-r-lg">
+                  <span className="text-[10px] text-blue-400 uppercase tracking-widest font-bold">Serie</span>
+                  <span className="text-white text-sm font-black tracking-wider">{serie}</span>
                 </div>
               </div>
 

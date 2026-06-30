@@ -10,6 +10,7 @@ interface FormularioProps {
 export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta }) => {
   const estadoInicial: Omit<NuevaCarta, 'id'> = {
     nombre: '',
+    serie: '',
     clan: '',
     ritual: '',
     categoria: '',
@@ -71,7 +72,9 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
           <form onSubmit={handleSubmit} className="space-y-5">
             <InputField label="NOMBRE DEL PERSONAJE *" id="nombre" name="nombre" placeholder="Ej: Satoru Gojo" value={form.nombre} onChange={handleChange} required />
             <InputField label="URL DE LA IMAGEN *" id="imagen" name="imagen" type="url" placeholder="https://ejemplo.com/imagen.jpg" value={form.imagen} onChange={handleChange} required />
-            
+            <InputField label="SERIE *" id="serie" name="serie" placeholder="Ej: Jujutsu Kaisen" value={form.serie} onChange={handleChange} required />
+
+
             <div className="grid grid-cols-2 gap-5">
               <InputField label="CLAN" id="clan" name="clan" placeholder="Gojo, Zenin..." value={form.clan} onChange={handleChange} />
               <InputField label="CATEGORÍA" id="categoria" name="categoria" placeholder="Especial, 1º Grado..." value={form.categoria} onChange={handleChange} />

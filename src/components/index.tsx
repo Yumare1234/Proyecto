@@ -1,6 +1,7 @@
 export interface Carta {
     id: number;
     nombre: string;
+    serie: string;
     categoria: string;
     ritual: string;
     ataque: number;
@@ -32,7 +33,7 @@ export interface IApiCard {
         "defense": number,
         "lifePoints": number,
         "pictureUrl": string,
-        "attributes": {clan?: string, ritual: string, categoria: string},
+        "attributes": {clan?: string, ritual: string, categoria: string, serie?: string},
         "userSecret": string,
         "createdAt": string,
         "updatedAt": string | null,
@@ -50,6 +51,7 @@ export const toApiCardMapper = (carta: Carta) => {
             clan: carta.clan,
             ritual: carta.ritual,
             categoria: carta.categoria,
+            serie: carta.serie,
             }
         }
     }
@@ -57,6 +59,7 @@ export const toApiCardMapper = (carta: Carta) => {
 export const toCardApiMapper = (apiCard: IApiCard): Carta => ({
     id: parseInt(apiCard.idCard),
     nombre: apiCard.name,
+    serie: apiCard.attributes?.serie || "Desconocida",
     categoria: apiCard.attributes?.categoria,
     ritual: apiCard.attributes?.ritual,
     ataque: apiCard.attack,
