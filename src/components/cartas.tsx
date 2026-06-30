@@ -4,6 +4,7 @@ export const mazoCartas: Carta[] = [
   { 
     id: 1, 
     nombre: "Satoru Gojo", 
+    serie: "Jujutsu Kaisen",
     categoria: "Grado Especial", 
     ritual: "Brujeria del Infinito / Seis Ojos", 
     ataque: 9490, 
