@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 import type { Carta } from "./index";
 import type { Movimiento } from "./seleccionarCartas2";
@@ -41,7 +41,7 @@ interface FighterState {
 }
 
 interface GameState {
-    phase: "difficultySelect" | "waveIntro" | "fighting" | "gameOver" | "victory" | "buffSelection" | "domainExpansion";
+    phase: "difficultySelect" | "waveIntro" | "fighting" | "gameOver" | "victory" | "buffSelection" | "domainExpansion" | "reverseTechnique";
     difficulty: "facil" | "medio" | "dificil" | null;
     currentWave: number;
     totalWaves: number;
@@ -59,6 +59,7 @@ interface GameState {
     reverseTechniqueUsedThisWave: boolean;
     domainExpansionUsedThisWave: boolean;
     pendingDomainExpansion: { playerId: 1 | 2 } | null;
+    pendingReverseTechnique: { playerId: 1 | 2 } | null;
 }
 
 const MAX_WAVES = 5;
@@ -142,7 +143,7 @@ interface BuffOption {
     color: string;
 }
 
-// Estilos encapsulados para el componente (sin afectar globalmente)
+// Estilos encapsulados para el componente (Se agregan las animaciones de daño)
 const componentStyles = `
   .campos-de-batalla2-font {
     font-family: 'Courier New', Courier, monospace !important;
@@ -153,9 +154,10 @@ const componentStyles = `
   }
 
   @keyframes campos-de-batalla2-bounce-anim {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    50% { transform: translateY(-30px) scale(1.2); opacity: 0.9; }
-    100% { transform: translateY(-10px) scale(1); opacity: 0; }
+    0% { transform: scale(0.5); opacity: 0; }
+    20% { transform: scale(1.5); opacity: 1; }
+    80% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1) translateY(-20px); opacity: 0; }
   }
 
   .campos-de-batalla2-fade-in {
@@ -165,6 +167,20 @@ const componentStyles = `
   @keyframes campos-de-batalla2-fade-in-anim {
     from { opacity: 0; background-color: white; }
     to { opacity: 1; background-color: rgba(0,0,0,0.9); }
+  }
+
+  /* Animación de daño al recibir un golpe */
+  .campos-de-batalla2-damage-flash {
+    animation: campos-de-batalla2-damage-flash-anim 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes campos-de-batalla2-damage-flash-anim {
+    0% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: translateX(0); }
+    20% { filter: brightness(0.6) sepia(1) hue-rotate(-50deg) saturate(8) contrast(2); transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+    100% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: translateX(0); }
   }
 
   .campos-de-batalla2-crt::before {
@@ -185,6 +201,17 @@ const componentStyles = `
     pointer-events: none;
   }
 `;
+
+// Helper global para reproducir sonido de forma segura
+const reproducirSonido = (ruta: string, volumen: number = 0.5) => {
+    try {
+        const audio = new Audio(ruta);
+        audio.volume = volumen;
+        audio.play().catch(e => console.log("Sonido omitido por interacción del navegador:", e));
+    } catch (err) {
+        console.error("Error reproduciendo audio:", err);
+    }
+};
 
 function CamposDeBatalla2() {
     const location = useLocation();
@@ -210,6 +237,7 @@ function CamposDeBatalla2() {
         reverseTechniqueUsedThisWave: false,
         domainExpansionUsedThisWave: false,
         pendingDomainExpansion: null,
+        pendingReverseTechnique: null,
     });
 
     const [fighters, setFighters] = useState<[FighterState, FighterState] | null>(null);
@@ -218,6 +246,66 @@ function CamposDeBatalla2() {
     const [showBuffInfo, setShowBuffInfo] = useState(false);
     const [showRequirementsError, setShowRequirementsError] = useState<string | null>(null);
     const [errorModalVisible, setErrorModalVisible] = useState(false);
+
+    // Referencia para la música de fondo
+    const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
+    // Función para iniciar la música de fondo
+    const startBackgroundMusic = useCallback(() => {
+        try {
+            if (bgMusicRef.current) {
+                bgMusicRef.current.pause();
+                bgMusicRef.current = null;
+            }
+            const audio = new Audio('/sounds/efectos/mazmorra_theme.mp3');
+            audio.loop = true;
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log("Música de fondo omitida:", e));
+            bgMusicRef.current = audio;
+        } catch (err) {
+            console.error("Error reproduciendo música de fondo:", err);
+        }
+    }, []);
+
+    // Función para detener la música de fondo
+    const stopBackgroundMusic = useCallback(() => {
+        if (bgMusicRef.current) {
+            bgMusicRef.current.pause();
+            bgMusicRef.current.currentTime = 0;
+            bgMusicRef.current = null;
+        }
+    }, []);
+
+    // Efecto para sonidos según la fase (jefe, derrota, victoria)
+    useEffect(() => {
+        if (gameState.phase === "waveIntro" && boss) {
+            const nombreArchivo = boss.nombre.toLowerCase().replace(/ /g, "_");
+            reproducirSonido(`/sounds/bosses/${nombreArchivo}.mp3`, 0.8);
+            
+            if (gameState.currentWave === 1) {
+                startBackgroundMusic();
+            }
+        } else if (gameState.phase === "gameOver") {
+            stopBackgroundMusic();
+            reproducirSonido('/sounds/efectos/derrota.mp3', 0.6);
+        } else if (gameState.phase === "victory") {
+            stopBackgroundMusic();
+            reproducirSonido('/sounds/efectos/victoria.mp3', 0.6);
+        }
+        
+        return () => {
+            if (gameState.phase === "gameOver" || gameState.phase === "victory") {
+                stopBackgroundMusic();
+            }
+        };
+    }, [gameState.phase, boss, gameState.currentWave, startBackgroundMusic, stopBackgroundMusic]);
+
+    // Efecto de limpieza general al desmontar
+    useEffect(() => {
+        return () => {
+            stopBackgroundMusic();
+        };
+    }, [stopBackgroundMusic]);
 
     // Inyectar estilos solo para este componente
     useEffect(() => {
@@ -361,13 +449,16 @@ function CamposDeBatalla2() {
 
         const baseAttack = BOSS_BASE_ATTACK[difficulty as keyof typeof BOSS_BASE_ATTACK];
         const baseDefense = BOSS_BASE_DEFENSE[difficulty as keyof typeof BOSS_BASE_DEFENSE];
+        
+        const defenseBonus = wave >= 3 ? 300 : 0;
+        const finalDefense = baseDefense + defenseBonus;
 
         return {
             nombre: bossTemplate.nombre,
             hp: Math.floor(bossTemplate.baseHp * finalMultiplier),
             maxHp: Math.floor(bossTemplate.baseHp * finalMultiplier),
             ataque: Math.floor(baseAttack * waveMultiplier),
-            defensa: Math.floor(baseDefense * waveMultiplier),
+            defensa: finalDefense,
             imagen: bossTemplate.imagen,
             categoria: bossTemplate.categoria,
             ritual: bossTemplate.ritual,
@@ -403,6 +494,7 @@ function CamposDeBatalla2() {
             reverseTechniqueUsedThisWave: false,
             domainExpansionUsedThisWave: false,
             pendingDomainExpansion: null,
+            pendingReverseTechnique: null,
         });
 
         setTimeout(() => {
@@ -418,6 +510,7 @@ function CamposDeBatalla2() {
         const energy = fighter.energy;
         const buffs = fighter.buffs;
 
+        // Verificar Expansión de Dominio (100%)
         if (energy >= DOMAIN_EXPANSION_THRESHOLD && !buffs.domainExpansionUsed && !gameState.domainExpansionUsedThisWave) {
             setGameState(prev => ({
                 ...prev,
@@ -429,28 +522,19 @@ function CamposDeBatalla2() {
             return true;
         }
 
+        // Verificar Técnica Inversa (75%) - AHORA ES UN MODAL
         if (energy >= REVERSE_TECHNIQUE_THRESHOLD && !buffs.reverseTechniqueUsed && !gameState.reverseTechniqueUsedThisWave) {
-            const healAmount = Math.floor(fighter.maxHp * 0.25);
-            const newFighters = [...(fighters || [])] as [FighterState, FighterState];
-            newFighters[playerId - 1] = {
-                ...newFighters[playerId - 1],
-                hp: Math.min(fighter.maxHp, fighter.hp + healAmount),
-                energy: Math.max(0, energy - REVERSE_TECHNIQUE_THRESHOLD),
-                buffs: {
-                    ...newFighters[playerId - 1].buffs,
-                    reverseTechniqueUsed: true,
-                }
-            };
-            setFighters(newFighters);
-
             setGameState(prev => ({
                 ...prev,
-                actionLog: [...prev.actionLog, `† TÉCNICA INVERSA: ${fighter.carta.nombre} se cura ${healAmount} HP.`],
-                reverseTechniqueUsedThisWave: true,
+                pendingReverseTechnique: { playerId },
+                phase: "reverseTechnique",
+                turnPhase: "buffSelect",
+                isAnimating: true,
             }));
             return true;
         }
 
+        // Verificar Buffs (50%)
         if (energy >= BUFF_THRESHOLD && !gameState.buffsUsedThisWave) {
             setPendingBuff({ playerId });
             setShowBuffInfo(true);
@@ -519,6 +603,36 @@ function CamposDeBatalla2() {
         }));
     }, [pendingBuff, fighters]);
 
+    // Ejecutar Técnica Inversa
+    const executeReverseTechnique = useCallback((playerId: 1 | 2) => {
+        if (!fighters) return;
+
+        const fighter = fighters[playerId - 1];
+        const healAmount = Math.floor(fighter.maxHp * 0.15);
+
+        const newFighters = [...fighters] as [FighterState, FighterState];
+        newFighters[playerId - 1] = {
+            ...newFighters[playerId - 1],
+            hp: Math.min(fighter.maxHp, fighter.hp + healAmount),
+            energy: 0, // Consume TODA la energía
+            buffs: {
+                ...newFighters[playerId - 1].buffs,
+                reverseTechniqueUsed: true,
+            }
+        };
+        setFighters(newFighters);
+
+        setGameState(prev => ({
+            ...prev,
+            phase: "fighting",
+            turnPhase: "playerSelect",
+            isAnimating: false,
+            reverseTechniqueUsedThisWave: true,
+            pendingReverseTechnique: null,
+            actionLog: [...prev.actionLog, `† TÉCNICA INVERSA: ${fighter.carta.nombre} se cura ${healAmount} HP (15% de salud). Energía consumida.`],
+        }));
+    }, [fighters]);
+
     const executeDomainExpansion = useCallback((playerId: 1 | 2) => {
         if (!boss || !fighters) return;
 
@@ -529,6 +643,8 @@ function CamposDeBatalla2() {
         const newBoss = { ...boss };
         newBoss.hp = Math.max(0, newBoss.hp - danioDominio);
         setBoss(newBoss);
+        
+        reproducirSonido('/sounds/golpe.mp3');
 
         const newFighters = [...fighters] as [FighterState, FighterState];
         newFighters[playerId - 1] = {
@@ -552,6 +668,8 @@ function CamposDeBatalla2() {
         }));
 
         if (newBoss.hp <= 0) {
+            if (gameState.currentWave < MAX_WAVES) reproducirSonido('/sounds/efectos/oleada_completada.mp3');
+
             setTimeout(() => {
                 if (gameState.currentWave >= MAX_WAVES) {
                     setGameState(prev => ({
@@ -651,6 +769,8 @@ function CamposDeBatalla2() {
                 };
                 setFighters(newFightersShield);
             }
+
+            reproducirSonido('/sounds/golpe.mp3');
 
             const newFighters = [...fighters] as [FighterState, FighterState];
             newFighters[defenderIndex] = {
@@ -771,6 +891,8 @@ function CamposDeBatalla2() {
                 const damage1 = Math.floor(rawDamage * damageMultiplier1 * (isCrit1 ? CRITICAL_MULTIPLIER : 1));
 
                 currentBoss.hp = Math.max(0, currentBoss.hp - damage1);
+                
+                reproducirSonido('/sounds/golpe.mp3');
 
                 const newFighters = [...currentFighters] as [FighterState, FighterState];
                 newFighters[0] = { ...newFighters[0], isAttacking: true, isDefending: false };
@@ -810,6 +932,8 @@ function CamposDeBatalla2() {
                 const damage2 = Math.floor(rawDamage * damageMultiplier2 * (isCrit2 ? CRITICAL_MULTIPLIER : 1));
 
                 currentBoss.hp = Math.max(0, currentBoss.hp - damage2);
+                
+                reproducirSonido('/sounds/golpe.mp3');
 
                 const newFighters = [...currentFighters] as [FighterState, FighterState];
                 newFighters[1] = { ...newFighters[1], isAttacking: true, isDefending: false };
@@ -840,6 +964,8 @@ function CamposDeBatalla2() {
 
         setTimeout(() => {
             if (currentBoss.hp <= 0) {
+                if (gameState.currentWave < MAX_WAVES) reproducirSonido('/sounds/efectos/oleada_completada.mp3');
+
                 if (gameState.currentWave >= MAX_WAVES) {
                     setGameState(prev => ({
                         ...prev,
@@ -1049,6 +1175,64 @@ function CamposDeBatalla2() {
         );
     }
 
+    // MODAL DE TÉCNICA INVERSA
+    if (gameState.phase === "reverseTechnique" && gameState.pendingReverseTechnique) {
+        const player = fighters?.[gameState.pendingReverseTechnique.playerId - 1];
+        const healAmount = player ? Math.floor(player.maxHp * 0.15) : 0;
+
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 campos-de-batalla2-crt campos-de-batalla2-font campos-de-batalla2-fade-in">
+                <div className="bg-black p-6 border-4 border-green-600 shadow-[8px_8px_0_#166534] max-w-md w-full relative">
+                    <div className="text-center mb-6 border-b-4 border-green-900 pb-4 relative">
+                        <FiHeart className="absolute top-0 left-0 text-green-500 text-2xl animate-pulse" />
+                        <h2 className="text-2xl font-black text-green-500 tracking-widest drop-shadow-[2px_2px_0_#fff]">
+                            ¡TÉCNICA INVERSA!
+                        </h2>
+                        <div className="text-white text-sm mt-2 flex items-center justify-center gap-2">
+                            [ {player?.carta.nombre.toUpperCase()} ]
+                        </div>
+                    </div>
+
+                    <div className="bg-black border-2 border-green-900 p-4 mb-6">
+                        <div className="text-center mb-4">
+                            <div className="text-gray-400 text-xs uppercase mb-2">Curación</div>
+                            <div className="text-2xl font-black text-white">{player?.maxHp || 0} HP Máx</div>
+                            <div className="text-green-500 text-sm mt-2">× 15%</div>
+                            <div className="text-4xl font-black text-green-500 mt-3">+{healAmount} HP</div>
+                            <div className="text-gray-500 text-xs mt-1">RECUPERACIÓN DE SALUD</div>
+                        </div>
+                        <p className="text-green-400 text-xs text-center mt-4">
+                            Consume TODA tu energía maldita (75%) para recuperar el 15% de tu salud máxima
+                        </p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <button
+                            onClick={() => executeReverseTechnique(gameState.pendingReverseTechnique!.playerId)}
+                            className="w-full py-3 bg-green-600 border-2 border-green-400 hover:bg-green-700 text-white font-bold text-sm uppercase tracking-widest transition-all shadow-[4px_4px_0_#166534] hover:shadow-[4px_4px_0_#16a34a]"
+                        >
+                            [ USAR TÉCNICA INVERSA ]
+                        </button>
+                        <button
+                            onClick={() => {
+                                setGameState(prev => ({
+                                    ...prev,
+                                    phase: "fighting",
+                                    turnPhase: "playerSelect",
+                                    isAnimating: false,
+                                    pendingReverseTechnique: null,
+                                }));
+                            }}
+                            className="w-full py-2 bg-gray-800 border-2 border-gray-600 text-gray-400 hover:text-white hover:border-white transition-colors text-xs uppercase tracking-widest"
+                        >
+                            [ CANCELAR ]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // MODAL DE BUFFS
     if (gameState.phase === "buffSelection" && pendingBuff) {
         const player = fighters?.[pendingBuff.playerId - 1];
@@ -1198,7 +1382,10 @@ function CamposDeBatalla2() {
                 }} />
 
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => {
+                        stopBackgroundMusic();
+                        navigate('/');
+                    }}
                     className="absolute top-4 left-4 z-50 px-4 py-2 bg-black border-2 border-gray-600 hover:border-red-500 hover:text-red-500 transition-all shadow-[4px_4px_0_#374151] hover:shadow-[4px_4px_0_#ef4444] text-xs font-bold"
                 >
                     <FiHome className="inline mr-1 mb-0.5" /> ESC - VOLVER
@@ -1326,10 +1513,22 @@ function CamposDeBatalla2() {
                     <div className="px-3 py-1 bg-black border-2 border-red-600 text-red-500 text-xs font-bold uppercase shadow-[2px_2px_0_#7f1d1d]">
                         MODO: {gameState.difficulty}
                     </div>
-                    <button onClick={() => window.location.reload()} className="px-3 py-1 bg-black border-2 border-gray-600 hover:border-white text-gray-400 hover:text-white transition-all shadow-[2px_2px_0_#374151]">
+                    <button
+                        onClick={() => {
+                            stopBackgroundMusic();
+                            window.location.reload();
+                        }}
+                        className="px-3 py-1 bg-black border-2 border-gray-600 hover:border-white text-gray-400 hover:text-white transition-all shadow-[2px_2px_0_#374151]"
+                    >
                         <LuRotateCcw className="inline mr-1 mb-0.5" /> RESET
                     </button>
-                    <button onClick={() => navigate("/")} className="px-3 py-1 bg-black border-2 border-gray-600 hover:border-white text-gray-400 hover:text-white transition-all shadow-[2px_2px_0_#374151]">
+                    <button
+                        onClick={() => {
+                            stopBackgroundMusic();
+                            navigate("/");
+                        }}
+                        className="px-3 py-1 bg-black border-2 border-gray-600 hover:border-white text-gray-400 hover:text-white transition-all shadow-[2px_2px_0_#374151]"
+                    >
                         <FiHome className="inline mr-1 mb-0.5" /> SALIR
                     </button>
                 </div>
@@ -1369,7 +1568,10 @@ function CamposDeBatalla2() {
                                 {gameState.phase === "victory" ? "MISIÓN COMPLETADA" : "GAME OVER"}
                             </h2>
                             <button
-                                onClick={() => navigate("/")}
+                                onClick={() => {
+                                    stopBackgroundMusic();
+                                    navigate("/");
+                                }}
                                 className="w-full py-3 bg-black border-2 border-white hover:bg-white hover:text-black text-white font-bold text-sm uppercase tracking-widest transition-all"
                             >
                                 CONTINUAR
@@ -1380,17 +1582,19 @@ function CamposDeBatalla2() {
 
                 <div className="absolute inset-x-0 top-8 bottom-8 flex flex-col justify-between items-center px-12">
                     {gameState.phase !== "waveIntro" && (
-                        <div className="w-full flex flex-col items-center mt-4">
+                        <div className="w-full flex flex-col items-center mt-4 relative">
                             <div className="relative border-4 border-red-900 bg-black p-2 shadow-[0_0_20px_#7f1d1d]">
-                                <div className="w-32 h-32 bg-gray-900 flex items-center justify-center overflow-hidden grayscale contrast-150 relative">
+                                <div className={`w-32 h-32 bg-gray-900 flex items-center justify-center overflow-hidden grayscale contrast-150 relative ${gameState.showDamage?.target === "boss" ? "campos-de-batalla2-damage-flash" : ""}`}>
                                     {boss.imagen ? (
                                         <img src={boss.imagen} alt={boss.nombre} className="w-full h-full object-cover" />
                                     ) : <div className="text-5xl">?</div>}
                                     <div className="absolute inset-0 bg-red-900/20 mix-blend-multiply" />
                                 </div>
                                 {gameState.showDamage?.target === "boss" && (
-                                    <div className="absolute -top-6 -right-12 text-3xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff] z-50">
-                                        {gameState.showDamage.isCrit ? 'CRIT ' : ''}-{gameState.showDamage.damage}
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                                        <div className="text-5xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff]">
+                                            {gameState.showDamage.isCrit ? 'CRIT ' : ''}-{gameState.showDamage.damage}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -1414,18 +1618,13 @@ function CamposDeBatalla2() {
                         </div>
                     )}
 
-                    <div className="w-full max-w-5xl flex justify-between items-end mb-4">
+                    <div className="w-full max-w-5xl flex justify-between items-end mb-4 relative">
                         <div className={`flex flex-col items-center transition-transform ${p1.isAttacking ? "-translate-y-8" : ""}`}>
-                            {gameState.showDamage?.target === "player1" && (
-                                <div className="absolute -top-10 text-3xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff] z-50">
-                                    -{gameState.showDamage.damage}
-                                </div>
-                            )}
                             {gameState.bossTarget === 1 && (
                                 <div className="absolute -top-12 text-2xl animate-pulse">🎯</div>
                             )}
                             <div className="relative border-4 border-orange-900 bg-black p-1 shadow-[0_0_15px_#7c2d12]">
-                                <div className="w-24 h-32 bg-gray-900 overflow-hidden relative">
+                                <div className={`w-24 h-32 bg-gray-900 overflow-hidden relative ${gameState.showDamage?.target === "player1" ? "campos-de-batalla2-damage-flash" : ""}`}>
                                     {p1.carta.imagen ? (
                                         <img src={p1.carta.imagen} alt={p1.carta.nombre} className="w-full h-full object-cover contrast-125" />
                                     ) : <div className="w-full h-full flex items-center justify-center text-3xl">P1</div>}
@@ -1441,20 +1640,22 @@ function CamposDeBatalla2() {
                                         {p1.buffs.reverseTechniqueUsed && <span className="bg-green-500 border border-white text-white text-[8px] px-1 font-bold">TÉC. INVERSA</span>}
                                     </div>
                                 </div>
+                                {gameState.showDamage?.target === "player1" && (
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                                        <div className="text-4xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff]">
+                                            -{gameState.showDamage.damage}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className={`flex flex-col items-center transition-transform ${p2.isAttacking ? "-translate-y-8" : ""}`}>
-                            {gameState.showDamage?.target === "player2" && (
-                                <div className="absolute -top-10 text-3xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff] z-50">
-                                    -{gameState.showDamage.damage}
-                                </div>
-                            )}
                             {gameState.bossTarget === 2 && (
                                 <div className="absolute -top-12 text-2xl animate-pulse">🎯</div>
                             )}
                             <div className="relative border-4 border-blue-900 bg-black p-1 shadow-[0_0_15px_#1e3a8a]">
-                                <div className="w-24 h-32 bg-gray-900 overflow-hidden relative">
+                                <div className={`w-24 h-32 bg-gray-900 overflow-hidden relative ${gameState.showDamage?.target === "player2" ? "campos-de-batalla2-damage-flash" : ""}`}>
                                     {p2.carta.imagen ? (
                                         <img src={p2.carta.imagen} alt={p2.carta.nombre} className="w-full h-full object-cover contrast-125" />
                                     ) : <div className="w-full h-full flex items-center justify-center text-3xl">P2</div>}
@@ -1470,6 +1671,13 @@ function CamposDeBatalla2() {
                                         {p2.buffs.reverseTechniqueUsed && <span className="bg-green-500 border border-white text-white text-[8px] px-1 font-bold">TÉC. INVERSA</span>}
                                     </div>
                                 </div>
+                                {gameState.showDamage?.target === "player2" && (
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                                        <div className="text-4xl font-black text-red-500 campos-de-batalla2-bounce drop-shadow-[2px_2px_0_#fff]">
+                                            -{gameState.showDamage.damage}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1523,6 +1731,9 @@ function CamposDeBatalla2() {
                                     <div className="flex gap-3 text-xs mb-2">
                                         {p1.energy >= BUFF_THRESHOLD && !gameState.buffsUsedThisWave && (
                                             <span className="text-amber-400 font-bold">[BUFF DISPONIBLE]</span>
+                                        )}
+                                        {p1.energy >= REVERSE_TECHNIQUE_THRESHOLD && !gameState.reverseTechniqueUsedThisWave && !p1.buffs.reverseTechniqueUsed && (
+                                            <span className="text-green-400 font-bold">[TÉC. INVERSA]</span>
                                         )}
                                         {p1.energy >= DOMAIN_EXPANSION_THRESHOLD && !gameState.domainExpansionUsedThisWave && !p1.buffs.domainExpansionUsed && (
                                             <span className="text-red-500 font-bold animate-pulse">[DOMINIO]</span>
@@ -1594,6 +1805,9 @@ function CamposDeBatalla2() {
                                     <div className="flex gap-3 text-xs mb-2">
                                         {p2.energy >= BUFF_THRESHOLD && !gameState.buffsUsedThisWave && (
                                             <span className="text-amber-400 font-bold">[BUFF DISPONIBLE]</span>
+                                        )}
+                                        {p2.energy >= REVERSE_TECHNIQUE_THRESHOLD && !gameState.reverseTechniqueUsedThisWave && !p2.buffs.reverseTechniqueUsed && (
+                                            <span className="text-green-400 font-bold">[TÉC. INVERSA]</span>
                                         )}
                                         {p2.energy >= DOMAIN_EXPANSION_THRESHOLD && !gameState.domainExpansionUsedThisWave && !p2.buffs.domainExpansionUsed && (
                                             <span className="text-red-500 font-bold animate-pulse">[DOMINIO]</span>

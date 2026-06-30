@@ -4,6 +4,8 @@ import React from 'react';
 // Definimos las props con TypeScript
 interface InputFieldProps {
   label: string;
+  min?: string; // Para inputs de tipo number
+  max?: string; // Para inputs de tipo number
   id: string;
   name: string;
   type?: string; // 'text', 'number', 'url', etc.
@@ -15,7 +17,7 @@ interface InputFieldProps {
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
-  label, id, name, type = 'text', placeholder, value, onChange, required = false, isTextArea = false
+  label, min, max, id, name, type = 'text', placeholder, value, onChange, required = false, isTextArea = false
 }) => {
   
   // Clases compartidas para inputs y textareas (basadas en tu buscador)
@@ -47,6 +49,8 @@ export const InputField: React.FC<InputFieldProps> = ({
           onChange={onChange}
           required={required}
           className={baseClasses}
+          min={min}
+          max={max}
         />
       )}
     </div>

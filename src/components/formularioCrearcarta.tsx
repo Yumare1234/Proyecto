@@ -27,13 +27,34 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
-    // Lógica para transformar a número solo si es necesario, permitiendo el vacío
-    const finalValue = type === 'number' ? (value === '' ? 0 : Number(value)) : value;
-    
-    setForm(prev => ({
-      ...prev,
-      [name]: finalValue
-    }));
+    if (type === 'number') {
+      // Si el campo está vacío, establecer a 0
+      if (value === '') {
+        setForm(prev => ({
+          ...prev,
+          [name]: 0
+        }));
+        return;
+      }
+
+      let numValue = Number(value);
+      
+      // Limitar a 10000 para ataque, defensa y hp
+      if (name === 'ataque' || name === 'defensa' || name === 'hp') {
+        numValue = Math.min(numValue, 10000);
+        numValue = Math.max(numValue, 0); // No permitir negativos
+      }
+
+      setForm(prev => ({
+        ...prev,
+        [name]: numValue
+      }));
+    } else {
+      setForm(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,6 +62,18 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
 
     if (!form.nombre.trim() || !form.imagen.trim()) {
       alert("Por favor, rellena los campos obligatorios (Nombre e Imagen).");
+      return;
+    }
+
+    // Validar que los valores no excedan 10000
+    if (form.ataque > 10000 || form.defensa > 10000 || form.hp > 10000) {
+      alert("El ataque, la defensa y la vida máxima no pueden superar 10,000.");
+      return;
+    }
+
+    // Validar que no sean 0 o negativos
+    if (form.ataque <= 0 || form.defensa <= 0 || form.hp <= 0) {
+      alert("El ataque, la defensa y la vida deben ser mayores a 0.");
       return;
     }
 
@@ -84,18 +117,23 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
             <InputField label="DESCRIPCIÓN" id="descripcion" name="descripcion" placeholder="Escribe una breve historia sobre sus habilidades..." value={form.descripcion} onChange={handleChange} isTextArea />
             
             <div className="mt-6 p-5 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-sm">
-              <h3 className="text-xs font-bold text-gray-400 mb-4 tracking-[0.2em] uppercase text-center">Estadísticas de Combate</h3>
+              <h3 className="text-xs font-bold text-gray-400 mb-4 tracking-[0.2em] uppercase text-center">Estadísticas de Combate (Máx: 10,000)</h3>
               <div className="grid grid-cols-3 gap-4">
                 
-                {/* FIX: Si el valor es 0, mostramos vacío para que el usuario pueda escribir */}
                 <div className="group relative">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition duration-500"></div>
                   <div className="relative">
                     <InputField 
                       label="ATAQUE ⚔️" id="ataque" name="ataque" type="number" 
                       value={form.ataque === 0 ? '' : form.ataque} 
-                      onChange={handleChange} placeholder="0"
+                      onChange={handleChange} 
+                      placeholder="1000"
+                      min=""
+                      max="10000"
                     />
+                    {form.ataque >= 10000 && (
+                      <span className="text-[10px] text-amber-500 absolute -bottom-4 left-0">Límite alcanzado (10,000)</span>
+                    )}
                   </div>
                 </div>
                 
@@ -105,8 +143,14 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
                     <InputField 
                       label="DEFENSA 🛡️" id="defensa" name="defensa" type="number" 
                       value={form.defensa === 0 ? '' : form.defensa} 
-                      onChange={handleChange} placeholder="0"
+                      onChange={handleChange} 
+                      placeholder="1000"
+                      min=""
+                      max="10000"
                     />
+                    {form.defensa >= 10000 && (
+                      <span className="text-[10px] text-amber-500 absolute -bottom-4 left-0">Límite alcanzado (10,000)</span>
+                    )}
                   </div>
                 </div>
 
@@ -116,8 +160,14 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
                     <InputField 
                       label="VIDA (HP) 💚" id="hp" name="hp" type="number" 
                       value={form.hp === 0 ? '' : form.hp} 
-                      onChange={handleChange} placeholder="0"
+                      onChange={handleChange} 
+                      placeholder="1000"
+                      min=""
+                      max="10000"
                     />
+                    {form.hp >= 10000 && (
+                      <span className="text-[10px] text-amber-500 absolute -bottom-4 left-0">Límite alcanzado (10,000)</span>
+                    )}
                   </div>
                 </div>
               </div>
