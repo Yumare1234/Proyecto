@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import type { Carta } from "./index.tsx";
 import Cartadetalle from "./CartaProyecto";
+import { toCardApiMapper } from "./index.tsx";
 
 // --- SUBCOMPONENTE DE VICTORIA ANIMADA ---
 const PantallaVictoria = ({ ganador, esEmpate, onReinicio }: { ganador: string | null, esEmpate: boolean, onReinicio: () => void }) => {
@@ -114,14 +115,14 @@ function CampoDeBatalla() {
     const obtenerFondoDominio = (carta: Carta | null) => {
         if (!carta) return "none";
         const nombreStr = carta.nombre || "";
-        
+
         if (nombreStr.includes("Satoru Gojo")) {
             return `url('https://media.tenor.com/LsBSgRXRgZ4AAAAC/jjk-jujutsu.gif')`;
         }
         if (nombreStr.includes("Ryomen Sukuna")) {
             return `url('https://media.tenor.com/TKkwQ9A3ADEAAAAd/malevolent-shrine-jujutsu-kaisen.gif')`;
         }
-        
+
         // Dominio genérico por si otra carta usa la habilidad
         return `linear-gradient(to bottom, rgba(107, 33, 168, 0.6), rgba(0, 0, 0, 0.9))`;
     };
@@ -137,7 +138,9 @@ function CampoDeBatalla() {
         const objeto = await respuesta.json();
         const carta = Array.isArray(objeto.data) ? objeto.data[0] : objeto.data;
         if (!carta) throw new Error(`No se encontraron datos para el ID ${id}`);
-        return carta;
+
+        // ✅ Mapear la carta usando el mismo mapper que en Home
+        return toCardApiMapper(carta);
     };
 
     useEffect(() => {
@@ -167,6 +170,8 @@ function CampoDeBatalla() {
 
                 setCarta1(encontrada1);
                 setCarta2(encontrada2);
+                console.log('Carta 1 imagen:', encontrada1.imagen);
+                console.log('Carta 2 imagen:', encontrada2.imagen);
 
                 setVidaActual1(encontrada1.hp || 1000);
                 setVidaActual2(encontrada2.hp || 1000);
@@ -245,10 +250,10 @@ function CampoDeBatalla() {
 
         if (tipo === "CRITICO") {
             setTimeout(() => {
-                const audioCritico = new Audio("/sounds/black-flash.mp3"); 
+                const audioCritico = new Audio("/sounds/black-flash.mp3");
                 audioCritico.volume = 1.0;
                 audioCritico.play().catch(e => console.log("Audio black-flash bloqueado", e));
-            }, 50); 
+            }, 50);
         }
 
         setTimeout(() => {
@@ -584,10 +589,10 @@ function CampoDeBatalla() {
 
             {/* PANTALLA DE VICTORIA */}
             {fase === "FINALIZADO" && (
-                <PantallaVictoria 
-                    ganador={ganador} 
-                    esEmpate={esEmpate} 
-                    onReinicio={() => navigate("/seleccionar-cartas")} 
+                <PantallaVictoria
+                    ganador={ganador}
+                    esEmpate={esEmpate}
+                    onReinicio={() => navigate("/seleccionar-cartas")}
                 />
             )}
 
@@ -814,7 +819,7 @@ function CampoDeBatalla() {
                         </div>
                     )}
                     <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && turnoJugador && animacionActiva.atacante !== "CARTA1" ? 'border-purple-500 ring-2 ring-purple-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
-                        
+
                         {animacionActiva.objetivo === "CARTA1" && animacionActiva.tipo === "CRITICO" && (
                             <>
                                 <div className="vfx-destello-negro"></div>
@@ -834,7 +839,7 @@ function CampoDeBatalla() {
                                 <span className="text-8xl animate-pulse">🌌</span>
                             </div>
                         )}
-                        
+
                         <Cartadetalle carta={carta1} seleccionada={true} ocultarBotones={true} />
                     </div>
                 </div>
@@ -927,11 +932,10 @@ function CampoDeBatalla() {
                                     setCooldownDominio1(6);
                                     setTurnoJugador(false);
                                 }}
-                                className={`w-full py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all disabled:opacity-30 disabled:pointer-events-none flex flex-col items-center justify-center ${
-                                    esDueloLegendario && !choqueDominiosActivo && cooldownChoque === 0
-                                        ? "animate-rgb border-2 text-white scale-105 bg-black/80"
-                                        : "bg-gradient-to-r from-purple-900/60 to-indigo-950/60 hover:from-purple-800/70 hover:to-indigo-900/70 border border-purple-500/30"
-                                }`}
+                                className={`w-full py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all disabled:opacity-30 disabled:pointer-events-none flex flex-col items-center justify-center ${esDueloLegendario && !choqueDominiosActivo && cooldownChoque === 0
+                                    ? "animate-rgb border-2 text-white scale-105 bg-black/80"
+                                    : "bg-gradient-to-r from-purple-900/60 to-indigo-950/60 hover:from-purple-800/70 hover:to-indigo-900/70 border border-purple-500/30"
+                                    }`}
                             >
                                 <span>{esDueloLegendario && !choqueDominiosActivo ? "🤞 EXPANSIÓN TERRITORIAL" : "👁️ Expandir Dominio"}</span>
                                 {cooldownDominio1 > 0 && !esDueloLegendario && (
@@ -950,7 +954,7 @@ function CampoDeBatalla() {
                                 className={`w-full py-2 rounded-xl text-xs font-black tracking-wider transition-all uppercase shadow-md active:scale-95 disabled:opacity-50 ${isAutomatic
                                     ? "bg-red-600 hover:bg-red-500 text-white animate-pulse shadow-red-600/20"
                                     : "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black"
-                                }`}
+                                    }`}
                             >
                                 {isAutomatic ? "🤖 Detener Auto" : "🤖 Combate Auto"}
                             </button>
@@ -977,7 +981,7 @@ function CampoDeBatalla() {
                         </div>
                     )}
                     <div className={`relative bg-white/5 border rounded-2xl p-2 backdrop-blur-md shadow-lg transition-transform duration-300 ${fase === "COMBATE" && !turnoJugador && animacionActiva.atacante !== "CARTA2" ? 'border-blue-500 ring-2 ring-blue-500/20 scale-105' : 'border-white/10 opacity-90'}`}>
-                        
+
                         {animacionActiva.objetivo === "CARTA2" && animacionActiva.tipo === "CRITICO" && (
                             <>
                                 <div className="vfx-destello-negro"></div>

@@ -13,7 +13,6 @@ import TiendaAlmas from './components/TiendaAlmas.tsx';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
-// Tipo de pasiva de la tienda
 type PasivaTienda = {
   id: string;
   nombre: string;
@@ -26,11 +25,25 @@ type PasivaTienda = {
   tipoIcono: string;
 };
 
+type CartaExclusiva = {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  icono: React.ReactNode;
+  color: string;
+  stats: string;
+  categoria: string;
+  imagen: string;
+  ataque: number;
+  defensa: number;
+  hp: number;
+};
+
 function App() {
   const [cartas, setCartas] = useState<Carta[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Estado global de almas y pasivas
   const [almas, setAlmas] = useState(() => {
     const guardado = localStorage.getItem('almas');
     return guardado ? parseInt(guardado) : 0;
@@ -41,17 +54,41 @@ function App() {
     return guardado ? JSON.parse(guardado) : [];
   });
 
-  // Guardar almas en localStorage cuando cambien
-  useEffect(() => {
-    localStorage.setItem('almas', almas.toString());
-  }, [almas]);
+  const [cartasCompradas, setCartasCompradas] = useState<string[]>(() => {
+    const guardado = localStorage.getItem('cartasCompradas');
+    return guardado ? JSON.parse(guardado) : [];
+  });
 
-  // Guardar pasivas compradas en localStorage
-  useEffect(() => {
-    localStorage.setItem('pasivasCompradas', JSON.stringify(pasivasCompradas));
-  }, [pasivasCompradas]);
+  // ✅ Estados movidos FUERA de handleComprarCarta
+  const [logrosCompletados, setLogrosCompletados] = useState<string[]>(() => {
+    const guardado = localStorage.getItem('logrosCompletados');
+    return guardado ? JSON.parse(guardado) : [];
+  });
 
-  // --- 1. LEER (GET) ---
+  const [mazmorraFacilCompletada, setMazmorraFacilCompletada] = useState(() => {
+    return localStorage.getItem('mazmorraFacilCompletada') === 'true';
+  });
+  const [mazmorraMedioCompletada, setMazmorraMedioCompletada] = useState(() => {
+    return localStorage.getItem('mazmorraMedioCompletada') === 'true';
+  });
+  const [mazmorraDificilCompletada, setMazmorraDificilCompletada] = useState(() => {
+    return localStorage.getItem('mazmorraDificilCompletada') === 'true';
+  });
+
+  // Datos para logros
+  const datosLogros = {
+    totalCartas: cartas.length,
+    mazmorraFacilCompletada,
+    mazmorraMedioCompletada,
+    mazmorraDificilCompletada,
+    pasivasCompradasCount: pasivasCompradas.length,
+  };
+
+  useEffect(() => { localStorage.setItem('almas', almas.toString()); }, [almas]);
+  useEffect(() => { localStorage.setItem('pasivasCompradas', JSON.stringify(pasivasCompradas)); }, [pasivasCompradas]);
+  useEffect(() => { localStorage.setItem('cartasCompradas', JSON.stringify(cartasCompradas)); }, [cartasCompradas]);
+  useEffect(() => { localStorage.setItem('logrosCompletados', JSON.stringify(logrosCompletados)); }, [logrosCompletados]);
+
   const fetchCards = async () => {
     setLoading(true);
     try {
@@ -61,7 +98,6 @@ function App() {
       const data = await response.json();
       const cartasMapeadas = data.data.map(toCardApiMapper);
       setCartas(cartasMapeadas);
-      console.log(loading);
     } catch (error) {
       console.error("Error fetching cards:", error);
     } finally {
@@ -75,15 +111,11 @@ function App() {
     }
   }, [cartas.length, loading]);
 
-  // --- 2. CREAR (POST) ---
   const addCarta = async (nuevaCarta: Carta) => {
     try {
       const response = await fetch(`${API_URL}card`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          usersecretpasskey: "Gabr686940RE"
-        },
+        headers: { "Content-Type": "application/json", usersecretpasskey: "Gabr686940RE" },
         body: JSON.stringify(toApiCardMapper(nuevaCarta)),
       });
       if (response.ok) fetchCards();
@@ -92,7 +124,6 @@ function App() {
     }
   };
 
-  // --- 3. ELIMINAR (DELETE) ---
   const eliminarCarta = async (id: number) => {
     try {
       const response = await fetch(`${API_URL}card/${id}`, {
@@ -101,7 +132,6 @@ function App() {
       });
       if (response.ok) {
         setCartas(prev => prev.filter(c => c.id !== id));
-        console.log("Eliminada con éxito");
       }
     } catch (error) {
       console.error("Error deleting card:", error);
@@ -113,45 +143,31 @@ function App() {
       const datosMapeados = toApiCardMapper(cartaEditada);
       const response = await fetch(`${API_URL}card/`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "usersecretpasskey": "Gabr686940RE"
-        },
+        headers: { "Content-Type": "application/json", usersecretpasskey: "Gabr686940RE" },
         body: JSON.stringify(datosMapeados)
       });
       if (response.ok) {
         setCartas(prev => prev.map(c => c.id === cartaEditada.id ? cartaEditada : c));
-        console.log("¡LOGRADO! Carta actualizada en la base de datos.");
-        alert("¡Dominio expandido y actualizado!");
-      } else {
-        const urlConId = `${API_URL.replace(/\/$/, '')}/card/${cartaEditada.id}`;
-        console.log("Reintentando en:", urlConId);
-
-        const retryResponse = await fetch(urlConId, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "usersecretpasskey": "Gabr686940RE"
-          },
-          body: JSON.stringify(datosMapeados)
-        });
-
-        if (retryResponse.ok) {
-          setCartas(prev => prev.map(c => c.id === cartaEditada.id ? cartaEditada : c));
-          alert("¡Actualizado en el segundo intento!");
-        }
       }
     } catch (error) {
       console.error("Error en la conexión final:", error);
     }
   };
 
-  // Función para agregar almas (llamada desde CamposDeBatalla2 al ganar)
-  const handleAgregarAlmas = (cantidad: number) => {
+  const handleAgregarAlmas = (cantidad: number, dificultad?: string) => {
     setAlmas(prev => prev + cantidad);
+    if (dificultad === 'facil') {
+      setMazmorraFacilCompletada(true);
+      localStorage.setItem('mazmorraFacilCompletada', 'true');
+    } else if (dificultad === 'medio') {
+      setMazmorraMedioCompletada(true);
+      localStorage.setItem('mazmorraMedioCompletada', 'true');
+    } else if (dificultad === 'dificil') {
+      setMazmorraDificilCompletada(true);
+      localStorage.setItem('mazmorraDificilCompletada', 'true');
+    }
   };
 
-  // Función para comprar una pasiva en la tienda
   const handleComprarPasiva = (pasiva: PasivaTienda) => {
     if (almas >= pasiva.precio && !pasivasCompradas.includes(pasiva.id)) {
       setAlmas(prev => prev - pasiva.precio);
@@ -159,48 +175,68 @@ function App() {
     }
   };
 
+  const handleComprarCarta = async (carta: CartaExclusiva) => {
+    if (almas >= carta.precio && !cartasCompradas.includes(carta.id)) {
+      setAlmas(prev => prev - carta.precio);
+      setCartasCompradas(prev => [...prev, carta.id]);
+
+      const nuevaCarta: Carta = {
+        id: Date.now(),
+        nombre: carta.nombre,
+        ataque: carta.ataque,
+        defensa: carta.defensa,
+        hp: carta.hp,
+        categoria: carta.categoria,
+        ritual: carta.descripcion,
+        imagen: carta.imagen,
+        serie: "Curso Espacio Educa",
+        clan: "",
+        descripcion: carta.descripcion,
+        seleccionada: false,
+      };
+
+      try {
+        const response = await fetch(`${API_URL}card`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", usersecretpasskey: "Gabr686940RE" },
+          body: JSON.stringify(toApiCardMapper(nuevaCarta)),
+        });
+        if (response.ok) fetchCards();
+      } catch (e) {
+        console.error("Error al invocar carta:", e);
+      }
+    }
+  };
+
+  const handleReclamarLogro = (logroId: string, recompensa: number) => {
+    if (!logrosCompletados.includes(logroId)) {
+      setLogrosCompletados(prev => [...prev, logroId]);
+      setAlmas(prev => prev + recompensa);
+    }
+  };
+
   return (
     <ErrorBoundary>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              cartas={cartas}
-              onEliminar={eliminarCarta}
-              onAñadirCarta={addCarta}
-              onActualizar={actualizarCarta}
-            />
-          }
-        />
-        <Route
-          path="/crear-carta"
-          element={<FormularioCrearCarta onAñadirCarta={addCarta} />}
-        />
-        <Route
-          path="/seleccionar-cartas"
-          element={<SeleccionarCartas mazo={cartas} />}
-        />
-        <Route
-          path="/seleccionar-cartas-2"
-          element={<SeleccionarCartas2 mazo={cartas} pasivasCompradas={pasivasCompradas} />}
-        />
-        <Route
-          path="/campo-de-batalla/:id1/:id2"
-          element={<CampoDeBatalla />}
-        />
-        <Route
-          path="/campo-de-batalla-2/:id1/:id2"
-          element={<CampoDeBatalla2 onGanarAlmas={handleAgregarAlmas} />}
-        />
-        <Route
-          path="/generar-carta-ia"
-          element={<GenerarCartaIA />}
-        />
-        <Route
-          path="/tienda-de-almas"
-          element={<TiendaAlmas almas={almas} onComprarPasiva={handleComprarPasiva} pasivasCompradas={pasivasCompradas} />}
-        />
+        <Route path="/" element={<Home cartas={cartas} onEliminar={eliminarCarta} onAñadirCarta={addCarta} onActualizar={actualizarCarta} />} />
+        <Route path="/crear-carta" element={<FormularioCrearCarta onAñadirCarta={addCarta} />} />
+        <Route path="/seleccionar-cartas" element={<SeleccionarCartas mazo={cartas} />} />
+        <Route path="/seleccionar-cartas-2" element={<SeleccionarCartas2 mazo={cartas} pasivasCompradas={pasivasCompradas} />} />
+        <Route path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla />} />
+        <Route path="/campo-de-batalla-2/:id1/:id2" element={<CampoDeBatalla2 onGanarAlmas={handleAgregarAlmas} />} />
+        <Route path="/generar-carta-ia" element={<GenerarCartaIA />} />
+        <Route path="/tienda-de-almas" element={
+          <TiendaAlmas
+            almas={almas}
+            onComprarPasiva={handleComprarPasiva}
+            onComprarCarta={handleComprarCarta}
+            onReclamarLogro={handleReclamarLogro}
+            pasivasCompradas={pasivasCompradas}
+            cartasCompradas={cartasCompradas}
+            logrosCompletados={logrosCompletados}
+            datosLogros={datosLogros}
+          />
+        } />
       </Routes>
     </ErrorBoundary>
   );

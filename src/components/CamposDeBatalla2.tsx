@@ -206,7 +206,7 @@ const reproducirSonido = (ruta: string, volumen: number = 0.5) => {
     }
 };
 
-function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number) => void }) {
+function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, dificultad?: string) => void }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { carta1, carta2, movimientosCarta1, movimientosCarta2, pasivaCarta1, pasivaCarta2 } = location.state || {};
@@ -303,7 +303,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number) 
                 : gameState.difficulty === 'medio' ? 200
                     : 350;
             console.log('Dando almas:', almasGanadas, 'Dificultad:', gameState.difficulty);
-            onGanarAlmas(almasGanadas);
+            onGanarAlmas(almasGanadas, gameState.difficulty || undefined);
         }
         // Resetear cuando se reinicia el juego
         if (gameState.phase === "difficultySelect") {
