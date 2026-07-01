@@ -7,13 +7,13 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
     const [busqueda, setBusqueda] = useState('');
     
     const cartasfiltradas = useMemo(() => {
-    const term = busqueda.toLowerCase();
-    return cartas.filter(carta => {
-    const nombre = (carta.nombre || '').toLowerCase();
-    const categoria = (carta.categoria || '').toLowerCase();
-    return nombre.includes(term) || categoria.includes(term);
-    });
-}, [busqueda, cartas]);
+        const term = busqueda.toLowerCase();
+        return cartas.filter(carta => {
+            const nombre = (carta.nombre || '').toLowerCase();
+            const categoria = (carta.categoria || '').toLowerCase();
+            return nombre.includes(term) || categoria.includes(term);
+        });
+    }, [busqueda, cartas]);
 
     return (
         <div className="flex flex-col min-h-screen bg-[#050508] text-gray-200 relative overflow-hidden">
@@ -25,18 +25,28 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
             <header className="z-50 sticky top-0 bg-[#07070a]/60 backdrop-blur-2xl border-b border-purple-500/15 px-4 md:px-8 py-4 mb-12 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
                 <div className="max-w-7xl mx-auto flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     
-                    {/* Brand / Logo (Bloque aislado para evitar colisiones con el texto) */}
-                    <div className="flex items-center gap-3.5 justify-center sm:justify-start flex-shrink-0">
-                        <img 
-                            src="/imagenes/Logo.png" 
-                            alt="Logo" 
-                            className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
-                        />
-                        <div className="flex flex-col">
-                            <h1 className="text-lg md:text-xl font-black text-white tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-purple-400">
-                                Jujutsu Kaisen
-                            </h1>
-                            <span className="text-[9px] text-purple-400 font-bold tracking-[0.35em] uppercase mt-0.5">Decks & Cards</span>
+                    {/* LADO IZQUIERDO: Tienda de Almas + Logo */}
+                    <div className="flex items-center gap-4 justify-center sm:justify-start flex-shrink-0">
+                        {/* Botón Tienda de Almas - al lado izquierdo del logo */}
+                        <Link to="/tienda-de-almas">
+                            <button className="px-4 py-2.5 bg-gradient-to-r from-amber-900/30 to-yellow-900/30 border border-amber-500/20 hover:border-amber-400/40 hover:bg-amber-950/30 text-amber-300 hover:text-amber-200 text-[11px] font-bold rounded-xl tracking-widest uppercase transition-all duration-200 active:scale-95 whitespace-nowrap">
+                                💎 Tienda de Almas
+                            </button>
+                        </Link>
+
+                        {/* Logo */}
+                        <div className="flex items-center gap-3.5">
+                            <img 
+                                src="/imagenes/Logo.png" 
+                                alt="Logo" 
+                                className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
+                            />
+                            <div className="flex flex-col">
+                                <h1 className="text-lg md:text-xl font-black text-white tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-purple-400">
+                                    Jujutsu Kaisen
+                                </h1>
+                                <span className="text-[9px] text-purple-400 font-bold tracking-[0.35em] uppercase mt-0.5">Decks & Cards</span>
+                            </div>
                         </div>
                     </div>
 
