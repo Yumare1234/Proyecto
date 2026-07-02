@@ -211,7 +211,7 @@ function SeleccionarCartas2({ mazo, pasivasCompradas = [] }: Props) {
 
         const ordenMovimiento = actuales.length + 1;
         const danioCalculado = calcularDanio(cartaModal, ordenMovimiento);
-        const cooldownAsignado = ordenMovimiento * 2;
+        const cooldownAsignado = ordenMovimiento * 1.5;
 
         const nuevoMov: Movimiento = {
             id: Date.now().toString(),

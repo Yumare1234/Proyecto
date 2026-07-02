@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { FiHome, FiShoppingCart, FiStar, FiShield, FiHeart, FiAward, FiCheckCircle, FiCircle } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiStar, FiShield, FiHeart, FiAward, FiCheckCircle, FiCircle, FiTrendingUp } from 'react-icons/fi';
 import { LuSkull, LuSparkles, LuSwords, LuFlame, LuDroplets, LuEye, LuCrown, LuGhost, LuTrophy, LuGem } from 'react-icons/lu';
+import type { Carta } from './index';
 
 type PasivaTienda = {
     id: string;
@@ -257,6 +258,7 @@ const CARTAS_EXCLUSIVAS: CartaExclusiva[] = [
 
 type Props = {
     almas: number;
+    cartas: Carta[];
     onComprarPasiva: (pasiva: PasivaTienda) => void;
     onComprarCarta: (carta: CartaExclusiva) => void;
     onReclamarLogro: (logroId: string, recompensa: number) => void;
@@ -266,16 +268,26 @@ type Props = {
     datosLogros: DatosLogros;
 };
 
-function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, pasivasCompradas, cartasCompradas, logrosCompletados, datosLogros }: Props) {
+function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclamarLogro, pasivasCompradas, cartasCompradas, logrosCompletados, datosLogros }: Props) {
     const [productoSeleccionado, setProductoSeleccionado] = useState<PasivaTienda | CartaExclusiva | null>(null);
     const [tipoProducto, setTipoProducto] = useState<'pasiva' | 'carta'>('pasiva');
     const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
     const [compraExitosa, setCompraExitosa] = useState(false);
     const [mensajeCompra, setMensajeCompra] = useState('');
-    const [seccionActiva, setSeccionActiva] = useState<'tienda' | 'logros'>('tienda');
+    const [seccionActiva, setSeccionActiva] = useState<'tienda' | 'logros' | 'rankings'>('tienda');
     const [mostrarRecompensa, setMostrarRecompensa] = useState(false);
     const [recompensaMensaje, setRecompensaMensaje] = useState('');
     const navigate = useNavigate();
+
+    // Cálculo del ranking
+    const rankingCartas = useMemo(() => {
+        return [...cartas]
+            .map(carta => ({
+                ...carta,
+                poderTotal: (carta.ataque || 0) + (carta.defensa || 0) + (carta.hp || 0)
+            }))
+            .sort((a, b) => b.poderTotal - a.poderTotal);
+    }, [cartas]);
 
     const handleComprarPasiva = (producto: PasivaTienda) => {
         if (almas >= producto.precio && !pasivasCompradas.includes(producto.id)) {
@@ -346,18 +358,32 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
                         <div className="flex items-center gap-3">
                             <LuSkull className="text-2xl text-purple-500" />
                             <h1 className="text-2xl font-black tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-400 to-purple-400">
-                                {seccionActiva === 'logros' ? 'Salón de la Fama' : 'Tienda de Almas'}
+                                {seccionActiva === 'logros' ? 'Salón de la Fama' : seccionActiva === 'rankings' ? 'Clasificación de Guerreros' : 'Tienda de Almas'}
                             </h1>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        {/* Botón de Rankings */}
+                        <button
+                            onClick={() => setSeccionActiva(seccionActiva === 'rankings' ? 'tienda' : 'rankings')}
+                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                                seccionActiva === 'rankings'
+                                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]'
+                                    : 'bg-black/60 border border-blue-700/30 text-blue-400 hover:border-blue-500/50 hover:bg-blue-950/30'
+                            }`}
+                        >
+                            <FiTrendingUp className="text-lg" />
+                            <span>Rankings</span>
+                        </button>
+
                         {/* Botón de Logros */}
                         <button
                             onClick={() => setSeccionActiva(seccionActiva === 'logros' ? 'tienda' : 'logros')}
-                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${seccionActiva === 'logros'
+                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                                seccionActiva === 'logros'
                                     ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-black shadow-[0_0_20px_rgba(255,180,0,0.3)]'
                                     : 'bg-black/60 border border-amber-700/30 text-amber-400 hover:border-amber-500/50 hover:bg-amber-950/30'
-                                }`}
+                            }`}
                         >
                             <LuTrophy className="text-lg" />
                             <span>Logros</span>
@@ -368,24 +394,6 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
                             )}
                         </button>
 
-                        <button
-                            onClick={() => {
-                                if (window.confirm('¿Estás seguro de reiniciar tus almas a 0?')) {
-                                    localStorage.setItem('almas', '0');
-                                    localStorage.setItem('pasivasCompradas', '[]');
-                                    localStorage.setItem('cartasCompradas', '[]');
-                                    localStorage.setItem('logrosCompletados', '[]');
-                                    localStorage.setItem('mazmorraFacilCompletada', 'false');
-                                    localStorage.setItem('mazmorraMedioCompletada', 'false');
-                                    localStorage.setItem('mazmorraDificilCompletada', 'false');
-                                    window.location.reload();
-                                }
-                            }}
-                            className="px-3 py-1.5 bg-red-950/30 border border-red-700/30 hover:bg-red-900/40 text-red-400 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all"
-                            title="Reiniciar almas"
-                        >
-                            🔄 Reiniciar
-                        </button>
                         <div className="flex items-center gap-3 px-5 py-2.5 bg-black/60 border border-amber-700/30 rounded-xl backdrop-blur-sm">
                             <LuFlame className="text-2xl text-amber-500 animate-pulse" />
                             <div className="flex flex-col">
@@ -397,7 +405,7 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
                 </div>
             </header>
 
-            {/* Contenido principal - Tienda o Logros */}
+            {/* Contenido principal - Tienda, Logros o Rankings */}
             {seccionActiva === 'tienda' ? (
                 <main className="z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
                     {/* SECCIÓN: CARTAS EXCLUSIVAS */}
@@ -418,10 +426,10 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
 
                             return (
                                 <div key={carta.id} className={`relative group bg-[#0d0d12] border-2 rounded-2xl p-5 transition-all duration-500 ${yaComprada
-                                    ? 'border-green-900/50 opacity-60'
-                                    : puedeComprar
-                                        ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(255,180,0,0.3)]'
-                                        : 'border-gray-700/50 opacity-70'
+                                        ? 'border-green-900/50 opacity-60'
+                                        : puedeComprar
+                                            ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(255,180,0,0.3)]'
+                                            : 'border-gray-700/50 opacity-70'
                                     }`}>
                                     <div className={`absolute inset-0 bg-gradient-to-br ${carta.color} opacity-5 rounded-2xl group-hover:opacity-15 transition-opacity duration-500 pointer-events-none`} />
 
@@ -569,7 +577,7 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
                         })}
                     </div>
                 </main>
-            ) : (
+            ) : seccionActiva === 'logros' ? (
                 /* SECCIÓN DE LOGROS */
                 <main className="z-10 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
                     <div className="text-center mb-8">
@@ -657,6 +665,99 @@ function TiendaAlmas({ almas, onComprarPasiva, onComprarCarta, onReclamarLogro, 
                             </div>
                         </div>
                     </div>
+                </main>
+            ) : (
+                /* 🆕 SECCIÓN DE RANKINGS */
+                <main className="z-10 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+                    <div className="text-center mb-8">
+                        <div className="inline-block bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-black px-4 py-1 rounded-full uppercase tracking-widest mb-3">
+                            📊 Rankings
+                        </div>
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-400 to-blue-500 uppercase tracking-[0.2em]">
+                            Cartas Más Poderosas
+                        </h2>
+                        <p className="text-gray-500 text-xs mt-2">Clasificación basada en el poder total (ATQ + DEF + HP)</p>
+                    </div>
+
+                    {rankingCartas.length === 0 ? (
+                        <div className="text-center py-20 bg-[#0d0d12] border border-purple-900/20 rounded-2xl">
+                            <LuSkull className="text-5xl text-gray-600 mx-auto mb-4" />
+                            <p className="text-gray-500">No hay cartas en tu mazo para mostrar el ranking</p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Podio Top 3 */}
+                            <div className="grid grid-cols-3 gap-4 mb-8">
+                                {rankingCartas.slice(0, 3).map((carta, index) => {
+                                    const medallas = ['🥇', '🥈', '🥉'];
+                                    const coloresBorde = [
+                                        'border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.3)]',
+                                        'border-gray-400 shadow-[0_0_20px_rgba(156,163,175,0.3)]',
+                                        'border-amber-700 shadow-[0_0_20px_rgba(180,83,9,0.3)]'
+                                    ];
+                                    const coloresFondo = [
+                                        'from-yellow-600 to-amber-700',
+                                        'from-gray-500 to-slate-600',
+                                        'from-amber-700 to-orange-800'
+                                    ];
+
+                                    return (
+                                        <div key={carta.id} className={`relative bg-[#0d0d12] border-2 ${coloresBorde[index]} rounded-2xl p-4 text-center transition-all duration-300 hover:scale-105`}>
+                                            <div className="text-4xl mb-2">{medallas[index]}</div>
+                                            <div className="w-20 h-28 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-white/10">
+                                                {carta.imagen ? (
+                                                    <img src={carta.imagen} alt={carta.nombre} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className={`w-full h-full bg-gradient-to-br ${coloresFondo[index]} flex items-center justify-center`}>
+                                                        <LuSwords className="text-2xl text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <h3 className="text-sm font-black text-white mb-1 truncate">{carta.nombre}</h3>
+                                            <p className="text-xs text-gray-400 mb-2">{carta.categoria || 'Sin categoría'}</p>
+                                            <div className={`inline-block bg-gradient-to-r ${coloresFondo[index]} text-white text-xs font-bold px-3 py-1 rounded-full`}>
+                                                ⚡ {carta.poderTotal.toLocaleString()}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Lista del resto */}
+                            <div className="bg-[#0d0d12] border border-purple-900/20 rounded-2xl overflow-hidden">
+                                <div className="grid grid-cols-12 gap-2 px-5 py-3 bg-black/40 border-b border-purple-900/20 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <div className="col-span-2 text-center">#</div>
+                                    <div className="col-span-4">Carta</div>
+                                    <div className="col-span-2 text-center">ATQ</div>
+                                    <div className="col-span-2 text-center">DEF</div>
+                                    <div className="col-span-2 text-center">Poder</div>
+                                </div>
+                                {rankingCartas.slice(3).map((carta, index) => (
+                                    <div key={carta.id} className="grid grid-cols-12 gap-2 px-5 py-3 border-b border-purple-900/10 hover:bg-white/5 transition-colors items-center">
+                                        <div className="col-span-2 text-center text-sm font-bold text-gray-400">#{index + 4}</div>
+                                        <div className="col-span-4 flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
+                                                {carta.imagen ? (
+                                                    <img src={carta.imagen} alt={carta.nombre} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <LuSwords className="text-gray-500" size={14} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-white truncate">{carta.nombre}</p>
+                                                <p className="text-[9px] text-gray-500">{carta.categoria || 'Sin categoría'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="col-span-2 text-center text-xs text-red-400 font-bold">{carta.ataque?.toLocaleString() || 0}</div>
+                                        <div className="col-span-2 text-center text-xs text-blue-400 font-bold">{carta.defensa?.toLocaleString() || 0}</div>
+                                        <div className="col-span-2 text-center text-xs text-amber-400 font-bold">{carta.poderTotal.toLocaleString()}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </main>
             )}
 

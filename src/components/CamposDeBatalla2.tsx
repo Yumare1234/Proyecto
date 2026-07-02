@@ -67,8 +67,6 @@ interface GameState {
     isAnimating: boolean;
     turnCounter: number;
     buffsUsedThisWave: boolean;
-    reverseTechniqueUsedThisWave: boolean;
-    domainExpansionUsedThisWave: boolean;
     pendingDomainExpansion: { playerId: 1 | 2 } | null;
     pendingReverseTechnique: { playerId: 1 | 2 } | null;
 }
@@ -227,8 +225,6 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
         isAnimating: false,
         turnCounter: 0,
         buffsUsedThisWave: false,
-        reverseTechniqueUsedThisWave: false,
-        domainExpansionUsedThisWave: false,
         pendingDomainExpansion: null,
         pendingReverseTechnique: null,
     });
@@ -250,7 +246,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             }
             const audio = new Audio('/sounds/efectos/mazmorra_theme.mp3');
             audio.loop = true;
-            audio.volume = 0.3;
+            audio.volume = 0.8;
             audio.play().catch(e => console.log("Música omitida:", e));
             bgMusicRef.current = audio;
         } catch (err) {
@@ -269,7 +265,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
     useEffect(() => {
         if (gameState.phase === "waveIntro" && boss) {
             const nombreArchivo = boss.nombre.toLowerCase().replace(/ /g, "_");
-            reproducirSonido(`/sounds/bosses/${nombreArchivo}.mp3`, 0.8);
+            reproducirSonido(`/sounds/bosses/${nombreArchivo}.mp3`, 0.6);
             if (gameState.currentWave === 1) {
                 startBackgroundMusic();
             }
@@ -326,9 +322,9 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
         const danioNormal = Math.max(1, Math.floor((ataqueJefe * (1 - penetracion)) - (defensaJugador * 0.3)));
         let danioTotal = danioPenetrante + danioNormal;
         if (isDefending) {
-            danioTotal = Math.floor(danioTotal * 0.4);
+            danioTotal = Math.floor(danioTotal * 0.3);
         }
-        const danioMinimo = Math.floor(ataqueJefe * 0.15);
+        const danioMinimo = Math.floor(ataqueJefe * 0.10);
         return Math.max(danioMinimo, danioTotal);
     }, []);
 
@@ -518,8 +514,6 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             isAnimating: false,
             turnCounter: 0,
             buffsUsedThisWave: false,
-            reverseTechniqueUsedThisWave: false,
-            domainExpansionUsedThisWave: false,
             pendingDomainExpansion: null,
             pendingReverseTechnique: null,
         });
@@ -535,7 +529,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
     const checkEnergyThresholds = useCallback((fighter: FighterState, playerId: 1 | 2) => {
         const energy = fighter.energy;
         const buffs = fighter.buffs;
-        if (energy >= DOMAIN_EXPANSION_THRESHOLD && !buffs.domainExpansionUsed && !gameState.domainExpansionUsedThisWave) {
+        if (energy >= DOMAIN_EXPANSION_THRESHOLD && !buffs.domainExpansionUsed) {
             setGameState(prev => ({
                 ...prev,
                 pendingDomainExpansion: { playerId },
@@ -545,7 +539,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             }));
             return true;
         }
-        if (energy >= REVERSE_TECHNIQUE_THRESHOLD && !buffs.reverseTechniqueUsed && !gameState.reverseTechniqueUsedThisWave) {
+        if (energy >= REVERSE_TECHNIQUE_THRESHOLD && !buffs.reverseTechniqueUsed) {
             setGameState(prev => ({
                 ...prev,
                 pendingReverseTechnique: { playerId },
@@ -567,7 +561,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             return true;
         }
         return false;
-    }, [fighters, gameState.buffsUsedThisWave, gameState.reverseTechniqueUsedThisWave, gameState.domainExpansionUsedThisWave]);
+    }, [fighters, gameState.buffsUsedThisWave]);
 
     const applyBuff = useCallback((buffType: BuffType) => {
         if (!pendingBuff || !fighters) return;
@@ -619,7 +613,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
     const executeReverseTechnique = useCallback((playerId: 1 | 2) => {
         if (!fighters) return;
         const fighter = fighters[playerId - 1];
-        const healAmount = Math.floor(fighter.maxHp * 0.15);
+        const healAmount = Math.floor(fighter.maxHp * 0.30);
         const newFighters = [...fighters] as [FighterState, FighterState];
         newFighters[playerId - 1] = {
             ...newFighters[playerId - 1],
@@ -636,9 +630,8 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             phase: "fighting",
             turnPhase: "playerSelect",
             isAnimating: false,
-            reverseTechniqueUsedThisWave: true,
             pendingReverseTechnique: null,
-            actionLog: [...prev.actionLog, `† TÉCNICA INVERSA: ${fighter.carta.nombre} se cura ${healAmount} HP (15%).`],
+            actionLog: [...prev.actionLog, `† TÉCNICA INVERSA: ${fighter.carta.nombre} se cura ${healAmount} HP (30%).`],
         }));
     }, [fighters]);
 
@@ -664,7 +657,6 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
             phase: "fighting",
             turnPhase: "playerSelect",
             isAnimating: false,
-            domainExpansionUsedThisWave: true,
             pendingDomainExpansion: null,
             actionLog: [...prev.actionLog, `🔥 EXPANSIÓN DE DOMINIO: ${fighter.carta.nombre} inflige ${danioDominio} DMG`],
         }));
@@ -715,8 +707,6 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
                     actionLog: [...prev.actionLog, `> CARGANDO OLEADA ${nextWave}...`],
                     isAnimating: false,
                     buffsUsedThisWave: false,
-                    reverseTechniqueUsedThisWave: false,
-                    domainExpansionUsedThisWave: false,
                     turnCounter: 0,
                 }));
                 setTimeout(() => {
@@ -1055,8 +1045,6 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
                     actionLog: [...prev.actionLog, `> CARGANDO OLEADA ${nextWave}...`],
                     isAnimating: false,
                     buffsUsedThisWave: false,
-                    reverseTechniqueUsedThisWave: false,
-                    domainExpansionUsedThisWave: false,
                     turnCounter: 0,
                 }));
                 setTimeout(() => {
@@ -1730,10 +1718,10 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
                                         {p1.energy >= BUFF_THRESHOLD && !gameState.buffsUsedThisWave && (
                                             <span className="text-amber-400 font-bold">[BUFF DISPONIBLE]</span>
                                         )}
-                                        {p1.energy >= REVERSE_TECHNIQUE_THRESHOLD && !gameState.reverseTechniqueUsedThisWave && !p1.buffs.reverseTechniqueUsed && (
+                                        {p1.energy >= REVERSE_TECHNIQUE_THRESHOLD && !p1.buffs.reverseTechniqueUsed && (
                                             <span className="text-green-400 font-bold">[TÉC. INVERSA]</span>
                                         )}
-                                        {p1.energy >= DOMAIN_EXPANSION_THRESHOLD && !gameState.domainExpansionUsedThisWave && !p1.buffs.domainExpansionUsed && (
+                                        {p1.energy >= DOMAIN_EXPANSION_THRESHOLD && !p1.buffs.domainExpansionUsed && (
                                             <span className="text-red-500 font-bold animate-pulse">[DOMINIO]</span>
                                         )}
                                     </div>
@@ -1814,10 +1802,10 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
                                         {p2.energy >= BUFF_THRESHOLD && !gameState.buffsUsedThisWave && (
                                             <span className="text-amber-400 font-bold">[BUFF DISPONIBLE]</span>
                                         )}
-                                        {p2.energy >= REVERSE_TECHNIQUE_THRESHOLD && !gameState.reverseTechniqueUsedThisWave && !p2.buffs.reverseTechniqueUsed && (
+                                        {p2.energy >= REVERSE_TECHNIQUE_THRESHOLD && !p2.buffs.reverseTechniqueUsed && (
                                             <span className="text-green-400 font-bold">[TÉC. INVERSA]</span>
                                         )}
-                                        {p2.energy >= DOMAIN_EXPANSION_THRESHOLD && !gameState.domainExpansionUsedThisWave && !p2.buffs.domainExpansionUsed && (
+                                        {p2.energy >= DOMAIN_EXPANSION_THRESHOLD && !p2.buffs.domainExpansionUsed && (
                                             <span className="text-red-500 font-bold animate-pulse">[DOMINIO]</span>
                                         )}
                                     </div>

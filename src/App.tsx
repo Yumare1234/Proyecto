@@ -228,6 +228,7 @@ function App() {
         <Route path="/tienda-de-almas" element={
           <TiendaAlmas
             almas={almas}
+            cartas={cartas}  // ✅ Añadir esta línea
             onComprarPasiva={handleComprarPasiva}
             onComprarCarta={handleComprarCarta}
             onReclamarLogro={handleReclamarLogro}
