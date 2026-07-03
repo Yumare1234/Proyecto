@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary.tsx';
 import SeleccionarCartas2 from './components/seleccionarCartas2.tsx';
 import CampoDeBatalla2 from './components/CamposDeBatalla2.tsx';
 import TiendaAlmas from './components/TiendaAlmas.tsx';
+import { ToastNotificacion } from './components/ToastNotificacion';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
 
@@ -43,6 +44,9 @@ type CartaExclusiva = {
 function App() {
   const [cartas, setCartas] = useState<Carta[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMensaje, setToastMensaje] = useState('');
 
   const [almas, setAlmas] = useState(() => {
     const guardado = localStorage.getItem('almas');
@@ -132,6 +136,14 @@ function App() {
       });
       if (response.ok) {
         setCartas(prev => prev.filter(c => c.id !== id));
+
+        // Busca el nombre de la carta antes de eliminarla del estado (opcional)
+        const cartaEliminada = cartas.find(c => c.id === id);
+        const nombre = cartaEliminada ? cartaEliminada.nombre : 'Carta';
+
+        // 🔔 Mostrar notificación
+        setToastMensaje(`${nombre} ha sido eliminada del grimorio.`);
+        setToastVisible(true);
       }
     } catch (error) {
       console.error("Error deleting card:", error);
@@ -141,13 +153,16 @@ function App() {
   const actualizarCarta = async (cartaEditada: Carta) => {
     try {
       const datosMapeados = toApiCardMapper(cartaEditada);
-      const response = await fetch(`${API_URL}card/`, {
+      const response = await fetch(`${API_URL}card/${cartaEditada.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", usersecretpasskey: "Gabr686940RE" },
         body: JSON.stringify(datosMapeados)
       });
       if (response.ok) {
         setCartas(prev => prev.map(c => c.id === cartaEditada.id ? cartaEditada : c));
+        // Mostrar notificación
+        setToastMensaje(`¡${cartaEditada.nombre} ha sido editada con éxito!`);
+        setToastVisible(true);
       }
     } catch (error) {
       console.error("Error en la conexión final:", error);
@@ -228,7 +243,7 @@ function App() {
         <Route path="/tienda-de-almas" element={
           <TiendaAlmas
             almas={almas}
-            cartas={cartas}  
+            cartas={cartas}
             onComprarPasiva={handleComprarPasiva}
             onComprarCarta={handleComprarCarta}
             onReclamarLogro={handleReclamarLogro}
@@ -239,7 +254,13 @@ function App() {
           />
         } />
       </Routes>
+      <ToastNotificacion
+        mensaje={toastMensaje}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+      />
     </ErrorBoundary>
+
   );
 }
 

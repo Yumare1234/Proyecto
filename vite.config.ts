@@ -5,4 +5,13 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api/v1/instants': {
+        target: 'https://www.myinstants.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

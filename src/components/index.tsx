@@ -10,6 +10,7 @@ export interface Carta {
     clan: string;
     descripcion: string;
     hp: number;
+    voz?: string;
     seleccionada?: boolean;
     ocultarBotones?: boolean;
 }
@@ -33,7 +34,7 @@ export interface IApiCard {
         "defense": number,
         "lifePoints": number,
         "pictureUrl": string,
-        "attributes": {clan?: string, ritual: string, categoria: string, serie?: string},
+        "attributes": {clan?: string, ritual: string, categoria: string, serie?: string, voiceUrl?: string},
         "userSecret": string,
         "createdAt": string,
         "updatedAt": string | null,
@@ -52,6 +53,7 @@ export const toApiCardMapper = (carta: Carta) => {
             ritual: carta.ritual,
             categoria: carta.categoria,
             serie: carta.serie,
+            voiceUrl: carta.voz || "",
             }
         }
     }
@@ -68,5 +70,6 @@ export const toCardApiMapper = (apiCard: IApiCard): Carta => ({
     clan: apiCard.attributes?.clan || "",
     descripcion: apiCard.description,
     hp: apiCard.lifePoints, 
+    voz: apiCard.attributes?.voiceUrl || "",
 })
 
