@@ -271,10 +271,9 @@ function CampoDeBatalla() {
             ...prev
         ]);
 
-        audioRef.current = new Audio("/sounds/voces-gojo-sukuna.mp3");
+        audioRef.current = new Audio("/sounds/voces-gojo-sukuna2.mp3");
         audioRef.current.volume = 0.8;
         audioRef.current.play();
-
         reducirTodosLosCooldowns();
         setTurnoJugador(false);
     };

@@ -229,7 +229,7 @@ const CARTAS_EXCLUSIVAS: CartaExclusiva[] = [
     {
         id: 'carta_Brian',
         nombre: 'PROFESOR BRIAN',
-        descripcion: 'EL Profesor mas Poderoso del curos Avanzado, su poder es inigualable',
+        descripcion: 'EL Profesor mas Poderoso del Curso Avanzado, fue encerrado en la prision de su casa debido a un brujo y luego fue liberado',
         precio: 5000,
         icono: <LuEye className="text-5xl" />,
         color: 'from-blue-900 via-indigo-800 to-purple-900',
@@ -248,10 +248,10 @@ const CARTAS_EXCLUSIVAS: CartaExclusiva[] = [
         icono: <LuGhost className="text-5xl" />,
         color: 'from-green-900 via-emerald-800 to-teal-900',
         stats: 'ATQ: 7350 | DEF: 6500 | HP: 13000',
-        categoria: 'Usuario de Maldiciones',
+        categoria: 'Hechicero Especial',
         imagen: '/imagenes/Jefes/kenjaku.jpg',
         ataque: 7350,
-        defensa: 6500,
+        defensa: 9105,
         hp: 13000
     },
 ];
@@ -392,6 +392,25 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                                     {logrosDisponibles}
                                 </span>
                             )}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                if (window.confirm('¿Estás seguro de reiniciar tus almas a 0?')) {
+                                    localStorage.setItem('almas', '0');
+                                    localStorage.setItem('pasivasCompradas', '[]');
+                                    localStorage.setItem('cartasCompradas', '[]');
+                                    localStorage.setItem('logrosCompletados', '[]');
+                                    localStorage.setItem('mazmorraFacilCompletada', 'false');
+                                    localStorage.setItem('mazmorraMedioCompletada', 'false');
+                                    localStorage.setItem('mazmorraDificilCompletada', 'false');
+                                    window.location.reload();
+                                }
+                            }}
+                            className="px-3 py-1.5 bg-red-950/30 border border-red-700/30 hover:bg-red-900/40 text-red-400 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all"
+                            title="Reiniciar almas"
+                        >
+                            🔄 Reiniciar
                         </button>
 
                         <div className="flex items-center gap-3 px-5 py-2.5 bg-black/60 border border-amber-700/30 rounded-xl backdrop-blur-sm">

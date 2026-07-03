@@ -245,7 +245,7 @@ function SeleccionarCartas2({ mazo, pasivasCompradas = [] }: Props) {
         setResultadoRuleta(null);
 
         const tiempoGiro = 2000 + Math.random() * 2000;
-        // ✅ Usar pasivasRuleta que incluye las compradas en la tienda
+        // Usar pasivasRuleta que incluye las compradas en la tienda
         const indiceAleatorio = Math.floor(Math.random() * pasivasRuleta.length);
 
         ruletaTimeoutRef.current = setTimeout(() => {
