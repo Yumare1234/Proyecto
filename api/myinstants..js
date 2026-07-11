@@ -1,7 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // api/myinstants.js
+// api/myinstants.js
+export default async function handler(req, res) {
     try {
         const { name } = req.query;
 
