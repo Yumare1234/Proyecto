@@ -6,13 +6,12 @@
             "config": {
                 "distDir": "dist"
             }
+        },
+        {
+            "src": "api/myinstants.js",
+            "use": "@vercel/node@2.14.4"
         }
     ],
-    "functions": {
-        "api/myinstants.js": {
-            "runtime": "nodejs18.x"
-        }
-    },
     "routes": [
         {
             "src": "/api/(.*)",
