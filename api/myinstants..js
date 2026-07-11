@@ -2,14 +2,11 @@
 export default async function handler(req, res) {
     try {
         const { name } = req.query;
-
         if (!name) {
             return res.status(400).json({ error: 'Falta el parámetro name' });
         }
 
-        // Aseguramos que name sea string
         const termino = Array.isArray(name) ? name[0] : name;
-
         const apiUrl = `https://www.myinstants.com/api/v1/instants/?format=json&page=1&name=${encodeURIComponent(termino)}`;
 
         const response = await fetch(apiUrl, {
@@ -19,16 +16,22 @@ export default async function handler(req, res) {
             },
         });
 
-        const data = await response.json();
-        res.status(200).json(data);
+        const text = await response.text(); // Obtenemos el contenido como texto
+
+        // Intentamos parsear JSON de todas formas, pero si falla, mostramos el texto
+        let data;
+        try {
+            data = JSON.parse(text);
+            res.status(200).json(data);
+        } catch (jsonError) {
+            // Devolvemos el HTML recibido para diagnóstico
+            res.status(500).json({
+                error: 'MyInstants devolvió HTML en lugar de JSON',
+                html: text.substring(0, 500), // Primeros 500 caracteres
+            });
+        }
     } catch (error) {
         const mensaje = error instanceof Error ? error.message : String(error);
-        const traza = error instanceof Error ? error.stack : undefined;
-
-        res.status(500).json({
-            error: 'Error interno de la función',
-            message: mensaje,
-            stack: traza,
-        });
+        res.status(500).json({ error: 'Error interno', message: mensaje });
     }
 }

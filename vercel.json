@@ -9,7 +9,7 @@
         },
         {
             "src": "api/myinstants.js",
-            "use": "@vercel/node@2.14.4"
+            "use": "@vercel/node"
         }
     ],
     "routes": [
