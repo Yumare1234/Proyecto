@@ -62,7 +62,7 @@ export function SelectorSonidoMyInstants({ onSelect }: Props) {
     };
 
     const construirUrlSonido = (rutaRelativa: string) => {
-        return `https://www.myinstants.com${rutaRelativa}`;
+        return rutaRelativa;
     };
 
     const togglePreview = (sonido: SonidoMyInstants) => {
