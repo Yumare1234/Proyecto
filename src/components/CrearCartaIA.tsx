@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { Carta } from './index'; // Ajusta la ruta si tu tipo Carta está en otro archivo
-import Cartadetalle from './CartaProyecto'; // El mismo componente que usas en Home
+import type { Carta } from './index';
+import Cartadetalle from './CartaProyecto';
+import { Modal } from './Modal';
+import { FormularioEditarCarta } from './formularioEditarcarta';
+
+const PROMPT_EXAMPLES = [
+  'Un hechicero oscuro de grado especial que domina cuchillas etéreas y se mueve como una sombra.',
+  'Una maldición ancestral con piel de piedra, fuerza descomunal y un aura letal que consume energía.',
+  'Un usuario de barras de energía con técnicas curativas y ataques de luz purificadora.',
+];
 
 export const GenerarCartaIA = () => {
+  const API_URL = import.meta.env.VITE_EDUCA_API_URL;
   const [cardPrompt, setCardPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cartaGenerada, setCartaGenerada] = useState<Carta | null>(null);
+  const [purged, setPurged] = useState(false);
+  const [mostrarEditor, setMostrarEditor] = useState(false);
   const navigate = useNavigate();
 
   const generarCarta = async () => {
@@ -43,20 +54,22 @@ export const GenerarCartaIA = () => {
       // Mapeamos la respuesta a un objeto de tipo Carta
       // Ajusta estos campos según lo que devuelva realmente tu API
       const carta: Carta = {
-          id: data.id || Date.now(),
-          nombre: data.nombre || 'Hechicero sin nombre',
-          serie: data.serie || 'Jujutsu Kaisen',
-          categoria: data.categoria || 'Grado 4',
-          descripcion: data.descripcion || 'Sin descripción.',
+          id: data.idCard ? parseInt(data.idCard, 10) : Date.now(),
+          nombre: data.name || data.nombre || 'Hechicero sin nombre',
+          serie: (data.attributes?.serie || data.serie) ?? 'Jujutsu Kaisen',
+          categoria: (data.attributes?.categoria || data.categoria) ?? 'Grado 4',
+          descripcion: data.description || data.descripcion || 'Sin descripción.',
           imagen: data.pictureUrl || data.imagen || '/imagenes/placeholder.png',
-          ritual: data.ritual || 'Desconocido',
-          ataque: data.ataque || 0,
-          defensa: data.defensa || 0,
-          clan: data.clan || 'Sin clan',
-          hp: data.hp || 100,
-};
+          ritual: (data.attributes?.ritual || data.ritual) ?? 'Desconocido',
+          ataque: data.attack || data.ataque || 0,
+          defensa: data.defense || data.defensa || 0,
+          clan: (data.attributes?.clan || data.clan) ?? 'Sin clan',
+          hp: data.lifePoints || data.hp || 100,
+          voz: (data.attributes?.voiceUrl || data.voz) ?? '',
+      };
 
       setCartaGenerada(carta);
+      setPurged(false);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -76,6 +89,58 @@ const handleEliminarDummy = (_id: number) => {
 const handleActualizarDummy = (_carta: Carta) => {
   void _carta; // Ídem
 };
+
+const seleccionarEjemplo = (texto: string) => {
+  setCardPrompt(texto);
+  setError(null);
+};
+
+const cerrarEditor = () => setMostrarEditor(false);
+
+const handleActualizarGenerada = (cartaEditada: Carta) => {
+  setCartaGenerada(cartaEditada);
+  setMostrarEditor(false);
+};
+
+const purgarCarta = async () => {
+  if (!cartaGenerada) return;
+  const cartaAEliminar = cartaGenerada;
+
+  if (!API_URL) {
+    setCartaGenerada(null);
+    setCardPrompt('');
+    setError(null);
+    setPurged(true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}card/${cartaAEliminar.id}`, {
+      method: 'DELETE',
+      headers: { usersecretpasskey: 'Gabr686940RE' },
+    });
+
+    if (!response.ok) {
+      console.error('Error al purgar la carta en el servidor:', response.status, await response.text());
+      setError('No se pudo purgar la carta del mazo. Intenta nuevamente.');
+      return;
+    }
+
+    setCartaGenerada(null);
+    setCardPrompt('');
+    setError(null);
+    setPurged(true);
+  } catch (err) {
+    console.error('No se pudo purgar la carta en el servidor:', err);
+    setError('Ocurrió un error al purgar la carta. Verifica tu conexión.');
+  }
+};
+
+const irACrearCarta = () => {
+  if (!cartaGenerada || purged) return;
+  setMostrarEditor(true);
+};
+
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#050508] text-gray-200 p-6 overflow-hidden">
       {/* Efectos de luces de fondo (igual que en Home) */}
@@ -121,6 +186,57 @@ const handleActualizarDummy = (_carta: Carta) => {
             disabled={loading}
           />
 
+          <div className="mt-4 text-xs text-gray-400 uppercase tracking-[0.25em] text-center">
+            Usa un prompt claro para generar una carta balanceada y visualmente llamativa.
+          </div>
+
+          <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_0_20px_rgba(0,0,0,0.25)]">
+            <div className="flex items-center justify-between gap-3 mb-4 text-[11px] uppercase tracking-[0.3em] text-slate-300 font-semibold">
+              <span className="text-purple-300">Prompts sugeridos</span>
+              <span className="text-slate-500">Toca para copiar</span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {PROMPT_EXAMPLES.map((example, index) => {
+                const selected = cardPrompt.trim() === example;
+                return (
+                  <button
+                    key={example}
+                    type="button"
+                    onClick={() => seleccionarEjemplo(example)}
+                    className={`group relative rounded-3xl border p-4 text-left transition-all duration-300 ${
+                      selected
+                        ? 'border-purple-500/70 bg-purple-950/90 shadow-[0_0_25px_rgba(139,92,246,0.35)]'
+                        : 'border-white/10 bg-slate-950/80 hover:border-purple-500/50 hover:bg-slate-900/90'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] uppercase tracking-[0.35em] text-slate-400">Ejemplo {index + 1}</span>
+                      {selected && (
+                        <span className="text-[10px] uppercase tracking-[0.35em] text-emerald-300">Seleccionado</span>
+                      )}
+                    </div>
+                    <p className="text-sm leading-6 text-slate-100">{example}</p>
+                    <span className="pointer-events-none absolute top-4 right-4 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      Copiar
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 text-sm text-gray-400">
+            <span>{cardPrompt.trim().length} caracteres</span>
+            <button
+              type="button"
+              onClick={() => setCardPrompt('')}
+              disabled={loading || !cardPrompt.trim()}
+              className="text-amber-300 hover:text-amber-100 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Limpiar prompt
+            </button>
+          </div>
+
           {/* Botón de generar */}
           <button
             onClick={generarCarta}
@@ -154,26 +270,97 @@ const handleActualizarDummy = (_carta: Carta) => {
           {/* Resultado: Carta visual en lugar de JSON */}
           {cartaGenerada && (
             <div className="mt-8 pt-6 border-t border-white/5">
-              <h3 className="text-xl font-bold text-center text-purple-300 mb-6 flex items-center justify-center gap-2">
-                <span className="text-2xl">🃏</span> Carta Generada
+              <h3 className="text-xl font-bold text-center text-purple-300 mb-6 flex flex-col items-center gap-3">
+                <span className="text-2xl">🃏</span>
+                <span>Carta generada por IA</span>
               </h3>
-              <div className="flex justify-center">
-                <div className="w-full max-w-[240px]">
+
+              <div className="grid gap-4 lg:grid-cols-[minmax(240px,280px)_1fr] items-start">
+                <div className="w-full mx-auto max-w-[280px]">
                   <Cartadetalle
                     carta={cartaGenerada}
                     seleccionada={false}
+                    ocultarBotones
                     onEliminar={handleEliminarDummy}
                     onActualizar={handleActualizarDummy}
                   />
                 </div>
+
+                <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_0_30px_rgba(0,0,0,0.35)]">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.3em] text-gray-400">
+                      <span className="inline-block w-2 h-2 rounded-full bg-purple-400" />
+                      Detalles generados
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
+                      <div className="rounded-2xl bg-black/30 p-3">
+                        <div className="text-[10px] uppercase text-gray-400 mb-2">Ataque</div>
+                        <div className="text-xl font-black text-white">{cartaGenerada.ataque}</div>
+                      </div>
+                      <div className="rounded-2xl bg-black/30 p-3">
+                        <div className="text-[10px] uppercase text-gray-400 mb-2">Defensa</div>
+                        <div className="text-xl font-black text-white">{cartaGenerada.defensa}</div>
+                      </div>
+                      <div className="rounded-2xl bg-black/30 p-3">
+                        <div className="text-[10px] uppercase text-gray-400 mb-2">Vida</div>
+                        <div className="text-xl font-black text-white">{cartaGenerada.hp}</div>
+                      </div>
+                      <div className="rounded-2xl bg-black/30 p-3">
+                        <div className="text-[10px] uppercase text-gray-400 mb-2">Categoría</div>
+                        <div className="text-xl font-black text-white">{cartaGenerada.categoria}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-white/10 bg-black/40 p-4">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-3">Guía de guardado</div>
+                    <p className="text-sm leading-relaxed text-slate-300">
+                      Si te gusta esta carta, puedes editar sus datos y guardarla en el grimorio.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={irACrearCarta}
+                      disabled={purged}
+                      className={`w-full py-3 rounded-2xl font-bold uppercase tracking-[0.15em] text-sm shadow-[0_0_20px_rgba(79,70,229,0.35)] transition-all duration-300 ${purged ? 'bg-gray-800 text-gray-400 cursor-not-allowed border border-white/10' : 'bg-gradient-to-r from-purple-700 to-blue-600 text-white hover:scale-[1.02]'}`}
+                    >
+                      Editar Carta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={purgarCarta}
+                      className="w-full py-3 rounded-2xl border border-white/10 bg-white/5 text-slate-200 font-bold uppercase tracking-[0.15em] text-sm shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300 hover:bg-white/10 hover:text-white"
+                    >
+                      Purgar Carta
+                    </button>
+                  </div>
+                  {purged && (
+                    <p className="text-center text-sm text-rose-300 mt-2">
+                      Carta purgada. No se agregará al mazo ni podrá editarse.
+                    </p>
+                  )}
+                </div>
               </div>
-              <p className="text-center text-xs text-gray-500 mt-4">
-                Puedes guardar esta carta desde la sección "Crear Carta" o volver a generar otra.
-              </p>
             </div>
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={mostrarEditor}
+        onClose={cerrarEditor}
+        title="Editar carta generada"
+      >
+        {cartaGenerada && (
+          <FormularioEditarCarta
+            carta={cartaGenerada}
+            onActualizar={handleActualizarGenerada}
+            onClose={cerrarEditor}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

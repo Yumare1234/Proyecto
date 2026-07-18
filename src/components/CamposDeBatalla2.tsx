@@ -237,6 +237,7 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
     const [errorModalVisible, setErrorModalVisible] = useState(false);
 
     const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+    const bossVoiceRef = useRef<HTMLAudioElement | null>(null);
 
     const startBackgroundMusic = useCallback(() => {
         try {
@@ -262,32 +263,58 @@ function CamposDeBatalla2({ onGanarAlmas }: { onGanarAlmas?: (cantidad: number, 
         }
     }, []);
 
+    const stopBossVoice = useCallback(() => {
+        if (bossVoiceRef.current) {
+            bossVoiceRef.current.pause();
+            bossVoiceRef.current.currentTime = 0;
+            bossVoiceRef.current = null;
+        }
+    }, []);
+
+    const playBossVoice = useCallback((ruta: string, volumen: number = 0.6) => {
+        stopBossVoice();
+        try {
+            const audio = new Audio(ruta);
+            audio.volume = volumen;
+            audio.play().catch(e => console.log("Voz de jefe omitida:", e));
+            bossVoiceRef.current = audio;
+        } catch (err) {
+            console.error("Error reproducir voz de jefe:", err);
+        }
+    }, [stopBossVoice]);
+
     useEffect(() => {
         if (gameState.phase === "waveIntro" && boss) {
             const nombreArchivo = boss.nombre.toLowerCase().replace(/ /g, "_");
-            reproducirSonido(`/sounds/bosses/${nombreArchivo}.mp3`, 0.6);
+            playBossVoice(`/sounds/bosses/${nombreArchivo}.mp3`, 0.6);
             if (gameState.currentWave === 1) {
                 startBackgroundMusic();
             }
         } else if (gameState.phase === "gameOver") {
+            stopBossVoice();
             stopBackgroundMusic();
             reproducirSonido('/sounds/efectos/derrota.mp3', 0.6);
         } else if (gameState.phase === "victory") {
+            stopBossVoice();
             stopBackgroundMusic();
             reproducirSonido('/sounds/efectos/victoria.mp3', 0.6);
         }
         return () => {
+            if (gameState.phase === "waveIntro") {
+                stopBossVoice();
+            }
             if (gameState.phase === "gameOver" || gameState.phase === "victory") {
                 stopBackgroundMusic();
             }
         };
-    }, [gameState.phase, boss, gameState.currentWave, startBackgroundMusic, stopBackgroundMusic]);
+    }, [gameState.phase, boss, gameState.currentWave, startBackgroundMusic, stopBackgroundMusic, playBossVoice, stopBossVoice]);
 
     useEffect(() => {
         return () => {
             stopBackgroundMusic();
+            stopBossVoice();
         };
-    }, [stopBackgroundMusic]);
+    }, [stopBackgroundMusic, stopBossVoice]);
 
     const almasEntregadasRef = useRef(false);
 

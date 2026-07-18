@@ -16,7 +16,16 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
   const { ataque, defensa, imagen, nombre, categoria, ritual, clan, descripcion, id, hp, serie, voz } = carta;
 
   const [mostrarModal, setMostrarModal] = useState(false);
-  const alternarModal = () => setMostrarModal(!mostrarModal);
+  const abrirModal = () => setMostrarModal(true);
+  const cerrarModal = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    setReproduciendo(false);
+    setMostrarModal(false);
+  };
 
   const [mostrarEditar, setMostrarEditar] = useState(false);
   const alternarEditar = () => setMostrarEditar(!mostrarEditar);
@@ -57,6 +66,7 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.currentTime = 0;
         audioRef.current = null;
       }
     };
@@ -85,7 +95,7 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
         {!ocultarBotones && (
           <>
             <button
-              onClick={alternarModal}
+              onClick={abrirModal}
               className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all active:scale-95 uppercase text-xs tracking-widest"
             >
               Expandir Dominio
@@ -116,7 +126,7 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
       {/* MODAL DE EXPEDIENTE */}
       <Modal
         isOpen={mostrarModal}
-        onClose={alternarModal}
+        onClose={cerrarModal}
         title={`EXPEDIENTE: ${nombre}`}
       >
         <div className="flex flex-col md:flex-row gap-6 items-stretch w-full h-full min-h-[450px]">
@@ -233,7 +243,7 @@ function Cartadetalle({ carta, onEliminar, onActualizar, seleccionada, ocultarBo
             {/* Zona de Controles */}
             <div className="flex justify-end items-center gap-3 pt-4 mt-auto">
               <button
-                onClick={alternarModal}
+                onClick={cerrarModal}
                 className="px-5 py-2.5 rounded-lg bg-transparent text-slate-300 text-[11px] font-black hover:text-white hover:bg-white/5 transition-all uppercase tracking-[0.15em]"
               >
                 Cerrar

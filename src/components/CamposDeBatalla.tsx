@@ -95,6 +95,14 @@ function CampoDeBatalla() {
     const [dominioVisual, setDominioVisual] = useState<"CARTA1" | "CARTA2" | "AMBOS" | null>(null);
     const domainTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const detenerAudioDominio = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            audioRef.current = null;
+        }
+    };
+
     const esDueloLegendario = useMemo(() => {
         if (!carta1 || !carta2) return false;
         const nombre1 = carta1.nombre || "";
@@ -198,7 +206,10 @@ function CampoDeBatalla() {
             }
         };
         iniciarComponente();
-        return () => controller.abort();
+        return () => {
+            controller.abort();
+            detenerAudioDominio();
+        };
     }, [id1, id2, cartasDesdeState]);
 
     const calcularDañoReal = (ataqueBase: number, defensaRival: number): number => {
@@ -229,10 +240,7 @@ function CampoDeBatalla() {
                     setChoqueDominiosActivo(false);
                     setCooldownChoque(3);
                     setDominioVisual(null);
-                    if (audioRef.current) {
-                        audioRef.current.pause();
-                        audioRef.current.currentTime = 0;
-                    }
+                    detenerAudioDominio();
                     setHistorialBatalla(h => ["✨ Los dominios se han disipado por agotamiento de energía maldita. La pelea continúa.", ...h]);
                     return 0;
                 }
@@ -263,6 +271,7 @@ function CampoDeBatalla() {
 
     const activarChoqueLegendario = () => {
         if (!carta1 || !carta2) return;
+        detenerAudioDominio();
         setChoqueDominiosActivo(true);
         setTurnosRestantesClash(7);
         setDominioVisual("AMBOS");
@@ -520,6 +529,7 @@ function CampoDeBatalla() {
             setGanador(nombreGanador);
             setHistorialBatalla(prev => [`🏆 ¡El combate ha terminado! Ganador: ${nombreGanador}.`, ...prev]);
         }
+        detenerAudioDominio();
     };
 
     const obtenerEstiloLog = (log: string, index: number) => {

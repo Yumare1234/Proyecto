@@ -14,7 +14,6 @@ type Props = {
 function SeleccionarCartas({ mazo }: Props) {
     const [cartaSeleccionada1, setCartaSeleccionada1] = useState<Carta | null>(null);
     const [cartaSeleccionada2, setCartaSeleccionada2] = useState<Carta | null>(null);
-    const [listobatalla, setlistobatalla] = useState<boolean>(false);
 
     const [movimientosGlobales, setMovimientosGlobales] = useState<Record<number, Movimiento[]>>({});
     const [modalAbierto, setModalAbierto] = useState<number | null>(null);
@@ -25,7 +24,9 @@ function SeleccionarCartas({ mazo }: Props) {
 
     const cartaModal = modalAbierto !== null ? mazo.find(c => c.id === modalAbierto) : null;
     const limiteMinimo = 0;
-    const limiteMaximo = cartaModal ? cartaModal.ataque : 100;
+    const limiteMaximo = cartaModal?.ataque ?? 100;
+    const seleccionadasCount = [cartaSeleccionada1, cartaSeleccionada2].filter(Boolean).length;
+    const listobatalla = seleccionadasCount === 2;
 
     const handleSeleccionarCarta = (carta: Carta) => {
         const isSelected1 = cartaSeleccionada1?.id === carta.id;
@@ -33,22 +34,25 @@ function SeleccionarCartas({ mazo }: Props) {
 
         if (isSelected1) {
             setCartaSeleccionada1(null);
-            setlistobatalla(false);
             return;
         }
         if (isSelected2) {
             setCartaSeleccionada2(null);
-            setlistobatalla(false);
             return;
         }
 
         if (!cartaSeleccionada1) {
             setCartaSeleccionada1(carta);
-            if (cartaSeleccionada2) setlistobatalla(true);
-        } else if (!cartaSeleccionada2) {
-            setCartaSeleccionada2(carta);
-            setlistobatalla(true);
+            return;
         }
+
+        if (!cartaSeleccionada2) {
+            setCartaSeleccionada2(carta);
+            return;
+        }
+
+        // Si ya hay dos cartas y se hace clic en una tercera, no hacemos nada.
+        // El usuario puede deseleccionar una carta existente antes de cambiar su selección.
     };
 
     const abrirModal = (e: React.MouseEvent, carta: Carta) => {
@@ -106,39 +110,65 @@ function SeleccionarCartas({ mazo }: Props) {
                 Salir
             </button>
 
-            {/* Botón de Modo Historia - esquina superior derecha */}
-            <Link
-                to="/seleccionar-cartas-2"
-                className="absolute top-6 right-6 z-50"
-            >
-                <button className="group relative px-6 py-3 bg-gradient-to-r from-amber-900/40 via-orange-900/40 to-red-900/40 border border-amber-500/20 hover:border-red-500/50 hover:from-red-800/50 hover:via-orange-800/50 hover:to-amber-800/50 text-amber-200 hover:text-red-200 font-bold text-xs uppercase tracking-widest rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,140,0,0.1)] hover:shadow-[0_0_25px_rgba(255,80,0,0.3)] overflow-hidden">
-                    {/* Efecto de fuego interior */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-red-800/20 via-transparent to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            {/* Botón de Modo Historia y Batalla - esquina superior derecha */}
+            <div className="absolute top-6 right-6 z-50 flex flex-col items-end gap-3">
+                <Link to="/seleccionar-cartas-2" className="w-full">
+                    <button className="group relative w-full px-6 py-3 bg-gradient-to-r from-amber-900/40 via-orange-900/40 to-red-900/40 border border-amber-500/20 hover:border-red-500/50 hover:from-red-800/50 hover:via-orange-800/50 hover:to-amber-800/50 text-amber-200 hover:text-red-200 font-bold text-xs uppercase tracking-widest rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,140,0,0.1)] hover:shadow-[0_0_25px_rgba(255,80,0,0.3)] overflow-hidden">
+                        {/* Efecto de fuego interior */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-red-800/20 via-transparent to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    {/* Chispas decorativas */}
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full blur-sm opacity-0 group-hover:opacity-80 transition-all duration-300 group-hover:scale-150" />
-                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-red-500 rounded-full blur-sm opacity-0 group-hover:opacity-60 transition-all duration-500 group-hover:scale-125" />
+                        {/* Chispas decorativas */}
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full blur-sm opacity-0 group-hover:opacity-80 transition-all duration-300 group-hover:scale-150" />
+                        <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-red-500 rounded-full blur-sm opacity-0 group-hover:opacity-60 transition-all duration-500 group-hover:scale-125" />
 
-                    {/* Contenido */}
-                    <div className="relative z-10 flex items-center gap-3">
-                        {/* Castillo con efecto de llama */}
-                        <div className="relative">
-                            <LuCastle size={20} className="text-amber-400 group-hover:text-red-400 transition-colors duration-300 group-hover:scale-110" />
-                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full blur-[2px] opacity-0 group-hover:opacity-100 animate-pulse" />
+                        {/* Contenido */}
+                        <div className="relative z-10 flex items-center gap-3">
+                            {/* Castillo con efecto de llama */}
+                            <div className="relative">
+                                <LuCastle size={20} className="text-amber-400 group-hover:text-red-400 transition-colors duration-300 group-hover:scale-110" />
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full blur-[2px] opacity-0 group-hover:opacity-100 animate-pulse" />
+                            </div>
+
+                            {/* Texto */}
+                            <div className="flex flex-col items-start">
+                                <span className="text-sm font-black tracking-[0.2em] group-hover:tracking-[0.25em] transition-all duration-300">
+                                    Modo Historia
+                                </span>
+                                <span className="text-[9px] text-amber-500/60 group-hover:text-red-400/60 tracking-widest mt-0.5">
+                                    ▸ Mazmorra Maldita
+                                </span>
+                            </div>
                         </div>
+                    </button>
+                </Link>
 
-                        {/* Texto */}
-                        <div className="flex flex-col items-start">
-                            <span className="text-sm font-black tracking-[0.2em] group-hover:tracking-[0.25em] transition-all duration-300">
-                                Modo Historia
-                            </span>
-                            <span className="text-[9px] text-amber-500/60 group-hover:text-red-400/60 tracking-widest mt-0.5">
-                                ▸ Mazmorra Maldita
-                            </span>
-                        </div>
-                    </div>
-                </button>
-            </Link>
+                {listobatalla ? (
+                    <Link
+                        to={`/campo-de-batalla/${cartaSeleccionada1?.id}/${cartaSeleccionada2?.id}`}
+                        state={{
+                            carta1: cartaSeleccionada1,
+                            carta2: cartaSeleccionada2,
+                            movimientosCarta1: cartaSeleccionada1
+                                ? movimientosGlobales[cartaSeleccionada1.id]
+                                : undefined,
+                            movimientosCarta2: cartaSeleccionada2
+                                ? movimientosGlobales[cartaSeleccionada2.id]
+                                : undefined
+                        }}
+                        className="w-full"
+                    >
+                        <button className="w-full px-6 py-3 bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all duration-300 flex items-center justify-center gap-3 hover:scale-105 active:scale-95">
+                            <LuSword size={20} className="animate-bounce" />
+                            <span className="text-sm uppercase tracking-widest">Ir a la Batalla</span>
+                        </button>
+                    </Link>
+                ) : (
+                    <button className="w-full px-6 py-3 bg-gradient-to-r from-purple-700 to-blue-600 opacity-40 cursor-not-allowed text-white font-bold rounded-xl shadow-none transition-all duration-300 flex items-center justify-center gap-3" disabled>
+                        <LuSword size={20} />
+                        <span className="text-sm uppercase tracking-widest">Ir a la Batalla</span>
+                    </button>
+                )}
+            </div>
 
             <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-950/20 rounded-full blur-[130px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-950/20 rounded-full blur-[130px] pointer-events-none" />
@@ -148,8 +178,13 @@ function SeleccionarCartas({ mazo }: Props) {
                     Selecciona tus Guerreros
                 </h1>
                 <p className="text-gray-400 text-sm mt-1">
-                    Elige los personajes que se enfrentarán en el campo de batalla
+                    Elige dos cartas y personaliza sus ataques antes de ir al combate.
                 </p>
+                <div className="mt-4 inline-flex items-center gap-3 rounded-full bg-white/5 border border-white/10 px-4 py-3 text-xs text-slate-300 shadow-[0_0_20px_rgba(15,23,42,0.3)]">
+                    <span className="font-bold text-purple-200">Seleccionadas:</span>
+                    <span className="text-white font-black">{seleccionadasCount}/2</span>
+                    <span className="hidden sm:inline">— haz clic en una carta para seleccionarla o quitarla.</span>
+                </div>
             </div>
 
             <div className="z-10 w-full max-w-6xl flex-1 flex items-center justify-center px-2">
@@ -163,17 +198,25 @@ function SeleccionarCartas({ mazo }: Props) {
                             return (
                                 <div
                                     key={carta.id}
-                                    className={`relative transform transition-all duration-300 rounded-2xl p-1 flex flex-col
+                                    className={`relative transform transition-all duration-300 rounded-2xl p-1 flex flex-col overflow-visible
                                         ${estaSeleccionada
                                             ? 'bg-gradient-to-b from-purple-500 to-blue-500 scale-105 shadow-[0_0_25px_rgba(147,51,234,0.5)]'
-                                            : 'bg-white/5 hover:bg-white/10 hover:scale-102 border border-white/10'
+                                            : 'bg-white/5 hover:bg-white/10 hover:scale-[1.02] border border-white/10'
                                         }
                                     `}
                                 >
                                     <div className="bg-[#12131a]/95 backdrop-blur-md rounded-[14px] p-2 h-full flex flex-col">
+                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                            <span className="text-[10px] uppercase tracking-[0.3em] text-slate-300 font-bold">{carta.categoria}</span>
+                                            {estaSeleccionada && (
+                                                <span className="text-[11px] px-2 py-1 rounded-full bg-white/10 text-white uppercase tracking-[0.2em] border border-white/10">
+                                                    {cartaSeleccionada1?.id === carta.id ? 'Guerrero 1' : 'Guerrero 2'}
+                                                </span>
+                                            )}
+                                        </div>
                                         <div
                                             onClick={() => handleSeleccionarCarta(carta)}
-                                            className="cursor-pointer flex-1"
+                                            className="cursor-pointer flex-1 rounded-xl overflow-hidden bg-slate-950/70 border border-transparent hover:border-purple-500/40 transition-all duration-300"
                                         >
                                             <Cartadetalle
                                                 carta={carta}
@@ -184,15 +227,15 @@ function SeleccionarCartas({ mazo }: Props) {
 
                                         <button
                                             onClick={(e) => abrirModal(e, carta)}
-                                            className="mt-3 w-full py-1.5 bg-purple-900/30 hover:bg-purple-800/60 border border-purple-500/30 rounded-lg text-[11px] text-purple-200 font-bold tracking-wider uppercase transition-colors"
+                                            className="mt-4 w-full py-1.5 bg-gradient-to-r from-purple-900/50 to-blue-900/50 hover:from-purple-800 hover:to-blue-800 border border-purple-500/30 rounded-lg text-[11px] text-purple-200 font-bold tracking-wider uppercase transition-all duration-300"
                                         >
                                             + Movimientos ({(movimientosGlobales[carta.id] || []).length}/3)
                                         </button>
                                     </div>
 
                                     {estaSeleccionada && (
-                                        <span className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/20 animate-pulse">
-                                            Listo
+                                        <span className="absolute top-2 right-2 z-30 bg-gradient-to-r from-purple-600 to-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/20 shadow-[0_0_20px_rgba(147,51,234,0.35)]">
+                                            Seleccionada
                                         </span>
                                     )}
                                 </div>
@@ -202,38 +245,6 @@ function SeleccionarCartas({ mazo }: Props) {
                 )}
             </div>
 
-            {/* Botón de Ir a la Batalla */}
-            <div className="z-20 mt-12 mb-4">
-                <Link
-                    to={`/campo-de-batalla/${cartaSeleccionada1?.id}/${cartaSeleccionada2?.id}`}
-                    state={{
-                        carta1: cartaSeleccionada1,
-                        carta2: cartaSeleccionada2,
-                        movimientosCarta1: cartaSeleccionada1
-                            ? movimientosGlobales[cartaSeleccionada1.id]
-                            : undefined,
-                        movimientosCarta2: cartaSeleccionada2
-                            ? movimientosGlobales[cartaSeleccionada2.id]
-                            : undefined
-                    }}
-                >
-                    <button
-                        className={`px-8 py-4 bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all duration-300 flex items-center gap-3
-                            ${!listobatalla ? 'opacity-40 cursor-not-allowed scale-100 shadow-none' : 'hover:scale-105 active:scale-95'}
-                        `}
-                        disabled={!listobatalla}
-                    >
-                        <LuSword size={24} className={listobatalla ? 'animate-bounce' : ''} />
-                        <span className="text-sm uppercase tracking-widest">Ir a la Batalla</span>
-                    </button>
-                </Link>
-
-                {!listobatalla && (
-                    <p className="text-gray-500 text-xs text-center mt-2">
-                        Selecciona dos guerreros para continuar...
-                    </p>
-                )}
-            </div>
 
             {/* Modal de forja de movimientos */}
             {modalAbierto !== null && cartaModal && (

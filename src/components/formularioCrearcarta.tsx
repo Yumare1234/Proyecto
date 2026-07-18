@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import { InputField } from './inputField';
-import { SelectorSonidoMyInstants } from './SelectorSonidoMyInstants'; // ← Importamos el selector
-import type { NuevaCarta } from './index';
+import { SelectorSonidoMyInstants } from './SelectorSonidoMyInstants';
+import type { Carta, NuevaCarta } from './index';
 
 interface FormularioProps {
   onAñadirCarta: (carta: NuevaCarta) => void;
@@ -23,7 +23,27 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
     voz: '',
   };
 
-  const [form, setForm] = useState<Omit<NuevaCarta, 'id'>>(estadoInicial);
+  const location = useLocation();
+  const cartaAI = location.state as Carta | undefined;
+
+  const initialState = useMemo<Omit<NuevaCarta, 'id'>>(() => ({
+    ...estadoInicial,
+    ...(cartaAI ? {
+      nombre: cartaAI.nombre || '',
+      serie: cartaAI.serie || '',
+      clan: cartaAI.clan || '',
+      ritual: cartaAI.ritual || '',
+      categoria: cartaAI.categoria || '',
+      descripcion: cartaAI.descripcion || '',
+      ataque: cartaAI.ataque || 1000,
+      defensa: cartaAI.defensa || 1000,
+      imagen: cartaAI.imagen || '',
+      hp: cartaAI.hp || 1000,
+      voz: cartaAI.voz || '',
+    } : {}),
+  }), [cartaAI]);
+
+  const [form, setForm] = useState<Omit<NuevaCarta, 'id'>>(initialState);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -101,6 +121,11 @@ export const FormularioCrearCarta: React.FC<FormularioProps> = ({ onAñadirCarta
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-blue-400 tracking-tight">
               INSCRIBIR NUEVO HECHICERO
             </h2>
+            {cartaAI && (
+              <p className="mt-3 text-sm text-slate-300 max-w-2xl">
+                Carta generada con IA cargada. Revisa los valores, ajusta la descripción o el estilo de voz, y confirma para añadirla al grimorio.
+              </p>
+            )}
             <div className="absolute bottom-0 left-0 w-24 h-0.5 bg-gradient-to-r from-blue-500 to-transparent"></div>
             <div className="absolute bottom-0 right-0 w-24 h-0.5 bg-gradient-to-l from-blue-500 to-transparent"></div>
           </div>
