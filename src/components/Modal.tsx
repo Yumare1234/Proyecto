@@ -74,46 +74,38 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 select-none overflow-y-auto animate-in fade-in duration-200">
-            
-            <div 
-                onClick={onClose} 
-                className="fixed inset-0 bg-[#030306]/90 backdrop-blur-xl cursor-pointer transition-opacity"
-            ></div>
-            
-            <div className="relative w-full max-w-4xl bg-[#06060a]/95 border border-purple-500/20 rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] z-10 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-                
-                <div className="absolute -inset-10 bg-gradient-to-tr from-purple-900/10 via-indigo-900/5 to-red-900/10 blur-3xl pointer-events-none"></div>
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent z-30"></div>
+            <div
+                onClick={onClose}
+                className="fixed inset-0 bg-[#020206]/85 backdrop-blur-xl cursor-pointer transition-opacity"
+            />
 
-                <div className="relative flex items-center justify-between px-6 py-4 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent z-20">
+            <div className="relative w-full max-w-[min(100vw-2rem,700px)] bg-[#0d0d12]/95 border border-white/10 rounded-[1.75rem] shadow-[0_0_40px_rgba(0,0,0,0.35)] z-10 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-950/5 via-transparent to-red-950/5 pointer-events-none" />
+                <div className="relative z-10 flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="relative flex h-2 w-2 flex-shrink-0">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-70"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500"></span>
                         </div>
-                        <h3 className="text-sm md:text-base font-black tracking-[0.25em] text-white uppercase truncate">
+                        <h3 className="text-sm font-black tracking-[0.25em] text-white uppercase truncate">
                             {title}
                         </h3>
                     </div>
 
-                    <button 
-                        onClick={onClose} 
-                        aria-label="Cerrar terminal"
-                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-red-500/40 hover:bg-red-950/30 text-slate-400 hover:text-red-400 transition-all duration-200 active:scale-95 group"
+                    <button
+                        onClick={onClose}
+                        aria-label="Cerrar modal"
+                        className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition duration-200 active:scale-95"
                     >
-                        <svg className="w-4 h-4 stroke-[2.5] transition-transform group-hover:rotate-90 duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <div className="relative flex-1 p-5 md:p-8 overflow-y-auto max-h-[calc(100vh-120px)] z-10">
+                <div className="relative z-10 flex-1 p-4 overflow-y-auto max-h-[calc(100vh-140px)]">
                     {children}
                 </div>
-
-                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-purple-500/30 rounded-bl-lg pointer-events-none"></div>
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-purple-500/30 rounded-br-lg pointer-events-none"></div>
-
             </div>
         </div>
     );

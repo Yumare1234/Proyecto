@@ -116,6 +116,15 @@ function App() {
   }, [cartas.length, loading]);
 
   const addCarta = async (nuevaCarta: Carta) => {
+    const exists = cartas.some(
+      (c) => c.nombre === nuevaCarta.nombre && c.descripcion === nuevaCarta.descripcion && c.ataque === nuevaCarta.ataque && c.defensa === nuevaCarta.defensa && c.hp === nuevaCarta.hp
+    );
+
+    if (exists) {
+      console.warn('Carta duplicada detectada, evitando guardado doble.');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}card`, {
         method: "POST",
@@ -234,7 +243,10 @@ function App() {
     <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Home cartas={cartas} onEliminar={eliminarCarta} onAñadirCarta={addCarta} onActualizar={actualizarCarta} />} />
-        <Route path="/crear-carta" element={<FormularioCrearCarta onAñadirCarta={addCarta} />} />
+        <Route path="/crear-carta" element={<FormularioCrearCarta onAñadirCarta={addCarta} onCartaCreada={(mensaje) => {
+            setToastMensaje(mensaje);
+            setToastVisible(true);
+          }} />} />
         <Route path="/seleccionar-cartas" element={<SeleccionarCartas mazo={cartas} />} />
         <Route path="/seleccionar-cartas-2" element={<SeleccionarCartas2 mazo={cartas} pasivasCompradas={pasivasCompradas} />} />
         <Route path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla />} />

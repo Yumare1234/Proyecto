@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { Carta } from './index';
 import Cartadetalle from './CartaProyecto';
-import { Modal } from './Modal';
-import { FormularioEditarCarta } from './formularioEditarcarta';
 
 const PROMPT_EXAMPLES = [
   'Un hechicero oscuro de grado especial que domina cuchillas etéreas y se mueve como una sombra.',
@@ -18,7 +16,6 @@ export const GenerarCartaIA = () => {
   const [error, setError] = useState<string | null>(null);
   const [cartaGenerada, setCartaGenerada] = useState<Carta | null>(null);
   const [purged, setPurged] = useState(false);
-  const [mostrarEditor, setMostrarEditor] = useState(false);
   const navigate = useNavigate();
 
   const generarCarta = async () => {
@@ -95,12 +92,6 @@ const seleccionarEjemplo = (texto: string) => {
   setError(null);
 };
 
-const cerrarEditor = () => setMostrarEditor(false);
-
-const handleActualizarGenerada = (cartaEditada: Carta) => {
-  setCartaGenerada(cartaEditada);
-  setMostrarEditor(false);
-};
 
 const purgarCarta = async () => {
   if (!cartaGenerada) return;
@@ -136,9 +127,9 @@ const purgarCarta = async () => {
   }
 };
 
-const irACrearCarta = () => {
+const irAlMazo = () => {
   if (!cartaGenerada || purged) return;
-  setMostrarEditor(true);
+  navigate('/');
 };
 
   return (
@@ -315,18 +306,18 @@ const irACrearCarta = () => {
                   <div className="rounded-3xl border border-white/10 bg-black/40 p-4">
                     <div className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-3">Guía de guardado</div>
                     <p className="text-sm leading-relaxed text-slate-300">
-                      Si te gusta esta carta, puedes editar sus datos y guardarla en el grimorio.
+                      Si te gusta esta carta, guárdala directamente en el grimorio y vuelve al inicio.
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     <button
                       type="button"
-                      onClick={irACrearCarta}
+                      onClick={irAlMazo}
                       disabled={purged}
                       className={`w-full py-3 rounded-2xl font-bold uppercase tracking-[0.15em] text-sm shadow-[0_0_20px_rgba(79,70,229,0.35)] transition-all duration-300 ${purged ? 'bg-gray-800 text-gray-400 cursor-not-allowed border border-white/10' : 'bg-gradient-to-r from-purple-700 to-blue-600 text-white hover:scale-[1.02]'}`}
                     >
-                      Editar Carta
+                      Ir al mazo
                     </button>
                     <button
                       type="button"
@@ -348,19 +339,6 @@ const irACrearCarta = () => {
         </div>
       </div>
 
-      <Modal
-        isOpen={mostrarEditor}
-        onClose={cerrarEditor}
-        title="Editar carta generada"
-      >
-        {cartaGenerada && (
-          <FormularioEditarCarta
-            carta={cartaGenerada}
-            onActualizar={handleActualizarGenerada}
-            onClose={cerrarEditor}
-          />
-        )}
-      </Modal>
     </div>
   );
 };
