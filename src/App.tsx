@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary.tsx';
 import SeleccionarCartas2 from './components/seleccionarCartas2.tsx';
 import CampoDeBatalla2 from './components/CamposDeBatalla2.tsx';
 import TiendaAlmas from './components/TiendaAlmas.tsx';
+import AlbumCartas from './components/AlbumCartas.tsx';
 import { ToastNotificacion } from './components/ToastNotificacion';
 
 const API_URL = import.meta.env.VITE_EDUCA_API_URL;
@@ -252,6 +253,7 @@ function App() {
         <Route path="/campo-de-batalla/:id1/:id2" element={<CampoDeBatalla />} />
         <Route path="/campo-de-batalla-2/:id1/:id2" element={<CampoDeBatalla2 onGanarAlmas={handleAgregarAlmas} />} />
         <Route path="/generar-carta-ia" element={<GenerarCartaIA />} />
+        <Route path="/album-cartas" element={<AlbumCartas cartas={cartas} />} />
         <Route path="/tienda-de-almas" element={
           <TiendaAlmas
             almas={almas}

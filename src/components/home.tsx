@@ -89,7 +89,7 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
             </header>
 
             {/* SECCIÓN PRINCIPAL DEL GRID OPTIMIZADO */}
-            <main className="z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex-1">
+            <main className="z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex-1 relative">
                 {cartasfiltradas.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-items-center animate-in fade-in duration-500">
                         {cartasfiltradas.map((carta) => (
@@ -114,6 +114,15 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
                         </p>
                     </div>
                 )}
+
+                <Link to="/album-cartas" className="fixed right-5 bottom-8 z-40 group">
+                    <button
+                        className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-red-700 to-orange-500 text-slate-900 shadow-[0_25px_60px_rgba(245,158,11,0.35)] transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/30"
+                        aria-label="Abrir álbum de Jujutsu Kaisen"
+                    >
+                        <span className="text-2xl">📚</span>
+                    </button>
+                </Link>
             </main>
         </div>
     );
