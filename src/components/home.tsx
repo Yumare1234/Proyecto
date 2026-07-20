@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 
 const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onEliminar: (id: number) => void; onAñadirCarta: (carta: Carta) => void; onActualizar: (carta: Carta) => void; }) => {
     const [busqueda, setBusqueda] = useState('');
-    
+
     const cartasfiltradas = useMemo(() => {
         const term = busqueda.toLowerCase();
         return cartas.filter(carta => {
@@ -24,7 +24,7 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
             {/* HEADER CORREGIDO & REDISTRIBUIDO */}
             <header className="z-50 sticky top-0 bg-[#07070a]/60 backdrop-blur-2xl border-b border-purple-500/15 px-4 md:px-8 py-4 mb-12 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
                 <div className="max-w-7xl mx-auto flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-                    
+
                     {/* LADO IZQUIERDO: Tienda de Almas + Logo */}
                     <div className="flex items-center gap-4 justify-center sm:justify-start flex-shrink-0">
                         {/* Botón Tienda de Almas - al lado izquierdo del logo */}
@@ -36,10 +36,10 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
 
                         {/* Logo */}
                         <div className="flex items-center gap-3.5">
-                            <img 
-                                src="/imagenes/Logo.png" 
-                                alt="Logo" 
-                                className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
+                            <img
+                                src="/imagenes/Logo.png"
+                                alt="Logo"
+                                className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]"
                             />
                             <div className="flex flex-col">
                                 <h1 className="text-lg md:text-xl font-black text-white tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-purple-400">
@@ -71,13 +71,13 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
                                 🃏 Crear Carta
                             </button>
                         </Link>
-                        
+
                         <Link to="/generar-carta-ia" className="w-[calc(50%-6px)] sm:w-auto">
                             <button className="w-full sm:px-4 py-2.5 bg-red-950/20 hover:bg-red-900/30 border border-red-500/20 hover:border-red-500/40 text-red-400 text-[11px] font-bold rounded-xl tracking-widest uppercase transition-all duration-200 active:scale-95 whitespace-nowrap">
                                 🤖 Crear con IA
                             </button>
                         </Link>
-                        
+
                         <Link to="/seleccionar-cartas" className="w-full sm:w-auto">
                             <button className="w-full sm:px-5 py-2.5 bg-gradient-to-r from-purple-700 to-blue-600 hover:from-purple-600 hover:to-blue-500 text-white text-[11px] font-black rounded-xl tracking-widest uppercase transition-all duration-200 active:scale-95 shadow-[0_0_15px_rgba(147,51,234,0.15)] hover:shadow-[0_0_20px_rgba(147,51,234,0.35)] whitespace-nowrap">
                                 ⚔️ Iniciar Batalla
@@ -94,11 +94,11 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-items-center animate-in fade-in duration-500">
                         {cartasfiltradas.map((carta) => (
                             <div key={carta.id} className="w-full max-w-[240px]">
-                                <Cartadetalle 
-                                    carta={carta} 
-                                    seleccionada={false} 
-                                    onEliminar={onEliminar} 
-                                    onActualizar={onActualizar} 
+                                <Cartadetalle
+                                    carta={carta}
+                                    seleccionada={false}
+                                    onEliminar={onEliminar}
+                                    onActualizar={onActualizar}
                                 />
                             </div>
                         ))}
@@ -115,12 +115,17 @@ const Home = ({ cartas, onEliminar, onActualizar }: { cartas: Carta[]; onElimina
                     </div>
                 )}
 
-                <Link to="/album-cartas" className="fixed right-5 bottom-8 z-40 group">
+                <Link to="/album-cartas" className="fixed right-6 bottom-8 z-50 group flex items-center">
+                    <div className="absolute right-full mr-4 px-4 py-2 rounded-xl bg-[#07070a]/90 backdrop-blur-md border border-purple-500/30 text-purple-200 text-xs font-bold tracking-widest uppercase whitespace-nowrap opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                        Ver Álbum
+                    </div>
                     <button
-                        className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-red-700 to-orange-500 text-slate-900 shadow-[0_25px_60px_rgba(245,158,11,0.35)] transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-400/30"
-                        aria-label="Abrir álbum de Jujutsu Kaisen"
-                    >
-                        <span className="text-2xl">📚</span>
+                        className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-900 to-[#050508] border border-purple-500/40 shadow-[0_0_20px_rgba(168,85,247,0.25)] transition-all duration-300 hover:scale-110 hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:border-purple-400 focus:outline-none focus:ring-4 focus:ring-purple-500/30"
+                        aria-label="Abrir álbum de Jujutsu Kaisen">
+                        <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping opacity-20" />
+                        <span className="text-2xl relative z-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] group-hover:rotate-12 transition-transform duration-300">
+                            📖
+                        </span>
                     </button>
                 </Link>
             </main>
