@@ -244,15 +244,15 @@ const CARTAS_EXCLUSIVAS: CartaExclusiva[] = [
         id: 'carta_Edwin',
         nombre: 'PROFESOR EDWIN',
         descripcion: 'Uno de los profesores mas poderosos del Curso Basico, compitiendo con el Profe Ignacio y el mas irresponsable',
-        precio: 4000,
+        precio: 5000,
         icono: <LuGhost className="text-5xl" />,
         color: 'from-green-900 via-emerald-800 to-teal-900',
-        stats: 'ATQ: 7350 | DEF: 6500 | HP: 13000',
+        stats: 'ATQ: 8350 | DEF: 9105 | HP: 13500',
         categoria: 'Hechicero Especial',
-        imagen: '/imagenes/Jefes/kenjaku.jpg',
-        ataque: 7350,
+        imagen: 'dist/imagenes/Exclusivas/ProfeEdwin.jpeg',
+        ataque: 8350,
         defensa: 9105,
-        hp: 13000
+        hp: 13500
     },
 ];
 
