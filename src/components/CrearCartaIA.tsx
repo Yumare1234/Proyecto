@@ -49,7 +49,6 @@ export const GenerarCartaIA = () => {
       const data = await response.json();
 
       // Mapeamos la respuesta a un objeto de tipo Carta
-      // Ajusta estos campos según lo que devuelva realmente tu API
       const carta: Carta = {
           id: data.idCard ? parseInt(data.idCard, 10) : Date.now(),
           nombre: data.name || data.nombre || 'Hechicero sin nombre',

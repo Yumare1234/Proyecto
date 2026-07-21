@@ -33,7 +33,7 @@ const PantallaVictoria = ({ ganador, esEmpate, onReinicio }: { ganador: string |
                     </div>
 
                     <p className="text-xs md:text-base font-medium uppercase tracking-[0.2em] text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                        {esEmpate ? "Aniquilación Mutua" : "Dominación Absoluta"}
+                        {esEmpate ? "Aniquilación Mutua, las cartas tienen las mismas stacks" : "Dominación Absoluta"}
                     </p>
 
                     <button
