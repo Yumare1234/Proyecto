@@ -249,7 +249,7 @@ const CARTAS_EXCLUSIVAS: CartaExclusiva[] = [
         color: 'from-green-900 via-emerald-800 to-teal-900',
         stats: 'ATQ: 8350 | DEF: 9105 | HP: 13500',
         categoria: 'Hechicero Especial',
-        imagen: './dist/imagenes/Exclusivas/ProfeEdwin.png',
+        imagen: '/imagenes/Exclusivas/ProfeEdwin.jpeg',
         ataque: 8350,
         defensa: 9105,
         hp: 13500
