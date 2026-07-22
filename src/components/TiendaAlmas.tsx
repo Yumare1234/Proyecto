@@ -394,7 +394,7 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                             )}
                         </button>
 
-                        <button
+                        {/* <button
                             onClick={() => {
                                 if (window.confirm('¿Estás seguro de reiniciar tus almas a 0?')) {
                                     localStorage.setItem('almas', '0');
@@ -412,7 +412,7 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                         >
                             🔄 Reiniciar
                         </button>
-
+*/ }
                         <div className="flex items-center gap-3 px-5 py-2.5 bg-black/60 border border-amber-700/30 rounded-xl backdrop-blur-sm">
                             <LuFlame className="text-2xl text-amber-500 animate-pulse" />
                             <div className="flex flex-col">
