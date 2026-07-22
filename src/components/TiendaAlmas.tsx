@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { FiHome, FiShoppingCart, FiStar, FiShield, FiHeart, FiAward, FiCheckCircle, FiCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiStar, FiShield, FiHeart, FiAward, FiCheckCircle, FiCircle, FiTrendingUp, FiInfo } from 'react-icons/fi';
 import { LuSkull, LuSparkles, LuSwords, LuFlame, LuDroplets, LuEye, LuCrown, LuGhost, LuTrophy, LuGem } from 'react-icons/lu';
 import type { Carta } from './index';
 
@@ -277,6 +277,7 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
     const [seccionActiva, setSeccionActiva] = useState<'tienda' | 'logros' | 'rankings'>('tienda');
     const [mostrarRecompensa, setMostrarRecompensa] = useState(false);
     const [recompensaMensaje, setRecompensaMensaje] = useState('');
+    const [mostrarInfoAlmas, setMostrarInfoAlmas] = useState(false);
     const navigate = useNavigate();
 
     // Cálculo del ranking
@@ -366,11 +367,10 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                         {/* Botón de Rankings */}
                         <button
                             onClick={() => setSeccionActiva(seccionActiva === 'rankings' ? 'tienda' : 'rankings')}
-                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                                seccionActiva === 'rankings'
+                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${seccionActiva === 'rankings'
                                     ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]'
                                     : 'bg-black/60 border border-blue-700/30 text-blue-400 hover:border-blue-500/50 hover:bg-blue-950/30'
-                            }`}
+                                }`}
                         >
                             <FiTrendingUp className="text-lg" />
                             <span>Rankings</span>
@@ -379,11 +379,10 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                         {/* Botón de Logros */}
                         <button
                             onClick={() => setSeccionActiva(seccionActiva === 'logros' ? 'tienda' : 'logros')}
-                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                                seccionActiva === 'logros'
+                            className={`relative px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${seccionActiva === 'logros'
                                     ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-black shadow-[0_0_20px_rgba(255,180,0,0.3)]'
                                     : 'bg-black/60 border border-amber-700/30 text-amber-400 hover:border-amber-500/50 hover:bg-amber-950/30'
-                            }`}
+                                }`}
                         >
                             <LuTrophy className="text-lg" />
                             <span>Logros</span>
@@ -394,31 +393,21 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                             )}
                         </button>
 
-                        {/* <button
-                            onClick={() => {
-                                if (window.confirm('¿Estás seguro de reiniciar tus almas a 0?')) {
-                                    localStorage.setItem('almas', '0');
-                                    localStorage.setItem('pasivasCompradas', '[]');
-                                    localStorage.setItem('cartasCompradas', '[]');
-                                    localStorage.setItem('logrosCompletados', '[]');
-                                    localStorage.setItem('mazmorraFacilCompletada', 'false');
-                                    localStorage.setItem('mazmorraMedioCompletada', 'false');
-                                    localStorage.setItem('mazmorraDificilCompletada', 'false');
-                                    window.location.reload();
-                                }
-                            }}
-                            className="px-3 py-1.5 bg-red-950/30 border border-red-700/30 hover:bg-red-900/40 text-red-400 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all"
-                            title="Reiniciar almas"
-                        >
-                            🔄 Reiniciar
-                        </button>
-*/ }
-                        <div className="flex items-center gap-3 px-5 py-2.5 bg-black/60 border border-amber-700/30 rounded-xl backdrop-blur-sm">
+                        {/* Contador de Almas con botón de información */}
+                        <div className="relative flex items-center gap-3 px-5 py-2.5 bg-black/60 border border-amber-700/30 rounded-xl backdrop-blur-sm">
                             <LuFlame className="text-2xl text-amber-500 animate-pulse" />
                             <div className="flex flex-col">
                                 <span className="text-xs text-amber-400/60 uppercase tracking-widest font-bold">Almas</span>
                                 <span className="text-2xl font-black text-amber-400">{almas.toLocaleString()}</span>
                             </div>
+                            {/* Círculo de información */}
+                            <button
+                                onClick={() => setMostrarInfoAlmas(true)}
+                                className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center hover:bg-amber-500/40 hover:border-amber-400/60 transition-all duration-200 group cursor-pointer flex-shrink-0"
+                                title="¿Cómo conseguir almas?"
+                            >
+                                <FiInfo className="text-[10px] text-amber-400 group-hover:text-amber-300" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -445,10 +434,10 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
 
                             return (
                                 <div key={carta.id} className={`relative group bg-[#0d0d12] border-2 rounded-2xl p-5 transition-all duration-500 ${yaComprada
-                                        ? 'border-green-900/50 opacity-60'
-                                        : puedeComprar
-                                            ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(255,180,0,0.3)]'
-                                            : 'border-gray-700/50 opacity-70'
+                                    ? 'border-green-900/50 opacity-60'
+                                    : puedeComprar
+                                        ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(255,180,0,0.3)]'
+                                        : 'border-gray-700/50 opacity-70'
                                     }`}>
                                     <div className={`absolute inset-0 bg-gradient-to-br ${carta.color} opacity-5 rounded-2xl group-hover:opacity-15 transition-opacity duration-500 pointer-events-none`} />
 
@@ -519,10 +508,10 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                                                 onClick={(e) => { e.stopPropagation(); handleComprarCarta(carta); }}
                                                 disabled={!puedeComprar}
                                                 className={`relative z-20 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 ${yaComprada
-                                                        ? 'bg-green-800 text-green-300 cursor-not-allowed'
-                                                        : puedeComprar
-                                                            ? 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-black shadow-[0_0_20px_rgba(255,180,0,0.3)] hover:shadow-[0_0_30px_rgba(255,180,0,0.5)]'
-                                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                                    ? 'bg-green-800 text-green-300 cursor-not-allowed'
+                                                    : puedeComprar
+                                                        ? 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-black shadow-[0_0_20px_rgba(255,180,0,0.3)] hover:shadow-[0_0_30px_rgba(255,180,0,0.5)]'
+                                                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
                                                     }`}
                                             >
                                                 {yaComprada ? 'Invocada' : (<><FiShoppingCart className="inline mr-1.5" size={14} /> Invocar</>)}
@@ -581,10 +570,10 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                                                 onClick={(e) => { e.stopPropagation(); handleComprarPasiva(pasiva); }}
                                                 disabled={!puedeComprar}
                                                 className={`relative z-20 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${yaComprada
-                                                        ? 'bg-green-800 text-green-300 cursor-not-allowed'
-                                                        : puedeComprar
-                                                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white cursor-pointer'
-                                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                                    ? 'bg-green-800 text-green-300 cursor-not-allowed'
+                                                    : puedeComprar
+                                                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white cursor-pointer'
+                                                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
                                                     }`}
                                             >
                                                 {yaComprada ? 'Adquirida' : (<><FiShoppingCart className="inline mr-1.5" size={14} /> Comprar</>)}
@@ -617,8 +606,8 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
 
                             return (
                                 <div key={logro.id} className={`relative bg-[#0d0d12] border rounded-2xl p-5 transition-all duration-300 ${completado ? 'border-green-700/50 opacity-80' :
-                                        disponible ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(255,180,0,0.2)]' :
-                                            'border-gray-800/50 opacity-60'
+                                    disponible ? 'border-amber-700/50 hover:border-amber-500/80 hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(255,180,0,0.2)]' :
+                                        'border-gray-800/50 opacity-60'
                                     }`}>
                                     <div className="flex items-center gap-5">
                                         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${logro.color} flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.2)] flex-shrink-0 ${bloqueado ? 'grayscale opacity-50' : ''}`}>
@@ -806,6 +795,74 @@ function TiendaAlmas({ almas, cartas, onComprarPasiva, onComprarCarta, onReclama
                         <div className="flex gap-3">
                             <button onClick={() => setMostrarConfirmacion(false)} className="flex-1 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm font-bold text-gray-400 uppercase">Cancelar</button>
                             <button onClick={confirmarCompra} className="flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 rounded-lg text-sm font-bold text-white uppercase">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal informativo: ¿Cómo conseguir almas? */}
+            {mostrarInfoAlmas && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onClick={() => setMostrarInfoAlmas(false)}>
+                    <div className="bg-[#0d0d12] border-2 border-amber-700/50 rounded-2xl p-6 w-full max-w-md shadow-[0_0_40px_rgba(255,180,0,0.2)]" onClick={(e) => e.stopPropagation()}>
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center mx-auto mb-3 shadow-[0_0_20px_rgba(255,180,0,0.3)]">
+                                <LuFlame className="text-3xl text-black" />
+                            </div>
+                            <h2 className="text-xl font-black text-white uppercase tracking-wider">¿Cómo conseguir almas?</h2>
+                            <p className="text-xs text-gray-500 mt-1">Las almas son la moneda del juego. Aquí te explicamos cómo obtenerlas:</p>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            {/* Mazmorras */}
+                            <div className="bg-black/50 border border-amber-900/20 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <LuSwords className="text-amber-500" />
+                                    <h3 className="text-sm font-black text-amber-400 uppercase tracking-wider">Completando Mazmorras</h3>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center bg-black/30 rounded-lg p-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                            <span className="text-xs text-gray-300">Modo Fácil</span>
+                                        </div>
+                                        <span className="text-sm font-black text-green-400">+100 almas</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-black/30 rounded-lg p-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                            <span className="text-xs text-gray-300">Modo Medio</span>
+                                        </div>
+                                        <span className="text-sm font-black text-yellow-400">+200 almas</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-black/30 rounded-lg p-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                            <span className="text-xs text-gray-300">Modo Difícil</span>
+                                        </div>
+                                        <span className="text-sm font-black text-red-400">+350 almas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Logros */}
+                            <div className="bg-black/50 border border-purple-900/20 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <LuTrophy className="text-purple-500" />
+                                    <h3 className="text-sm font-black text-purple-400 uppercase tracking-wider">Completando Logros</h3>
+                                </div>
+                                <p className="text-xs text-gray-400 leading-relaxed">
+                                    Revisa la sección de <span className="text-amber-400 font-bold">Logros</span> para ver los desafíos disponibles. Cada logro completado te recompensa con almas adicionales (entre 100 y 1000 almas).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => setMostrarInfoAlmas(false)}
+                                className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-black font-black text-sm uppercase tracking-wider rounded-xl transition-all duration-300"
+                            >
+                                Entendido
+                            </button>
                         </div>
                     </div>
                 </div>
